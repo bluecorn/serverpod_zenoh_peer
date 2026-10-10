@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:sensor_core/sensor_core.dart';
 import 'package:test/test.dart';
 import 'package:zenoh_dart/zenoh.dart';
@@ -376,4 +378,212 @@ void main() {
     // The claim: opening fails, where a peer's open returns with no peers.
     await expectLater(client.open(), throwsA(isA<ZenohException>()));
   });
+
+  test(
+    'a queryable answers a get with the keys and texts its handler returns',
+    () async {
+      // The archive's end: its session, from the settings that listen.
+      final archiveNode = ZenohService(sensorNodeSettings());
+      addTearDown(archiveNode.dispose);
+      await archiveNode.open();
+
+      // The new contract to implement: declare a queryable whose handler
+      // answers every query with two replies, each a key and its text.
+      archiveNode.declareQueryable(
+        'archive/phone/**',
+        (_) => const [
+          (
+            keyExpr: 'archive/phone/accel',
+            payload: '2026-10-10T12:00:01.000Z,0.183',
+          ),
+          (
+            keyExpr: 'archive/phone/gyro',
+            payload: '2026-10-10T12:00:01.000Z,0.021',
+          ),
+        ],
+      );
+
+      // The reader's end: a plain session that asks, as z_get does.
+      final reader = await openCollector();
+      addTearDown(reader.close);
+      // The declaration travels to the reader, so give it time to arrive.
+      // The witness asks with no consolidation, so it sees every reply as it
+      // was sent.
+      await Future<void>.delayed(delivery);
+      final replies = await reader
+          .get('archive/phone/**', consolidation: ConsolidationMode.none)
+          .toList();
+
+      // The claim: each reply arrives with the key and the text the handler
+      // gave it.
+      final answered = replies
+          .map((r) => (keyExpr: r.ok.keyExpr, payload: r.ok.payload))
+          .toList();
+      expect(answered, [
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-10T12:00:01.000Z,0.183',
+        ),
+        (
+          keyExpr: 'archive/phone/gyro',
+          payload: '2026-10-10T12:00:01.000Z,0.021',
+        ),
+      ]);
+    },
+  );
+
+  test('a get receives each reply with its key and its text', () async {
+    // The archive's end: its session, and a queryable that answers every
+    // query with two replies, each a key and its text.
+    final archiveNode = ZenohService(sensorNodeSettings());
+    addTearDown(archiveNode.dispose);
+    await archiveNode.open();
+    archiveNode.declareQueryable(
+      'archive/phone/**',
+      (_) => const [
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-10T12:00:01.000Z,0.183',
+        ),
+        (
+          keyExpr: 'archive/phone/gyro',
+          payload: '2026-10-10T12:00:01.000Z,0.021',
+        ),
+      ],
+    );
+
+    // The reader's end: a session from the settings that connect.
+    final readerNode = ZenohService(collectorSettings());
+    addTearDown(readerNode.dispose);
+    await readerNode.open();
+    // The declaration travels to the reader, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The new contract to implement: send a query on a key expression, then
+    // collect the replies that come back.
+    final replies = await readerNode.get('archive/phone/**').toList();
+
+    // The claim: each reply arrives with the key it was answered on and its
+    // text, in whatever order.
+    expect(
+      replies,
+      unorderedEquals([
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-10T12:00:01.000Z,0.183',
+        ),
+        (
+          keyExpr: 'archive/phone/gyro',
+          payload: '2026-10-10T12:00:01.000Z,0.021',
+        ),
+      ]),
+    );
+  });
+
+  test(
+    'every reply to a get arrives, several on one key, in the order sent',
+    () async {
+      // The archive's end: a queryable that answers with four replies, three of
+      // them on one key, as the archive answers with a sensor's last levels.
+      final archiveNode = ZenohService(sensorNodeSettings());
+      addTearDown(archiveNode.dispose);
+      await archiveNode.open();
+      archiveNode.declareQueryable(
+        'archive/phone/**',
+        (_) => const [
+          (keyExpr: 'archive/phone/accel', payload: 'third'),
+          (keyExpr: 'archive/phone/accel', payload: 'second'),
+          (keyExpr: 'archive/phone/gyro', payload: 'only'),
+          (keyExpr: 'archive/phone/accel', payload: 'first'),
+        ],
+      );
+
+      // The reader's end: a session from the settings that connect.
+      final readerNode = ZenohService(collectorSettings());
+      addTearDown(readerNode.dispose);
+      await readerNode.open();
+      // The declaration travels to the reader, so give it time to arrive.
+      await Future<void>.delayed(delivery);
+
+      // The code to implement: a query that keeps every reply as it comes, not
+      // one per key.
+      final replies = await readerNode.get('archive/phone/**').toList();
+
+      // The claim: the four replies, in the order the queryable sent them.
+      final texts = replies.map((r) => '${r.keyExpr} ${r.payload}').toList();
+      expect(texts, [
+        'archive/phone/accel third',
+        'archive/phone/accel second',
+        'archive/phone/gyro only',
+        'archive/phone/accel first',
+      ]);
+    },
+  );
+
+  test('the parameters of a get reach the handler of the queryable', () async {
+    // The archive's end: a queryable whose handler keeps the parameters of
+    // each query, and answers with nothing.
+    final archiveNode = ZenohService(sensorNodeSettings());
+    addTearDown(archiveNode.dispose);
+    await archiveNode.open();
+    final asked = <Map<String, String>>[];
+    archiveNode.declareQueryable('archive/phone/**', (parameters) {
+      asked.add(parameters);
+      return const [];
+    });
+
+    // The reader's end: a session from the settings that connect.
+    final readerNode = ZenohService(collectorSettings());
+    addTearDown(readerNode.dispose);
+    await readerNode.open();
+    // The declaration travels to the reader, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The code to implement: the parameters written into the query's
+    // selector, and read back out of it on the answering side.
+    await readerNode
+        .get('archive/phone/**', parameters: {'n': '20', 'sensor': 'accel'})
+        .drain<void>();
+
+    // The claim: the handler is asked once, with both parameters.
+    expect(asked, [
+      {'n': '20', 'sensor': 'accel'},
+    ]);
+  });
+
+  test(
+    'disposing the service lets its isolate exit, with a queryable declared',
+    () async {
+      // A rule of the pattern: dispose closes what the service declared. A
+      // queryable left open keeps its isolate alive after the session has
+      // closed, so whether a program can end shows whether it was closed.
+      final exited = ReceivePort();
+      addTearDown(exited.close);
+
+      // The code to implement: a service that, on dispose, closes the
+      // queryable it declared, in a program of its own.
+      final program = await Isolate.spawn(
+        _declareAQueryableAndDispose,
+        null,
+        onExit: exited.sendPort,
+      );
+      addTearDown(() => program.kill(priority: Isolate.immediate));
+
+      // The claim: the program ends once it has disposed its service.
+      final ended = await exited.first
+          .then((_) => true)
+          .timeout(const Duration(seconds: 3), onTimeout: () => false);
+      expect(ended, isTrue, reason: 'still running 3 s after its dispose');
+    },
+  );
+}
+
+/// A program that opens a service, declares a queryable through it, and
+/// disposes the service. Nothing else is left to keep it running.
+Future<void> _declareAQueryableAndDispose(void _) async {
+  final service = ZenohService(collectorSettings());
+  await service.open();
+  service
+    ..declareQueryable('archive/phone/**', (_) => const [])
+    ..dispose();
 }

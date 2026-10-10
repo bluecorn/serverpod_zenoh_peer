@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sensor_core/src/services/session_settings.dart';
 import 'package:zenoh_dart/zenoh.dart';
 
@@ -50,8 +52,25 @@ class Subscription {
   void close() => _subscriber.close();
 }
 
+/// What a queryable answers a query with, given the query's selector
+/// parameters: its replies, each a key expression and its text.
+typedef QueryHandler = FutureOr<Iterable<KeyedPayload>> Function(
+  Map<String, String> parameters,
+);
+
+/// A declared queryable on one key expression, as the service hands it out:
+/// it answers each query with what its handler returns.
+class Answerer {
+  new _(this._queryable);
+
+  final Queryable _queryable;
+
+  /// Undeclares the queryable. Safe to call twice.
+  void close() => _queryable.close();
+}
+
 /// The owner of the zenoh session. It hands upward only plain Dart values and
-/// its own [Publication]s and [Subscription]s.
+/// its own [Publication]s, [Subscription]s and [Answerer]s.
 class ZenohService {
   /// A service for one role's [settings]. Nothing opens until [open].
   new(this.settings);
@@ -62,6 +81,7 @@ class ZenohService {
   Session? _session;
   final _publications = <Publication>[];
   final _subscriptions = <Subscription>[];
+  final _answerers = <Answerer>[];
 
   /// Opens the session with the settings. For a peer, when this returns, each
   /// connection they ask for is made, or the wait set by `scouting/delay` has
@@ -92,8 +112,41 @@ class ZenohService {
     return subscription;
   }
 
-  /// Closes the publications, the subscriptions and the session. Safe before
-  /// [open], and more than once.
+  /// Sends a query on [keyExpr] with the selector's [parameters], and hands up
+  /// each reply as the key it was answered on and its text, every one of them
+  /// in the order it arrives: no consolidation, where zenoh's default keeps
+  /// only the latest reply on each key. The stream ends when every queryable
+  /// has answered.
+  Stream<KeyedPayload> get(
+    String keyExpr, {
+    Map<String, String> parameters = const {},
+  }) => _opened
+      .get(
+        keyExpr,
+        parameters: _asSelectorParameters(parameters),
+        consolidation: ConsolidationMode.none,
+      )
+      .map((reply) => (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload));
+
+  /// Declares a queryable on [keyExpr] that answers each query with what
+  /// [answer] returns for its parameters, then lets the query go, which tells
+  /// the asker this queryable has finished. The service closes it on
+  /// [dispose].
+  Answerer declareQueryable(String keyExpr, QueryHandler answer) {
+    final queryable = _opened.declareQueryable(keyExpr);
+    queryable.stream.listen((query) async {
+      for (final reply in await answer(_asParameterMap(query.parameters))) {
+        query.reply(reply.keyExpr, reply.payload);
+      }
+      query.dispose();
+    });
+    final answerer = Answerer._(queryable);
+    _answerers.add(answerer);
+    return answerer;
+  }
+
+  /// Closes the publications, the subscriptions, the queryables and the
+  /// session. Safe before [open], and more than once.
   void dispose() {
     for (final publication in _publications) {
       publication.close();
@@ -103,11 +156,29 @@ class ZenohService {
       subscription.close();
     }
     _subscriptions.clear();
+    for (final answerer in _answerers) {
+      answerer.close();
+    }
+    _answerers.clear();
     _session?.close();
     _session = null;
   }
 
   Config _config() => Config.fromStr(settings.json5);
+
+  /// [parameters] as a selector writes them: `key=value`, joined by `;`.
+  static String _asSelectorParameters(Map<String, String> parameters) =>
+      parameters.entries.map((p) => '${p.key}=${p.value}').join(';');
+
+  /// A selector's parameters, `key=value` joined by `;`, read back as a map.
+  static Map<String, String> _asParameterMap(String text) => {
+    for (final [key, ...value]
+        in text
+            .split(';')
+            .where((pair) => pair.isNotEmpty)
+            .map((pair) => pair.split('=')))
+      key: value.join('='),
+  };
 
   Session get _opened {
     final session = _session;

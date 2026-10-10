@@ -1,7 +1,9 @@
 /// The zenoh data layer that `sensorctl` and the phone app share.
 library;
 
+export 'src/domain/level.dart';
 export 'src/domain/reading.dart';
+export 'src/repositories/levels_repository.dart';
 export 'src/repositories/readings_repository.dart';
 export 'src/repositories/sensor_node_repository.dart';
 export 'src/services/sensor_service.dart';
