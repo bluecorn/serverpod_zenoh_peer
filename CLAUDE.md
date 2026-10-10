@@ -27,7 +27,7 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 | network | zenoh peers introduced by `zenohd` (gossip); the emulator joins as a client while developing |
 | server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever was stamped in that second, by the readings' zenoh timestamps |
 | archive | one SQLite table (time, key, level), time-indexed |
-| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading and its count), plus its last *n* levels |
+| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading, the time it was stamped and its count), plus its last *n* levels |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels |
 | native view | `sensor_node` in the **monitor role**, on Linux: the same view model and screen over a zenoh subscription, plus a recent-levels panel fed by the zenoh door |
 
