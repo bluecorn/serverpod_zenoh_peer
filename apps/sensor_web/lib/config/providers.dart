@@ -19,3 +19,8 @@ final levelsRepositoryProvider = Provider<LevelsRepository>(
 final levelsProvider = StreamProvider<SensorLevel>(
   (ref) => ref.watch(levelsRepositoryProvider).levels(),
 );
+
+/// The readings the web door streams, each with its key, as they arrive.
+final readingsProvider = StreamProvider<SensorReading>(
+  (ref) => const Stream.empty(),
+);
