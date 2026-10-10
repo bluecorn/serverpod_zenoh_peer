@@ -120,7 +120,11 @@ class ZenohService {
     String keyExpr, {
     Map<String, String> parameters = const {},
   }) => _opened
-      .get(keyExpr, consolidation: ConsolidationMode.none)
+      .get(
+        keyExpr,
+        parameters: _asSelectorParameters(parameters),
+        consolidation: ConsolidationMode.none,
+      )
       .map((reply) => (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload));
 
   /// Declares a queryable on [keyExpr] that answers each query with what
@@ -129,7 +133,7 @@ class ZenohService {
   Answerer declareQueryable(String keyExpr, QueryHandler answer) {
     final queryable = _opened.declareQueryable(keyExpr);
     queryable.stream.listen((query) async {
-      for (final reply in await answer(const {})) {
+      for (final reply in await answer(_asParameterMap(query.parameters))) {
         query.reply(reply.keyExpr, reply.payload);
       }
       query.dispose();
@@ -153,6 +157,20 @@ class ZenohService {
   }
 
   Config _config() => Config.fromStr(settings.json5);
+
+  /// [parameters] as a selector writes them: `key=value`, joined by `;`.
+  static String _asSelectorParameters(Map<String, String> parameters) =>
+      parameters.entries.map((p) => '${p.key}=${p.value}').join(';');
+
+  /// A selector's parameters, `key=value` joined by `;`, read back as a map.
+  static Map<String, String> _asParameterMap(String text) => {
+    for (final [key, ...value]
+        in text
+            .split(';')
+            .where((pair) => pair.isNotEmpty)
+            .map((pair) => pair.split('=')))
+      key: value.join('='),
+  };
 
   Session get _opened {
     final session = _session;
