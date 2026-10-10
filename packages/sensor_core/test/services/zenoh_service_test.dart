@@ -376,4 +376,53 @@ void main() {
     // The claim: opening fails, where a peer's open returns with no peers.
     await expectLater(client.open(), throwsA(isA<ZenohException>()));
   });
+
+  test(
+    'a queryable answers a get with the keys and texts its handler returns',
+    () async {
+      // The archive's end: its session, from the settings that listen.
+      final archiveNode = ZenohService(sensorNodeSettings());
+      addTearDown(archiveNode.dispose);
+      await archiveNode.open();
+
+      // The new contract to implement: declare a queryable whose handler
+      // answers every query with two replies, each a key and its text.
+      archiveNode.declareQueryable(
+        'archive/phone/**',
+        (_) => const [
+          (
+            keyExpr: 'archive/phone/accel',
+            payload: '2026-10-10T12:00:01.000Z,0.183',
+          ),
+          (
+            keyExpr: 'archive/phone/gyro',
+            payload: '2026-10-10T12:00:01.000Z,0.021',
+          ),
+        ],
+      );
+
+      // The reader's end: a plain session that asks, as z_get does.
+      final reader = await openCollector();
+      addTearDown(reader.close);
+      // The declaration travels to the reader, so give it time to arrive.
+      await Future<void>.delayed(delivery);
+      final replies = await reader.get('archive/phone/**').toList();
+
+      // The claim: each reply arrives with the key and the text the handler
+      // gave it.
+      final answered = replies
+          .map((r) => (keyExpr: r.ok.keyExpr, payload: r.ok.payload))
+          .toList();
+      expect(answered, [
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-10T12:00:01.000Z,0.183',
+        ),
+        (
+          keyExpr: 'archive/phone/gyro',
+          payload: '2026-10-10T12:00:01.000Z,0.021',
+        ),
+      ]);
+    },
+  );
 }
