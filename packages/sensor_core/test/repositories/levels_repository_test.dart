@@ -2,6 +2,7 @@ import 'package:sensor_core/sensor_core.dart';
 import 'package:test/test.dart';
 
 import '../support/collector.dart';
+import '../support/fakes.dart';
 import '../support/settings.dart';
 
 void main() {
@@ -93,4 +94,27 @@ void main() {
       ['archive/phone/accel', DateTime.utc(2026, 10, 10, 12, 0, 2), 0.150],
     ]);
   });
+
+  test(
+    'the reader of the node sim asks archive/sim/** for its last n levels',
+    () async {
+      // A fake: a service that records the queries sent through it.
+      final zenoh = FakeZenohService();
+
+      // The code to implement: one query, on the expression built from the
+      // node's name, carrying n as a selector parameter.
+      final repository = LevelsRepository(zenoh, nodeName: 'sim');
+      await repository.recent(5);
+
+      // The claim: one query on every key of the sim node's archive, asking
+      // for five levels.
+      final sent = zenoh.gets.map((g) => [g.keyExpr, g.parameters]).toList();
+      expect(sent, [
+        [
+          'archive/sim/**',
+          {'n': '5'},
+        ],
+      ]);
+    },
+  );
 }

@@ -64,11 +64,17 @@ class FakeZenohService implements ZenohService {
     return subscription;
   }
 
+  final gets = <({String keyExpr, Map<String, String> parameters})>[];
+  List<KeyedPayload> replies = [];
+
   @override
   Stream<KeyedPayload> get(
     String keyExpr, {
     Map<String, String> parameters = const {},
-  }) => const Stream.empty();
+  }) {
+    gets.add((keyExpr: keyExpr, parameters: parameters));
+    return Stream.fromIterable(replies);
+  }
 
   @override
   Answerer declareQueryable(String keyExpr, QueryHandler answer) =>
