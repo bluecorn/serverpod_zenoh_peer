@@ -622,6 +622,47 @@ void main() {
       inInclusiveRange(0, after.difference(before).inMicroseconds),
     );
   });
+
+  test('a sample that carries no timestamp arrives with the time it '
+      'arrived', () async {
+    // The node's end: a plain session that listens and stamps nothing, as a
+    // session does when timestamping is off in its configuration.
+    final witness = await Session.open(
+      config: Config.fromStr(sensorNodeSettings().json5),
+    );
+    addTearDown(witness.close);
+
+    // The laptop's end: a collector's session, from the settings that
+    // connect.
+    final collectorNode = ZenohService(collectorSettings());
+    addTearDown(collectorNode.dispose);
+    await collectorNode.open();
+
+    // The code to implement: a sample with no timestamp handed up with the
+    // time it arrived.
+    final subscription = collectorNode.declareSubscription('sensor/phone/*');
+    final received = <TimedPayload>[];
+    subscription.samples.listen(received.add);
+    // The declaration travels to the node, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The witness puts with no timestamp; the sample arrives after the put
+    // returns, and before the wait ends.
+    final publisher = witness.declarePublisher('sensor/phone/accel');
+    addTearDown(publisher.close);
+    publisher.put('0.000,9.776,0.812');
+    final sent = DateTime.now();
+    await Future<void>.delayed(delivery);
+    final waited = DateTime.now();
+
+    // The claim: the sample's time lies between the put and the end of the
+    // wait.
+    final time = received.single.time;
+    expect(
+      time.difference(sent).inMicroseconds,
+      inInclusiveRange(0, waited.difference(sent).inMicroseconds),
+    );
+  });
 }
 
 /// A program that opens a service, declares a queryable through it, and
