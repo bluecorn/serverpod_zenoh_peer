@@ -50,9 +50,25 @@ class Subscription {
     (sample) => (
       keyExpr: sample.keyExpr,
       payload: sample.payload,
-      time: DateTime.utc(0),
+      time: switch (sample.timestamp) {
+        final Timestamp stamp => _asTime(stamp),
+        null => DateTime.utc(0),
+      },
     ),
   );
+
+  /// A zenoh timestamp's time: NTP64 from the UNIX epoch, whole seconds in
+  /// the top 32 bits and a binary fraction of a second in the bottom 32.
+  static DateTime _asTime(Timestamp stamp) {
+    final ntp64 = stamp.time;
+    final seconds = ntp64 >>> 32;
+    final fraction = ntp64 & 0xFFFFFFFF;
+    return DateTime.fromMicrosecondsSinceEpoch(
+      seconds * Duration.microsecondsPerSecond +
+          (fraction * Duration.microsecondsPerSecond >> 32),
+      isUtc: true,
+    );
+  }
 
   /// The payload of every sample that arrives, as text, in order of arrival.
   Stream<String> get payloads => samples.map((sample) => sample.payload);
