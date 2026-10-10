@@ -45,14 +45,16 @@ class Subscription {
   final Subscriber _subscriber;
 
   /// Every sample that arrives, with its key and its time, in order of
-  /// arrival.
+  /// arrival. The time is the sample's zenoh timestamp, stamped by its
+  /// publisher's session when that session's configuration turns timestamping
+  /// on; a sample without one has the time it arrived.
   Stream<TimedPayload> get samples => _subscriber.stream.map(
     (sample) => (
       keyExpr: sample.keyExpr,
       payload: sample.payload,
       time: switch (sample.timestamp) {
         final Timestamp stamp => _asTime(stamp),
-        null => DateTime.utc(0),
+        null => DateTime.now().toUtc(),
       },
     ),
   );
