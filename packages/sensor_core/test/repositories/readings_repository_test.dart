@@ -189,4 +189,26 @@ void main() {
     final keys = zenoh.subscriptions.map((s) => s.keyExpr).toList();
     expect(keys, ['sensor/sim/*']);
   });
+
+  test('a reading carries the time of the sample it arrived in', () async {
+    // A fake: a service whose subscription plays what the test puts into it,
+    // a sample with its time.
+    final zenoh = FakeZenohService();
+    final repository = ReadingsRepository(zenoh, nodeName: 'phone');
+    final received = <KeyedReading>[];
+    final listening = repository.readings().listen(received.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: the sample's time handed on with the reading.
+    final stamped = DateTime.utc(2026, 10, 10, 12, 0, 1, 250);
+    zenoh.subscriptions.single.arrivals.add((
+      keyExpr: 'sensor/phone/accel',
+      payload: '0.000,9.776,0.812',
+      time: stamped,
+    ));
+    await pumpEventQueue();
+
+    // The claim: the reading has the sample's time.
+    expect(received.map((r) => r.reading.time), [stamped]);
+  });
 }
