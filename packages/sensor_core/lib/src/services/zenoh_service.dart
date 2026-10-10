@@ -61,10 +61,12 @@ typedef QueryHandler = FutureOr<Iterable<KeyedPayload>> Function(
 /// A declared queryable on one key expression, as the service hands it out:
 /// it answers each query with what its handler returns.
 class Answerer {
-  new _();
+  new _(this._queryable);
 
-  /// Undeclares the queryable.
-  void close() {}
+  final Queryable _queryable;
+
+  /// Undeclares the queryable. Safe to call twice.
+  void close() => _queryable.close();
 }
 
 /// The owner of the zenoh session. It hands upward only plain Dart values and
@@ -118,9 +120,18 @@ class ZenohService {
   }) => const Stream.empty();
 
   /// Declares a queryable on [keyExpr] that answers each query with what
-  /// [answer] returns for its parameters.
-  Answerer declareQueryable(String keyExpr, QueryHandler answer) =>
-      Answerer._();
+  /// [answer] returns for its parameters, then lets the query go, which tells
+  /// the asker this queryable has finished.
+  Answerer declareQueryable(String keyExpr, QueryHandler answer) {
+    final queryable = _opened.declareQueryable(keyExpr);
+    queryable.stream.listen((query) async {
+      for (final reply in await answer(const {})) {
+        query.reply(reply.keyExpr, reply.payload);
+      }
+      query.dispose();
+    });
+    return Answerer._(queryable);
+  }
 
   /// Closes the publications, the subscriptions and the session. Safe before
   /// [open], and more than once.
