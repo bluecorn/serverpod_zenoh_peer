@@ -45,4 +45,54 @@ void main() {
         .toList();
     expect(values, [(end, accel, 2.0)]);
   });
+
+  test('each second gives a level for each key from the readings since the '
+      'second before, and none for a key that had none', () async {
+    // Readings and seconds that the test puts in by hand.
+    final readings = StreamController<KeyedReading>();
+    final seconds = StreamController<DateTime>();
+
+    // The code to implement: the levels of what the test puts in, collected
+    // into a list.
+    final levels = <SensorLevel>[];
+    final listening = levelsPerSecond(
+      readings.stream,
+      seconds: seconds.stream,
+    ).listen(levels.add);
+    addTearDown(listening.cancel);
+
+    // In the first second, magnitudes 5 and 10 on the accelerometer, and 1
+    // and 3 on the gyroscope.
+    const accel = 'sensor/phone/accel';
+    const gyro = 'sensor/phone/gyro';
+    readings
+      ..add((keyExpr: accel, reading: const Reading(x: 3, y: 4, z: 0)))
+      ..add((keyExpr: gyro, reading: const Reading(x: 0, y: 0, z: 1)))
+      ..add((keyExpr: accel, reading: const Reading(x: 6, y: 8, z: 0)))
+      ..add((keyExpr: gyro, reading: const Reading(x: 0, y: 0, z: 3)));
+    await pumpEventQueue();
+    final first = DateTime.utc(2026, 10, 10, 12);
+    seconds.add(first);
+    await pumpEventQueue();
+
+    // In the next second, magnitudes 4 and 10 on the accelerometer only.
+    readings
+      ..add((keyExpr: accel, reading: const Reading(x: 0, y: 0, z: 4)))
+      ..add((keyExpr: accel, reading: const Reading(x: 0, y: 0, z: 10)));
+    await pumpEventQueue();
+    final next = first.add(const Duration(seconds: 1));
+    seconds.add(next);
+    await pumpEventQueue();
+
+    // The claim: each key's level from its own readings of that second,
+    // and none for the gyroscope in the second it was silent.
+    final values = levels
+        .map((level) => (level.time, level.keyExpr, level.level))
+        .toList();
+    expect(values, [
+      (first, accel, 2.5),
+      (first, gyro, 1.0),
+      (next, accel, 3.0),
+    ]);
+  });
 }
