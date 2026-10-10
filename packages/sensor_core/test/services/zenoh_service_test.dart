@@ -288,7 +288,10 @@ void main() {
       'sensor/phone/accel',
     );
     final received = <KeyedPayload>[];
-    subscription.samples.listen(received.add);
+    subscription.samples.listen(
+      (sample) =>
+          received.add((keyExpr: sample.keyExpr, payload: sample.payload)),
+    );
     // The declaration travels to the node, so give it time to arrive.
     await Future<void>.delayed(delivery);
 
@@ -321,7 +324,10 @@ void main() {
     // The subscription's own expression names a set of keys.
     final subscription = collectorNode.declareSubscription('sensor/phone/*');
     final received = <KeyedPayload>[];
-    subscription.samples.listen(received.add);
+    subscription.samples.listen(
+      (sample) =>
+          received.add((keyExpr: sample.keyExpr, payload: sample.payload)),
+    );
     // The declaration travels to the node, so give it time to arrive.
     await Future<void>.delayed(delivery);
 
@@ -576,6 +582,46 @@ void main() {
       expect(ended, isTrue, reason: 'still running 3 s after its dispose');
     },
   );
+
+  test('a sample arrives with the time its publisher stamped it', () async {
+    // The node's end: a plain session that listens, as z_pub is on the
+    // laptop, which stamps its put with its own clock.
+    final witness = await Session.open(
+      config: Config.fromStr(sensorNodeSettings().json5),
+    );
+    addTearDown(witness.close);
+
+    // The laptop's end: a collector's session, from the settings that
+    // connect.
+    final collectorNode = ZenohService(collectorSettings());
+    addTearDown(collectorNode.dispose);
+    await collectorNode.open();
+
+    // The code to implement: each sample handed up with its time.
+    final subscription = collectorNode.declareSubscription('sensor/phone/*');
+    final received = <TimedPayload>[];
+    subscription.samples.listen(received.add);
+    // The declaration travels to the node, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The witness stamps a put, between two readings of the wall clock.
+    final publisher = witness.declarePublisher('sensor/phone/accel');
+    addTearDown(publisher.close);
+    final before = DateTime.now();
+    final stamp = witness.newTimestamp();
+    final after = DateTime.now();
+    publisher.put('0.000,9.776,0.812', timestamp: stamp);
+    // A put returns before the sample arrives, so give it time to cross.
+    await Future<void>.delayed(delivery);
+
+    // The claim: the sample's time lies between the two readings of the
+    // clock, which the time it arrived would not.
+    final time = received.single.time;
+    expect(
+      time.difference(before).inMicroseconds,
+      inInclusiveRange(0, after.difference(before).inMicroseconds),
+    );
+  });
 }
 
 /// A program that opens a service, declares a queryable through it, and

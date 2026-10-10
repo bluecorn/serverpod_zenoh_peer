@@ -33,16 +33,25 @@ class Publication {
 /// its payload as text.
 typedef KeyedPayload = ({String keyExpr, String payload});
 
+/// A sample as a subscription hands it up: the key expression it was put on,
+/// its payload as text, and its time.
+typedef TimedPayload = ({String keyExpr, String payload, DateTime time});
+
 /// A declared subscriber on one key expression, as the service hands it out:
-/// each sample as the key it was put on and its payload as text.
+/// each sample as the key it was put on, its payload as text, and its time.
 class Subscription {
   new _(this._subscriber);
 
   final Subscriber _subscriber;
 
-  /// Every sample that arrives, with its key, in order of arrival.
-  Stream<KeyedPayload> get samples => _subscriber.stream.map(
-    (sample) => (keyExpr: sample.keyExpr, payload: sample.payload),
+  /// Every sample that arrives, with its key and its time, in order of
+  /// arrival.
+  Stream<TimedPayload> get samples => _subscriber.stream.map(
+    (sample) => (
+      keyExpr: sample.keyExpr,
+      payload: sample.payload,
+      time: DateTime.utc(0),
+    ),
   );
 
   /// The payload of every sample that arrives, as text, in order of arrival.

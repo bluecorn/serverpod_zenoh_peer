@@ -21,7 +21,7 @@ class ReadingsRepository {
   /// on. Listening declares the subscription; cancelling closes it.
   Stream<KeyedReading> readings() {
     late final Subscription subscription;
-    late final StreamSubscription<KeyedPayload> listening;
+    late final StreamSubscription<TimedPayload> listening;
     final controller = StreamController<KeyedReading>();
     controller.onListen = () {
       subscription = zenoh.declareSubscription(keyExpr);

@@ -56,6 +56,7 @@ void main() {
     zenoh.subscriptions.single.arrivals.add((
       keyExpr: 'sensor/phone/accel',
       payload: '0.000,9.776,0.812',
+      time: DateTime.utc(2026, 10, 10, 12),
     ));
     await pumpEventQueue();
 
@@ -145,6 +146,7 @@ void main() {
     zenoh.subscriptions.single.arrivals.add((
       keyExpr: 'sensor/phone/gyro',
       payload: '0.000,0.000,0.500',
+      time: DateTime.utc(2026, 10, 10, 12),
     ));
     await pumpEventQueue();
 
