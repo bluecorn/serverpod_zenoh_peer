@@ -6,93 +6,50 @@ import 'package:sensor_server/src/generated/protocol.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test("a second's readings on a key give its level: the root mean square of "
-      'their magnitudes around their mean', () async {
-    // Readings and seconds that the test puts in by hand.
-    final readings = StreamController<KeyedReading>();
-    final seconds = StreamController<DateTime>();
+  test(
+    "a key's readings in one second give its level, the root mean square of "
+    'their magnitudes around their mean, once its next second begins',
+    () async {
+      // Readings that the test puts in by hand, each with its time.
+      final readings = StreamController<KeyedReading>();
 
-    // The code to implement: the levels of what the test puts in, collected
-    // into a list.
-    final levels = <SensorLevel>[];
-    final listening = levelsPerSecond(
-      readings.stream,
-      seconds: seconds.stream,
-    ).listen(levels.add);
-    addTearDown(listening.cancel);
+      // The code to implement: the levels of what the test puts in, collected
+      // into a list.
+      final levels = <SensorLevel>[];
+      final listening = levelsPerSecond(readings.stream).listen(levels.add);
+      addTearDown(listening.cancel);
 
-    // Five accelerometer readings, of magnitudes 1, 6, 6, 6 and 6, then the
-    // second ends.
-    const accel = 'sensor/phone/accel';
-    for (final reading in const [
-      Reading(x: 0, y: 0, z: 1),
-      Reading(x: 6, y: 0, z: 0),
-      Reading(x: 0, y: 6, z: 0),
-      Reading(x: 2, y: 4, z: 4),
-      Reading(x: 0, y: 0, z: 6),
-    ]) {
-      readings.add((keyExpr: accel, reading: reading));
-    }
-    await pumpEventQueue();
-    final end = DateTime.utc(2026, 10, 10, 12);
-    seconds.add(end);
-    await pumpEventQueue();
+      // Five accelerometer readings in the second from 12:00:00, of
+      // magnitudes 1, 6, 6, 6 and 6, then the first of the next second.
+      const accel = 'sensor/phone/accel';
+      final second = DateTime.utc(2026, 10, 10, 12);
+      final values = [
+        (0.0, 0.0, 1.0),
+        (6.0, 0.0, 0.0),
+        (0.0, 6.0, 0.0),
+        (2.0, 4.0, 4.0),
+        (0.0, 0.0, 6.0),
+      ];
+      for (final (i, (x, y, z)) in values.indexed) {
+        final time = second.add(Duration(milliseconds: 200 * i));
+        readings.add((
+          keyExpr: accel,
+          reading: Reading(x: x, y: y, z: z, time: time),
+        ));
+      }
+      final next = second.add(const Duration(seconds: 1));
+      readings.add((
+        keyExpr: accel,
+        reading: Reading(x: 0, y: 0, z: 9.81, time: next),
+      ));
+      await pumpEventQueue();
 
-    // The claim: one level, at the second's end: the magnitudes lie 4, 1,
-    // 1, 1 and 1 from their mean of 5, whose squares average 4.
-    final values = levels
-        .map((level) => (level.time, level.keyExpr, level.level))
-        .toList();
-    expect(values, [(end, accel, 2.0)]);
-  });
-
-  test('each second gives a level for each key from the readings since the '
-      'second before, and none for a key that had none', () async {
-    // Readings and seconds that the test puts in by hand.
-    final readings = StreamController<KeyedReading>();
-    final seconds = StreamController<DateTime>();
-
-    // The code to implement: the levels of what the test puts in, collected
-    // into a list.
-    final levels = <SensorLevel>[];
-    final listening = levelsPerSecond(
-      readings.stream,
-      seconds: seconds.stream,
-    ).listen(levels.add);
-    addTearDown(listening.cancel);
-
-    // In the first second, magnitudes 5 and 10 on the accelerometer, and 1
-    // and 3 on the gyroscope.
-    const accel = 'sensor/phone/accel';
-    const gyro = 'sensor/phone/gyro';
-    readings
-      ..add((keyExpr: accel, reading: const Reading(x: 3, y: 4, z: 0)))
-      ..add((keyExpr: gyro, reading: const Reading(x: 0, y: 0, z: 1)))
-      ..add((keyExpr: accel, reading: const Reading(x: 6, y: 8, z: 0)))
-      ..add((keyExpr: gyro, reading: const Reading(x: 0, y: 0, z: 3)));
-    await pumpEventQueue();
-    final first = DateTime.utc(2026, 10, 10, 12);
-    seconds.add(first);
-    await pumpEventQueue();
-
-    // In the next second, magnitudes 4 and 10 on the accelerometer only.
-    readings
-      ..add((keyExpr: accel, reading: const Reading(x: 0, y: 0, z: 4)))
-      ..add((keyExpr: accel, reading: const Reading(x: 0, y: 0, z: 10)));
-    await pumpEventQueue();
-    final next = first.add(const Duration(seconds: 1));
-    seconds.add(next);
-    await pumpEventQueue();
-
-    // The claim: each key's level from its own readings of that second,
-    // and none for the gyroscope in the second it was silent.
-    final values = levels
-        .map((level) => (level.time, level.keyExpr, level.level))
-        .toList();
-    expect(values, [
-      (first, accel, 2.5),
-      (first, gyro, 1.0),
-      (next, accel, 3.0),
-    ]);
-  });
+      // The claim: one level, for the second from 12:00:00: the magnitudes
+      // lie 4, 1, 1, 1 and 1 from their mean of 5, whose squares average 4.
+      final got = levels
+          .map((level) => (level.time, level.keyExpr, level.level))
+          .toList();
+      expect(got, [(second, accel, 2.0)]);
+    },
+  );
 }
