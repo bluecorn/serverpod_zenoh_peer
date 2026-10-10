@@ -13,6 +13,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
+import 'web_door/sensor_level.dart' as _i4cxm9sa;
+export 'web_door/sensor_level.dart';
 
 class Protocol extends _is.DatabaseSerializationManager {
   Protocol._();
@@ -49,6 +51,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
 
+    if (t == _i4cxm9sa.SensorLevel) {
+      return _i4cxm9sa.SensorLevel.fromJson(data) as T;
+    }
+    if (t == _is.getType<_i4cxm9sa.SensorLevel?>()) {
+      return (data != null ? _i4cxm9sa.SensorLevel.fromJson(data) : null) as T;
+    }
     try {
       return _isp.Protocol().deserialize<T>(data, t);
     } on _is.DeserializationTypeNotFoundException catch (_) {}
@@ -57,6 +65,7 @@ class Protocol extends _is.DatabaseSerializationManager {
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
+      _i4cxm9sa.SensorLevel => 'SensorLevel',
       _ => null,
     };
   }
@@ -70,6 +79,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data['__className__'] as String).replaceFirst('sensor.', '');
     }
 
+    switch (data) {
+      case _i4cxm9sa.SensorLevel():
+        return 'SensorLevel';
+    }
     className = _isp.Protocol().getClassNameForObject(data);
     if (className != null) {
       return className.contains('.') ? className : 'serverpod.$className';
@@ -82,6 +95,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     var dataClassName = data['className'];
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
+    }
+    if (dataClassName == 'SensorLevel') {
+      return deserialize<_i4cxm9sa.SensorLevel>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);

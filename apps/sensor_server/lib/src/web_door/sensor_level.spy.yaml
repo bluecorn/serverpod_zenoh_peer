@@ -1,0 +1,10 @@
+### The vibration level of one of the phone's sensors over one second, as the
+### web door sends it.
+class: SensorLevel
+fields:
+  ### The end of the second, in UTC.
+  time: DateTime
+  ### The key expression the readings arrived on, such as `sensor/phone/accel`.
+  keyExpr: String
+  ### The root mean square of the readings' magnitudes around their mean.
+  level: double

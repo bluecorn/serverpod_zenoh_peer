@@ -1,3 +1,6 @@
 # Test files that open zenoh sessions share one loopback port, so they run
 # one at a time.
 concurrency: 1
+# Serverpod's test tools tag their groups as integration tests.
+tags:
+  integration: {}

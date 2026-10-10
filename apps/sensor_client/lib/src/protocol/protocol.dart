@@ -12,6 +12,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
+import 'web_door/sensor_level.dart' as _i4cxm9sa;
+export 'web_door/sensor_level.dart';
 export 'client.dart';
 
 class Protocol extends _isc.SerializationManager {
@@ -45,11 +47,18 @@ class Protocol extends _isc.SerializationManager {
       }
     }
 
+    if (t == _i4cxm9sa.SensorLevel) {
+      return _i4cxm9sa.SensorLevel.fromJson(data) as T;
+    }
+    if (t == _isc.getType<_i4cxm9sa.SensorLevel?>()) {
+      return (data != null ? _i4cxm9sa.SensorLevel.fromJson(data) : null) as T;
+    }
     return super.deserialize<T>(data, t);
   }
 
   static String? getClassNameForType(Type type) {
     return switch (type) {
+      _i4cxm9sa.SensorLevel => 'SensorLevel',
       _ => null,
     };
   }
@@ -63,6 +72,10 @@ class Protocol extends _isc.SerializationManager {
       return (data['__className__'] as String).replaceFirst('sensor.', '');
     }
 
+    switch (data) {
+      case _i4cxm9sa.SensorLevel():
+        return 'SensorLevel';
+    }
     return null;
   }
 
@@ -71,6 +84,9 @@ class Protocol extends _isc.SerializationManager {
     var dataClassName = data['className'];
     if (dataClassName is! String) {
       return super.deserializeByClassName(data);
+    }
+    if (dataClassName == 'SensorLevel') {
+      return deserialize<_i4cxm9sa.SensorLevel>(data['data']);
     }
     return super.deserializeByClassName(data);
   }

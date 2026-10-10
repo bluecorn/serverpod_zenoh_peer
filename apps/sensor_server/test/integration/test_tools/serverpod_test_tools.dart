@@ -11,7 +11,10 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'dart:async' as _ida;
 import 'dart:io' as _idi;
+import 'package:sensor_server/src/generated/web_door/sensor_level.dart'
+    as _isbo2nze;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_test/serverpod_test.dart' as _ist;
 import 'package:sensor_server/src/generated/protocol.dart';
@@ -113,7 +116,9 @@ void withServerpod(
   )(testClosure);
 }
 
-class TestEndpoints {}
+class TestEndpoints {
+  late final _LevelsEndpoint levels;
+}
 
 class _InternalTestEndpoints extends TestEndpoints
     implements _ist.InternalTestEndpoints {
@@ -121,5 +126,44 @@ class _InternalTestEndpoints extends TestEndpoints
   void initialize(
     _is.SerializationManager serializationManager,
     _is.EndpointDispatch endpoints,
-  ) {}
+  ) {
+    levels = _LevelsEndpoint(endpoints, serializationManager);
+  }
+}
+
+class _LevelsEndpoint {
+  _LevelsEndpoint(this._endpointDispatch, this._serializationManager);
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Stream<_isbo2nze.SensorLevel> levels(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) {
+    var _localTestStreamManager =
+        _ist.TestStreamManager<_isbo2nze.SensorLevel>();
+    _ist.callStreamFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'levels',
+            method: 'levels',
+          );
+      var _localCallContext = await _endpointDispatch
+          .getMethodStreamCallContext(
+            createSessionCallback: (_) => _localUniqueSession,
+            endpointPath: 'levels',
+            methodName: 'levels',
+            arguments: {},
+            requestedInputStreams: [],
+            serializationManager: _serializationManager,
+          );
+      await _localTestStreamManager.callStreamMethod(
+        _localCallContext,
+        _localUniqueSession,
+        {},
+      );
+    }, _localTestStreamManager.outputStreamController);
+    return _localTestStreamManager.outputStreamController.stream;
+  }
 }

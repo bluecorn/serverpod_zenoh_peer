@@ -10,9 +10,28 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
+import 'package:sensor_client/src/protocol/web_door/sensor_level.dart'
+    as _i63isrvn;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'protocol.dart' as _il2as5qe;
+
+/// The web door: the phone's vibration levels, for browsers.
+/// {@category Endpoint}
+class EndpointLevels extends _isc.EndpointRef {
+  EndpointLevels(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'levels';
+
+  /// Each key's vibration level, once a second, while the caller listens.
+  _ida.Stream<_i63isrvn.SensorLevel> levels() =>
+      caller.callStreamingServerEndpoint<
+        _ida.Stream<_i63isrvn.SensorLevel>,
+        _i63isrvn.SensorLevel
+      >('levels', 'levels', {}, {});
+}
 
 class Client extends _isc.ServerpodClientShared {
   Client(
@@ -35,10 +54,14 @@ class Client extends _isc.ServerpodClientShared {
          disconnectStreamsOnLostInternetConnection:
              disconnectStreamsOnLostInternetConnection,
          httpClientOverride: httpClientOverride,
-       ) {}
+       ) {
+    levels = EndpointLevels(this);
+  }
+
+  late final EndpointLevels levels;
 
   @override
-  Map<String, _isc.EndpointRef> get endpointRefLookup => {};
+  Map<String, _isc.EndpointRef> get endpointRefLookup => {'levels': levels};
 
   @override
   Map<String, _isc.ModuleEndpointCaller> get moduleLookup => {};
