@@ -517,4 +517,35 @@ void main() {
       ]);
     },
   );
+
+  test('the parameters of a get reach the handler of the queryable', () async {
+    // The archive's end: a queryable whose handler keeps the parameters of
+    // each query, and answers with nothing.
+    final archiveNode = ZenohService(sensorNodeSettings());
+    addTearDown(archiveNode.dispose);
+    await archiveNode.open();
+    final asked = <Map<String, String>>[];
+    archiveNode.declareQueryable('archive/phone/**', (parameters) {
+      asked.add(parameters);
+      return const [];
+    });
+
+    // The reader's end: a session from the settings that connect.
+    final readerNode = ZenohService(collectorSettings());
+    addTearDown(readerNode.dispose);
+    await readerNode.open();
+    // The declaration travels to the reader, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The code to implement: the parameters written into the query's
+    // selector, and read back out of it on the answering side.
+    await readerNode
+        .get('archive/phone/**', parameters: {'n': '20', 'sensor': 'accel'})
+        .drain<void>();
+
+    // The claim: the handler is asked once, with both parameters.
+    expect(asked, [
+      {'n': '20', 'sensor': 'accel'},
+    ]);
+  });
 }
