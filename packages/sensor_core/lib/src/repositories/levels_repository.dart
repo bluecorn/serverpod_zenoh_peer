@@ -16,9 +16,16 @@ class LevelsRepository {
   /// keys in the archive.
   final String keyExpr;
 
-  /// The last [n] levels the archive answers with, in the order it answers.
-  Future<List<KeyedLevel>> recent(int n) async {
-    await zenoh.get(keyExpr, parameters: {'n': '$n'}).drain<void>();
-    return const [];
+  /// The last [n] levels the archive answers with, each parsed from
+  /// `<ISO-8601 time>,<level>` and handed on with the key it was answered on,
+  /// in the order the archive answers.
+  Future<List<KeyedLevel>> recent(int n) => zenoh
+      .get(keyExpr, parameters: {'n': '$n'})
+      .map((reply) => (keyExpr: reply.keyExpr, level: _asLevel(reply.payload)))
+      .toList();
+
+  static Level _asLevel(String text) {
+    final [time, value] = text.split(',');
+    return Level(time: DateTime.parse(time), value: double.parse(value));
   }
 }
