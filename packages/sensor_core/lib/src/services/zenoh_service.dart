@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sensor_core/src/services/session_settings.dart';
 import 'package:zenoh_dart/zenoh.dart';
 
@@ -50,8 +52,23 @@ class Subscription {
   void close() => _subscriber.close();
 }
 
+/// What a queryable answers a query with, given the query's selector
+/// parameters: its replies, each a key expression and its text.
+typedef QueryHandler = FutureOr<Iterable<KeyedPayload>> Function(
+  Map<String, String> parameters,
+);
+
+/// A declared queryable on one key expression, as the service hands it out:
+/// it answers each query with what its handler returns.
+class Answerer {
+  new _();
+
+  /// Undeclares the queryable.
+  void close() {}
+}
+
 /// The owner of the zenoh session. It hands upward only plain Dart values and
-/// its own [Publication]s and [Subscription]s.
+/// its own [Publication]s, [Subscription]s and [Answerer]s.
 class ZenohService {
   /// A service for one role's [settings]. Nothing opens until [open].
   new(this.settings);
@@ -91,6 +108,19 @@ class ZenohService {
     _subscriptions.add(subscription);
     return subscription;
   }
+
+  /// Sends a query on [keyExpr] with the selector's [parameters], and hands up
+  /// each reply as the key it was answered on and its text. The stream ends
+  /// when every queryable has answered.
+  Stream<KeyedPayload> get(
+    String keyExpr, {
+    Map<String, String> parameters = const {},
+  }) => const Stream.empty();
+
+  /// Declares a queryable on [keyExpr] that answers each query with what
+  /// [answer] returns for its parameters.
+  Answerer declareQueryable(String keyExpr, QueryHandler answer) =>
+      Answerer._();
 
   /// Closes the publications, the subscriptions and the session. Safe before
   /// [open], and more than once.

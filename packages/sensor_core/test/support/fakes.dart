@@ -65,6 +65,16 @@ class FakeZenohService implements ZenohService {
   }
 
   @override
+  Stream<KeyedPayload> get(
+    String keyExpr, {
+    Map<String, String> parameters = const {},
+  }) => const Stream.empty();
+
+  @override
+  Answerer declareQueryable(String keyExpr, QueryHandler answer) =>
+      throw UnimplementedError();
+
+  @override
   SessionSettings get settings => const SessionSettings('{}');
 
   @override
