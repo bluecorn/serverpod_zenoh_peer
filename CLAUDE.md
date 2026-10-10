@@ -4,9 +4,9 @@
 
 **Serverpod as a native zenoh peer**: a bridge between a zenoh network of devices and the Dart and Flutter application
 tier, built for *Build Something Real*, the Serverpod hackathon (submissions close 2026-10-14, 23:59 CEST). A phone
-publishes sensor readings over zenoh; a Serverpod server, itself a zenoh peer, turns them into a per-second vibration
-level, keeps the levels in an archive, and opens two doors onto it: **the web door**, browsers through Serverpod's
-endpoints, and **the zenoh door**, native apps through a zenoh query. It extends
+publishes sensor readings over zenoh; a Serverpod server, itself a zenoh peer, streams them to browsers through
+Serverpod's endpoints, **the web door**, turns them into a per-second vibration level kept in an archive, and answers
+native apps' zenoh queries on it, **the zenoh door**. It extends
 [`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors), the project of the guide
 [zenoh in Dart and Flutter](https://github.com/bluecorn/zenoh-dart-flutter-guide), whose history it starts from.
 
@@ -25,14 +25,16 @@ endpoints, and **the zenoh door**, native apps through a zenoh query. It extends
 |---|---|
 | device | `apps/sensor_node`, node role, on Android: the accelerometer and gyroscope, asked for every 20 ms (a hint: Android may deliver faster) |
 | network | zenoh peers introduced by `zenohd` (gossip); the emulator joins as a client while developing |
-| server | `apps/sensor_server` (Serverpod 4.0.4): one zenoh subscription on `sensor/phone/*`, a vibration level per key per second (the RMS of the acceleration's magnitude around its mean), computed from whatever arrived in that second |
+| server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever arrived in that second |
 | archive | one SQLite table (time, key, level), time-indexed |
-| web door | the endpoints `levels()` (a stream) and `recent(n)`; `apps/sensor_web`, a Flutter web app showing each key's live level and its last *n* |
+| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading and its count), plus its last *n* levels |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels |
 | native view | `sensor_node` in the **monitor role**, on Linux: the same view model and screen over a zenoh subscription, plus a recent-levels panel fed by the zenoh door |
 
 **Named, not built:** health indicators, retention, paging, thresholds and alerts, charts, authentication, commands,
-several nodes, the monitor on Android, a deterministic wire rate (the node thinning its own stream).
+several nodes, the monitor on Android, a deterministic wire rate (the node thinning its own stream), a UI package
+shared by the three views (the page copies the phone's screen, since `sensor_core` brings `zenoh_dart` into a web
+build).
 
 ## The architecture
 

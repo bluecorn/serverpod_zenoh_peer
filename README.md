@@ -9,14 +9,15 @@ so a Dart and Flutter team can have one language from the device to the server t
 
 ## What it shows
 
-A phone strapped to a machine publishes its accelerometer and gyroscope over zenoh. The server, a zenoh peer, turns
-the readings into a vibration level per second, keeps the levels, and opens two doors onto them:
+A phone strapped to a machine publishes its accelerometer and gyroscope over zenoh. The server, a zenoh peer, streams
+the readings to browsers, turns them into a vibration level per second, keeps the levels, and answers zenoh queries on
+them:
 
 ```
  the phone                              the laptop
  sensor_node ═══ zenoh (peers) ═══════► sensor_server   Serverpod, a zenoh peer
                                           ├─ a vibration level per sensor, per second ──► the archive (SQLite)
-                                          ├─ the web door:   levels(), recent(n) ════════► sensor_web, in a browser
+                                          ├─ the web door:   readings(), recent(n) ══════► sensor_web, in a browser
                                           └─ the zenoh door: a query on archive/phone/** ◄═ sensor_node, monitor role
  zenohd introduces the peers                                                                (Linux, native)
 ```
