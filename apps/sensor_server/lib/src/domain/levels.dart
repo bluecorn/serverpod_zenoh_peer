@@ -14,18 +14,18 @@ Stream<SensorLevel> levelsPerSecond(
   late final StreamSubscription<KeyedReading> fromReadings;
   late final StreamSubscription<DateTime> fromSeconds;
   final controller = StreamController<SensorLevel>();
-  var keyExpr = '';
-  final magnitudes = <double>[];
+  final magnitudes = <String, List<double>>{};
   controller
     ..onListen = () {
       fromReadings = readings.listen((keyed) {
-        keyExpr = keyed.keyExpr;
-        magnitudes.add(_magnitude(keyed.reading));
+        (magnitudes[keyed.keyExpr] ??= []).add(_magnitude(keyed.reading));
       });
       fromSeconds = seconds.listen((end) {
-        controller.add(
-          SensorLevel(time: end, keyExpr: keyExpr, level: _level(magnitudes)),
-        );
+        for (final MapEntry(key: keyExpr, value: ofKey) in magnitudes.entries) {
+          controller.add(
+            SensorLevel(time: end, keyExpr: keyExpr, level: _level(ofKey)),
+          );
+        }
         magnitudes.clear();
       });
     }
