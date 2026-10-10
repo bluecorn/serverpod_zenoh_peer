@@ -20,6 +20,13 @@ insightsServer:
   publicPort: 8081
   publicScheme: http
 
+# Configuration for the web server, which serves the Flutter web app.
+webServer:
+  port: 8082
+  publicHost: localhost
+  publicPort: 8082
+  publicScheme: http
+
 
 
 

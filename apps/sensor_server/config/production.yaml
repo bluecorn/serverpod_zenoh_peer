@@ -18,6 +18,13 @@ insightsServer:
   publicPort: 443
   publicScheme: https
 
+# Configuration for the web server, which serves the Flutter web app.
+webServer:
+  port: 8082
+  publicHost: examplepod.com
+  publicPort: 443
+  publicScheme: https
+
 
 
 
