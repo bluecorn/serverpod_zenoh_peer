@@ -81,6 +81,7 @@ class ZenohService {
   Session? _session;
   final _publications = <Publication>[];
   final _subscriptions = <Subscription>[];
+  final _answerers = <Answerer>[];
 
   /// Opens the session with the settings. For a peer, when this returns, each
   /// connection they ask for is made, or the wait set by `scouting/delay` has
@@ -129,7 +130,8 @@ class ZenohService {
 
   /// Declares a queryable on [keyExpr] that answers each query with what
   /// [answer] returns for its parameters, then lets the query go, which tells
-  /// the asker this queryable has finished.
+  /// the asker this queryable has finished. The service closes it on
+  /// [dispose].
   Answerer declareQueryable(String keyExpr, QueryHandler answer) {
     final queryable = _opened.declareQueryable(keyExpr);
     queryable.stream.listen((query) async {
@@ -138,11 +140,13 @@ class ZenohService {
       }
       query.dispose();
     });
-    return Answerer._(queryable);
+    final answerer = Answerer._(queryable);
+    _answerers.add(answerer);
+    return answerer;
   }
 
-  /// Closes the publications, the subscriptions and the session. Safe before
-  /// [open], and more than once.
+  /// Closes the publications, the subscriptions, the queryables and the
+  /// session. Safe before [open], and more than once.
   void dispose() {
     for (final publication in _publications) {
       publication.close();
@@ -152,6 +156,10 @@ class ZenohService {
       subscription.close();
     }
     _subscriptions.clear();
+    for (final answerer in _answerers) {
+      answerer.close();
+    }
+    _answerers.clear();
     _session?.close();
     _session = null;
   }
