@@ -12,30 +12,10 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
-import 'package:sensor_client/src/protocol/web_door/sensor_level.dart'
-    as _i63isrvn;
 import 'package:sensor_client/src/protocol/web_door/sensor_reading.dart'
     as _iyrlr3sb;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'protocol.dart' as _il2as5qe;
-
-/// The web door: the phone's vibration levels, for browsers.
-/// {@category Endpoint}
-class EndpointLevels extends _isc.EndpointRef {
-  EndpointLevels(_isc.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'levels';
-
-  /// Each key's vibration level, once a second, while the caller listens.
-  /// Listening subscribes to the phone's readings; cancelling closes the
-  /// subscription.
-  _ida.Stream<_i63isrvn.SensorLevel> levels() =>
-      caller.callStreamingServerEndpoint<
-        _ida.Stream<_i63isrvn.SensorLevel>,
-        _i63isrvn.SensorLevel
-      >('levels', 'levels', {}, {});
-}
 
 /// The web door: the phone's readings, for browsers.
 /// {@category Endpoint}
@@ -77,19 +57,13 @@ class Client extends _isc.ServerpodClientShared {
              disconnectStreamsOnLostInternetConnection,
          httpClientOverride: httpClientOverride,
        ) {
-    levels = EndpointLevels(this);
     webDoor = EndpointWebDoor(this);
   }
-
-  late final EndpointLevels levels;
 
   late final EndpointWebDoor webDoor;
 
   @override
-  Map<String, _isc.EndpointRef> get endpointRefLookup => {
-    'levels': levels,
-    'webDoor': webDoor,
-  };
+  Map<String, _isc.EndpointRef> get endpointRefLookup => {'webDoor': webDoor};
 
   @override
   Map<String, _isc.ModuleEndpointCaller> get moduleLookup => {};

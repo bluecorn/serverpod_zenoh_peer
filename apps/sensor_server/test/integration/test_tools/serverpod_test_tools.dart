@@ -13,8 +13,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
-import 'package:sensor_server/src/generated/web_door/sensor_level.dart'
-    as _isbo2nze;
 import 'package:sensor_server/src/generated/web_door/sensor_reading.dart'
     as _i3c5rfqq;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -119,8 +117,6 @@ void withServerpod(
 }
 
 class TestEndpoints {
-  late final _LevelsEndpoint levels;
-
   late final _WebDoorEndpoint webDoor;
 }
 
@@ -131,45 +127,7 @@ class _InternalTestEndpoints extends TestEndpoints
     _is.SerializationManager serializationManager,
     _is.EndpointDispatch endpoints,
   ) {
-    levels = _LevelsEndpoint(endpoints, serializationManager);
     webDoor = _WebDoorEndpoint(endpoints, serializationManager);
-  }
-}
-
-class _LevelsEndpoint {
-  _LevelsEndpoint(this._endpointDispatch, this._serializationManager);
-
-  final _is.EndpointDispatch _endpointDispatch;
-
-  final _is.SerializationManager _serializationManager;
-
-  _ida.Stream<_isbo2nze.SensorLevel> levels(
-    _ist.TestSessionBuilder sessionBuilder,
-  ) {
-    var _localTestStreamManager =
-        _ist.TestStreamManager<_isbo2nze.SensorLevel>();
-    _ist.callStreamFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'levels',
-            method: 'levels',
-          );
-      var _localCallContext = await _endpointDispatch
-          .getMethodStreamCallContext(
-            createSessionCallback: (_) => _localUniqueSession,
-            endpointPath: 'levels',
-            methodName: 'levels',
-            arguments: {},
-            requestedInputStreams: [],
-            serializationManager: _serializationManager,
-          );
-      await _localTestStreamManager.callStreamMethod(
-        _localCallContext,
-        _localUniqueSession,
-        {},
-      );
-    }, _localTestStreamManager.outputStreamController);
-    return _localTestStreamManager.outputStreamController.stream;
   }
 }
 
