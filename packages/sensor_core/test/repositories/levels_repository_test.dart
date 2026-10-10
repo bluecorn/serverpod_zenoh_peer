@@ -117,4 +117,38 @@ void main() {
       ]);
     },
   );
+
+  test(
+    'replies time,value arrive as levels under their keys, in order',
+    () async {
+      // A fake: a service whose query answers with two replies, as the
+      // archive's queryable sends them.
+      final zenoh = FakeZenohService()
+        ..replies = [
+          (
+            keyExpr: 'archive/phone/gyro',
+            payload: '2026-10-10T12:00:02.000Z,0.021',
+          ),
+          (
+            keyExpr: 'archive/phone/accel',
+            payload: '2026-10-10T12:00:01.000Z,0.183',
+          ),
+        ];
+      final repository = LevelsRepository(zenoh, nodeName: 'phone');
+
+      // The code to implement: each reply's text parsed into a level, handed
+      // on with the key it was answered on.
+      final levels = await repository.recent(2);
+
+      // The claim: two levels, in the order of the replies, each under its key
+      // with the time and the value of its text.
+      final answered = levels
+          .map((l) => [l.keyExpr, l.level.time, l.level.value])
+          .toList();
+      expect(answered, [
+        ['archive/phone/gyro', DateTime.utc(2026, 10, 10, 12, 0, 2), 0.021],
+        ['archive/phone/accel', DateTime.utc(2026, 10, 10, 12, 0, 1), 0.183],
+      ]);
+    },
+  );
 }
