@@ -1,10 +1,11 @@
 /// One vibration level of a sensor, as the archive keeps it: the second it
 /// was computed for, and its value.
 class Level {
-  /// A level of [value], computed for the second starting at [time].
+  /// A level of [value], computed for the second ending at [time].
   const new({required this.time, required this.value});
 
-  /// The second the level was computed for, in UTC.
+  /// The end of the second the level was computed for, in UTC, as the server
+  /// stamps it.
   final DateTime time;
 
   /// The level itself.
