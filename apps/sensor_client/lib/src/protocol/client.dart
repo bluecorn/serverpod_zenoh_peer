@@ -26,6 +26,8 @@ class EndpointLevels extends _isc.EndpointRef {
   String get name => 'levels';
 
   /// Each key's vibration level, once a second, while the caller listens.
+  /// Listening subscribes to the phone's readings; cancelling closes the
+  /// subscription.
   _ida.Stream<_i63isrvn.SensorLevel> levels() =>
       caller.callStreamingServerEndpoint<
         _ida.Stream<_i63isrvn.SensorLevel>,
