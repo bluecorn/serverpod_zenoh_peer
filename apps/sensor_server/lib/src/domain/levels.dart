@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_server/src/generated/protocol.dart';
 
@@ -7,4 +10,37 @@ import 'package:sensor_server/src/generated/protocol.dart';
 Stream<SensorLevel> levelsPerSecond(
   Stream<KeyedReading> readings, {
   required Stream<DateTime> seconds,
-}) => const Stream.empty();
+}) {
+  late final StreamSubscription<KeyedReading> fromReadings;
+  late final StreamSubscription<DateTime> fromSeconds;
+  final controller = StreamController<SensorLevel>();
+  var keyExpr = '';
+  final magnitudes = <double>[];
+  controller
+    ..onListen = () {
+      fromReadings = readings.listen((keyed) {
+        keyExpr = keyed.keyExpr;
+        magnitudes.add(_magnitude(keyed.reading));
+      });
+      fromSeconds = seconds.listen((end) {
+        controller.add(
+          SensorLevel(time: end, keyExpr: keyExpr, level: _level(magnitudes)),
+        );
+        magnitudes.clear();
+      });
+    }
+    ..onCancel = () async {
+      await fromReadings.cancel();
+      await fromSeconds.cancel();
+    };
+  return controller.stream;
+}
+
+double _magnitude(Reading reading) =>
+    sqrt(reading.x * reading.x + reading.y * reading.y + reading.z * reading.z);
+
+double _level(List<double> magnitudes) {
+  final mean = magnitudes.reduce((a, b) => a + b) / magnitudes.length;
+  final squares = magnitudes.map((m) => (m - mean) * (m - mean));
+  return sqrt(squares.reduce((a, b) => a + b) / magnitudes.length);
+}
