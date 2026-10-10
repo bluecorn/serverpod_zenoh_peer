@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_web/config/providers.dart';
 
 /// What the page shows for one key: the latest reading on it, and how many
 /// there were.
@@ -28,7 +29,20 @@ class WatchState {
 /// the readings, for each key.
 class WatchViewModel extends Notifier<WatchState> {
   @override
-  WatchState build() => const WatchState();
+  WatchState build() {
+    ref.listen(readingsProvider, (_, next) {
+      if (next case AsyncData(:final value)) {
+        final count = state.sensors[value.keyExpr]?.count ?? 0;
+        state = WatchState(
+          sensors: {
+            ...state.sensors,
+            value.keyExpr: SensorState(latest: value, count: count + 1),
+          },
+        );
+      }
+    });
+    return const WatchState();
+  }
 }
 
 /// The page's view model.
