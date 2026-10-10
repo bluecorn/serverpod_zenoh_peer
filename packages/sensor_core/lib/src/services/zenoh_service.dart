@@ -117,7 +117,9 @@ class ZenohService {
   Stream<KeyedPayload> get(
     String keyExpr, {
     Map<String, String> parameters = const {},
-  }) => const Stream.empty();
+  }) => _opened
+      .get(keyExpr)
+      .map((reply) => (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload));
 
   /// Declares a queryable on [keyExpr] that answers each query with what
   /// [answer] returns for its parameters, then lets the query go, which tells
