@@ -17,5 +17,8 @@ class LevelsRepository {
   final String keyExpr;
 
   /// The last [n] levels the archive answers with, in the order it answers.
-  Future<List<KeyedLevel>> recent(int n) async => const [];
+  Future<List<KeyedLevel>> recent(int n) async {
+    await zenoh.get(keyExpr, parameters: {'n': '$n'}).drain<void>();
+    return const [];
+  }
 }
