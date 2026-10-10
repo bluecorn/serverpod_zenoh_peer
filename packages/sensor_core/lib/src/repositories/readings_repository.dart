@@ -18,7 +18,8 @@ class ReadingsRepository {
   final String keyExpr;
 
   /// Every reading that arrives, parsed from `x,y,z`, with the key it arrived
-  /// on. Listening declares the subscription; cancelling closes it.
+  /// on and its sample's time. Listening declares the subscription;
+  /// cancelling closes it.
   Stream<KeyedReading> readings() {
     late final Subscription subscription;
     late final StreamSubscription<TimedPayload> listening;
@@ -28,7 +29,7 @@ class ReadingsRepository {
       listening = subscription.samples.listen(
         (sample) => controller.add((
           keyExpr: sample.keyExpr,
-          reading: _asReading(sample.payload),
+          reading: _asReading(sample.payload, sample.time),
         )),
       );
     };
@@ -39,8 +40,8 @@ class ReadingsRepository {
     return controller.stream;
   }
 
-  static Reading _asReading(String text) {
+  static Reading _asReading(String text, DateTime time) {
     final [x, y, z] = text.split(',').map(double.parse).toList();
-    return Reading(x: x, y: y, z: z);
+    return Reading(x: x, y: y, z: z, time: time);
   }
 }
