@@ -14,6 +14,8 @@ import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:sensor_client/src/protocol/web_door/sensor_level.dart'
     as _i63isrvn;
+import 'package:sensor_client/src/protocol/web_door/sensor_reading.dart'
+    as _iyrlr3sb;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'protocol.dart' as _il2as5qe;
 
@@ -33,6 +35,22 @@ class EndpointLevels extends _isc.EndpointRef {
         _ida.Stream<_i63isrvn.SensorLevel>,
         _i63isrvn.SensorLevel
       >('levels', 'levels', {}, {});
+}
+
+/// The web door: the phone's readings, for browsers.
+/// {@category Endpoint}
+class EndpointWebDoor extends _isc.EndpointRef {
+  EndpointWebDoor(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'webDoor';
+
+  /// Every reading the phone publishes while the caller listens, with its key.
+  _ida.Stream<_iyrlr3sb.SensorReading> readings() =>
+      caller.callStreamingServerEndpoint<
+        _ida.Stream<_iyrlr3sb.SensorReading>,
+        _iyrlr3sb.SensorReading
+      >('webDoor', 'readings', {}, {});
 }
 
 class Client extends _isc.ServerpodClientShared {
@@ -58,12 +76,18 @@ class Client extends _isc.ServerpodClientShared {
          httpClientOverride: httpClientOverride,
        ) {
     levels = EndpointLevels(this);
+    webDoor = EndpointWebDoor(this);
   }
 
   late final EndpointLevels levels;
 
+  late final EndpointWebDoor webDoor;
+
   @override
-  Map<String, _isc.EndpointRef> get endpointRefLookup => {'levels': levels};
+  Map<String, _isc.EndpointRef> get endpointRefLookup => {
+    'levels': levels,
+    'webDoor': webDoor,
+  };
 
   @override
   Map<String, _isc.ModuleEndpointCaller> get moduleLookup => {};

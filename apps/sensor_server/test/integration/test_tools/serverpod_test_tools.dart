@@ -15,6 +15,8 @@ import 'dart:async' as _ida;
 import 'dart:io' as _idi;
 import 'package:sensor_server/src/generated/web_door/sensor_level.dart'
     as _isbo2nze;
+import 'package:sensor_server/src/generated/web_door/sensor_reading.dart'
+    as _i3c5rfqq;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_test/serverpod_test.dart' as _ist;
 import 'package:sensor_server/src/generated/protocol.dart';
@@ -118,6 +120,8 @@ void withServerpod(
 
 class TestEndpoints {
   late final _LevelsEndpoint levels;
+
+  late final _WebDoorEndpoint webDoor;
 }
 
 class _InternalTestEndpoints extends TestEndpoints
@@ -128,6 +132,7 @@ class _InternalTestEndpoints extends TestEndpoints
     _is.EndpointDispatch endpoints,
   ) {
     levels = _LevelsEndpoint(endpoints, serializationManager);
+    webDoor = _WebDoorEndpoint(endpoints, serializationManager);
   }
 }
 
@@ -154,6 +159,43 @@ class _LevelsEndpoint {
             createSessionCallback: (_) => _localUniqueSession,
             endpointPath: 'levels',
             methodName: 'levels',
+            arguments: {},
+            requestedInputStreams: [],
+            serializationManager: _serializationManager,
+          );
+      await _localTestStreamManager.callStreamMethod(
+        _localCallContext,
+        _localUniqueSession,
+        {},
+      );
+    }, _localTestStreamManager.outputStreamController);
+    return _localTestStreamManager.outputStreamController.stream;
+  }
+}
+
+class _WebDoorEndpoint {
+  _WebDoorEndpoint(this._endpointDispatch, this._serializationManager);
+
+  final _is.EndpointDispatch _endpointDispatch;
+
+  final _is.SerializationManager _serializationManager;
+
+  _ida.Stream<_i3c5rfqq.SensorReading> readings(
+    _ist.TestSessionBuilder sessionBuilder,
+  ) {
+    var _localTestStreamManager =
+        _ist.TestStreamManager<_i3c5rfqq.SensorReading>();
+    _ist.callStreamFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webDoor',
+            method: 'readings',
+          );
+      var _localCallContext = await _endpointDispatch
+          .getMethodStreamCallContext(
+            createSessionCallback: (_) => _localUniqueSession,
+            endpointPath: 'webDoor',
+            methodName: 'readings',
             arguments: {},
             requestedInputStreams: [],
             serializationManager: _serializationManager,

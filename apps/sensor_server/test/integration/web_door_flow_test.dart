@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:riverpod/riverpod.dart';
 import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_server/src/config/providers.dart';
@@ -15,22 +13,15 @@ import 'test_tools/serverpod_test_tools.dart';
 ///
 /// 1. The server receives the phone's readings over zenoh: `sensor_core`'s
 ///    `ReadingsRepository`, tested there.
-/// 2. A second's readings on a key give its level, the root mean square of
-///    their magnitudes around their mean: `levelsPerSecond`, in
-///    `test/domain/levels_test.dart`.
-/// 3. Each second gives a level for each key from the readings since the
-///    second before, and none for a key that had none: `levelsPerSecond`, in
-///    the same file.
-/// 4. The seconds are whole seconds, one a second: `ClockService`, in
-///    `test/data/services/clock_service_test.dart`.
-/// 5. The web door streams the levels to whoever calls it: `LevelsEndpoint`,
-///    this test.
-/// 6. A browser shows each key's latest level: `sensor_web`'s `LevelsScreen`
-///    and `LevelsViewModel`, in its `test/ui/levels/`.
-/// 7. A browser reaches the web door: `sensor_web`'s repository over the
+/// 2. The web door streams each reading, with its key and its three values,
+///    to whoever calls it: `WebDoorEndpoint`, this test.
+/// 3. A browser shows each key's latest reading to three decimals and how
+///    many have arrived, as the phone's own screen does: `sensor_web`'s
+///    `WatchScreen` and `WatchViewModel`, in its `test/ui/watch/`.
+/// 4. A browser reaches the web door: `sensor_web`'s repository over the
 ///    generated client, which hands the client's stream on unchanged, shown by
 ///    a run rather than a test.
-/// 8. The phone asks each sensor for a reading every 20 ms, a hint that
+/// 5. The phone asks each sensor for a reading every 20 ms, a hint that
 ///    Android may answer faster: `sensor_node`'s `DeviceSensorService`, in its
 ///    `test/data/services/device_sensor_service_test.dart`.
 void main() {
@@ -39,8 +30,8 @@ void main() {
     endpoints,
   ) {
     test(
-      "a second of the phone's readings reaches the web door as its vibration "
-      'level',
+      'a reading the phone publishes reaches the web door with its key and its '
+      'three values',
       () async {
         // The phone's end: its session, listening on the loopback.
         final phone = ZenohService(phoneSettings());
@@ -48,35 +39,25 @@ void main() {
         await phone.open();
 
         // The server's end: its providers, with a session that connects to
-        // the phone, and a clock the test moves by hand.
-        final seconds = StreamController<DateTime>();
+        // the phone.
         serverContainer = ProviderContainer.test(
-          overrides: [
-            configPathProvider.overrideWithValue(serverConfigPath),
-            clockServiceProvider.overrideWithValue(
-              FakeClockService(seconds.stream),
-            ),
-          ],
+          overrides: [configPathProvider.overrideWithValue(serverConfigPath)],
         );
         await serverContainer.read(sessionProvider.future);
 
         // The code to implement: the web door, called as a browser calls it,
-        // its levels collected into a list.
-        final received = <SensorLevel>[];
-        final listening = endpoints.levels
-            .levels(sessionBuilder)
+        // its readings collected into a list.
+        final received = <SensorReading>[];
+        final listening = endpoints.webDoor
+            .readings(sessionBuilder)
             .listen(received.add);
         addTearDown(listening.cancel);
         // The declaration travels to the phone, so give it time to arrive.
         await Future<void>.delayed(delivery);
 
-        // The phone publishes two accelerometer readings, of magnitudes 5
-        // and 10.
+        // The phone publishes one accelerometer reading.
         final sensor = FakeSensorService(
-          Stream.fromIterable(const [
-            Reading(x: 3, y: 4, z: 0),
-            Reading(x: 6, y: 8, z: 0),
-          ]),
+          Stream.value(const Reading(x: 0, y: 9.776, z: 0.812)),
         );
         await SensorNodeRepository(
           phone,
@@ -86,17 +67,14 @@ void main() {
         // A put returns before the sample arrives, so give it time to cross.
         await Future<void>.delayed(delivery);
 
-        // The second ends.
-        final end = DateTime.utc(2026, 10, 10, 12);
-        seconds.add(end);
-        await pumpEventQueue();
-
-        // The claim: one level, on the accelerometer's key, at the second's
-        // end: 5 and 10 lie 2.5 from their mean.
-        final levels = received
-            .map((level) => (level.time, level.keyExpr, level.level))
+        // The claim: one reading, on the accelerometer's key, with the three
+        // values it left with.
+        final values = received
+            .map(
+              (reading) => (reading.keyExpr, reading.x, reading.y, reading.z),
+            )
             .toList();
-        expect(levels, [(end, 'sensor/phone/accel', 2.5)]);
+        expect(values, [('sensor/phone/accel', 0, 9.776, 0.812)]);
       },
     );
   });

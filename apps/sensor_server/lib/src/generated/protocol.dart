@@ -14,7 +14,9 @@
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'web_door/sensor_level.dart' as _i4cxm9sa;
+import 'web_door/sensor_reading.dart' as _ixh9crma;
 export 'web_door/sensor_level.dart';
+export 'web_door/sensor_reading.dart';
 
 class Protocol extends _is.DatabaseSerializationManager {
   Protocol._();
@@ -54,8 +56,15 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _i4cxm9sa.SensorLevel) {
       return _i4cxm9sa.SensorLevel.fromJson(data) as T;
     }
+    if (t == _ixh9crma.SensorReading) {
+      return _ixh9crma.SensorReading.fromJson(data) as T;
+    }
     if (t == _is.getType<_i4cxm9sa.SensorLevel?>()) {
       return (data != null ? _i4cxm9sa.SensorLevel.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_ixh9crma.SensorReading?>()) {
+      return (data != null ? _ixh9crma.SensorReading.fromJson(data) : null)
+          as T;
     }
     try {
       return _isp.Protocol().deserialize<T>(data, t);
@@ -66,6 +75,7 @@ class Protocol extends _is.DatabaseSerializationManager {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _i4cxm9sa.SensorLevel => 'SensorLevel',
+      _ixh9crma.SensorReading => 'SensorReading',
       _ => null,
     };
   }
@@ -82,6 +92,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     switch (data) {
       case _i4cxm9sa.SensorLevel():
         return 'SensorLevel';
+      case _ixh9crma.SensorReading():
+        return 'SensorReading';
     }
     className = _isp.Protocol().getClassNameForObject(data);
     if (className != null) {
@@ -98,6 +110,9 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'SensorLevel') {
       return deserialize<_i4cxm9sa.SensorLevel>(data['data']);
+    }
+    if (dataClassName == 'SensorReading') {
+      return deserialize<_ixh9crma.SensorReading>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
