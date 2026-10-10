@@ -1,0 +1,19 @@
+// The server's session: a peer on the laptop. It connects to the router on
+// the laptop, which routes for the clients and tells this session about the
+// peers it knows, such as the phone, which this session then connects to.
+{
+  // A peer: it listens, and it connects to other peers itself.
+  mode: "peer",
+  scouting: {
+    // No multicast scouting: the session asks the network for no one.
+    multicast: { enabled: false },
+    // Gossip scouting on: the router tells this session about the peers it
+    // knows, and this session connects to them.
+    gossip: { enabled: true },
+  },
+  // Where the session listens: the laptop's loopback, port 7448, beside the
+  // router's 7447.
+  listen: { endpoints: ["tcp/127.0.0.1:7448"] },
+  // Where the session connects: the router, on this laptop.
+  connect: { endpoints: ["tcp/127.0.0.1:7447"] },
+}
