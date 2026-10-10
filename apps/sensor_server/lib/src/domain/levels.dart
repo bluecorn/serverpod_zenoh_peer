@@ -5,29 +5,27 @@ import 'package:sensor_server/src/generated/protocol.dart';
 
 /// A level for each key and each second of its readings' own times: the root
 /// mean square of their magnitudes around their mean, labelled with the start
-/// of the second. A second ends when the first reading of a later one arrives.
-/// The readings come from a subscription, so each carries its time.
+/// of the second. A key's second ends when its first reading of a later one
+/// arrives; a reading from an earlier second counts in the open one. The
+/// readings come from a subscription, so each carries its time.
 Stream<SensorLevel> levelsPerSecond(Stream<KeyedReading> readings) {
-  DateTime? start;
-  final magnitudes = <double>[];
+  final open = <String, ({DateTime start, List<double> magnitudes})>{};
   return readings.expand((keyed) {
     final (:keyExpr, :reading) = keyed;
     final second = _startOfSecond(reading.time!);
-    final open = start;
-    if (open != null && second.isAfter(open)) {
-      final level = SensorLevel(
-        time: open,
-        keyExpr: keyExpr,
-        level: _level(magnitudes),
-      );
-      start = second;
-      magnitudes
-        ..clear()
-        ..add(_magnitude(reading));
-      return [level];
+    final current = open[keyExpr];
+    if (current == null || second.isAfter(current.start)) {
+      open[keyExpr] = (start: second, magnitudes: [_magnitude(reading)]);
+      return [
+        if (current != null)
+          SensorLevel(
+            time: current.start,
+            keyExpr: keyExpr,
+            level: _level(current.magnitudes),
+          ),
+      ];
     }
-    start ??= second;
-    magnitudes.add(_magnitude(reading));
+    current.magnitudes.add(_magnitude(reading));
     return const <SensorLevel>[];
   });
 }
