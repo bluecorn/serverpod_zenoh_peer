@@ -1,0 +1,7 @@
+type: server
+
+client_package_path: ../sensor_client
+server_test_tools_path: test/integration/test_tools
+
+features:
+  database: false
