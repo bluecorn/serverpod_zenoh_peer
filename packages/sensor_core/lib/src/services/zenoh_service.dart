@@ -112,13 +112,15 @@ class ZenohService {
   }
 
   /// Sends a query on [keyExpr] with the selector's [parameters], and hands up
-  /// each reply as the key it was answered on and its text. The stream ends
-  /// when every queryable has answered.
+  /// each reply as the key it was answered on and its text, every one of them
+  /// in the order it arrives: no consolidation, where zenoh's default keeps
+  /// only the latest reply on each key. The stream ends when every queryable
+  /// has answered.
   Stream<KeyedPayload> get(
     String keyExpr, {
     Map<String, String> parameters = const {},
   }) => _opened
-      .get(keyExpr)
+      .get(keyExpr, consolidation: ConsolidationMode.none)
       .map((reply) => (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload));
 
   /// Declares a queryable on [keyExpr] that answers each query with what
