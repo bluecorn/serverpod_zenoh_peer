@@ -1,0 +1,14 @@
+// The sensor node's session on the Android emulator, as a client of the router
+// on the laptop, which the emulator reaches at 10.0.2.2: one connection, which
+// carries the readings, while developing.
+{
+  // A client: it connects to a router, and the router routes for it.
+  mode: "client",
+  scouting: {
+    // No multicast scouting: the session asks the network for no one.
+    multicast: { enabled: false },
+  },
+  // Where the session connects: the router, on the laptop's loopback, as the
+  // emulator reaches it.
+  connect: { endpoints: ["tcp/10.0.2.2:7447"] },
+}
