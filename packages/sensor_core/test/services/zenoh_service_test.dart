@@ -477,4 +477,44 @@ void main() {
       ]),
     );
   });
+
+  test(
+    'every reply to a get arrives, several on one key, in the order sent',
+    () async {
+      // The archive's end: a queryable that answers with four replies, three of
+      // them on one key, as the archive answers with a sensor's last levels.
+      final archiveNode = ZenohService(sensorNodeSettings());
+      addTearDown(archiveNode.dispose);
+      await archiveNode.open();
+      archiveNode.declareQueryable(
+        'archive/phone/**',
+        (_) => const [
+          (keyExpr: 'archive/phone/accel', payload: 'third'),
+          (keyExpr: 'archive/phone/accel', payload: 'second'),
+          (keyExpr: 'archive/phone/gyro', payload: 'only'),
+          (keyExpr: 'archive/phone/accel', payload: 'first'),
+        ],
+      );
+
+      // The reader's end: a session from the settings that connect.
+      final readerNode = ZenohService(collectorSettings());
+      addTearDown(readerNode.dispose);
+      await readerNode.open();
+      // The declaration travels to the reader, so give it time to arrive.
+      await Future<void>.delayed(delivery);
+
+      // The code to implement: a query that keeps every reply as it comes, not
+      // one per key.
+      final replies = await readerNode.get('archive/phone/**').toList();
+
+      // The claim: the four replies, in the order the queryable sent them.
+      final texts = replies.map((r) => '${r.keyExpr} ${r.payload}').toList();
+      expect(texts, [
+        'archive/phone/accel third',
+        'archive/phone/accel second',
+        'archive/phone/gyro only',
+        'archive/phone/accel first',
+      ]);
+    },
+  );
 }
