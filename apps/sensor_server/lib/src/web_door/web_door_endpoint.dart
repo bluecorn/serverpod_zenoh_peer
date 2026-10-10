@@ -16,7 +16,7 @@ class WebDoorEndpoint extends Endpoint {
           x: keyed.reading.x,
           y: keyed.reading.y,
           z: keyed.reading.z,
-          time: DateTime.utc(0),
+          time: keyed.reading.time!,
         ),
       );
 }
