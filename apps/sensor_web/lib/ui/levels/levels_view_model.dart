@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_web/config/providers.dart';
 
 /// What the page shows: the latest level on each key.
 class LevelsState {
@@ -14,7 +15,14 @@ class LevelsState {
 /// The view model behind the page, which keeps the latest level on each key.
 class LevelsViewModel extends Notifier<LevelsState> {
   @override
-  LevelsState build() => const LevelsState();
+  LevelsState build() {
+    ref.listen(levelsProvider, (_, next) {
+      if (next case AsyncData(:final value)) {
+        state = LevelsState(latest: {...state.latest, value.keyExpr: value});
+      }
+    });
+    return const LevelsState();
+  }
 }
 
 /// The view model of the page.
