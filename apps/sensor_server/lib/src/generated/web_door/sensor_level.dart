@@ -36,7 +36,8 @@ abstract class SensorLevel
     );
   }
 
-  /// The end of the second, in UTC.
+  /// The start of the second, in UTC, by the clock of the session that stamped
+  /// the readings.
   DateTime time;
 
   /// The key expression the readings arrived on, such as `sensor/phone/accel`.

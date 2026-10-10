@@ -1,6 +1,5 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:sensor_core/sensor_core.dart';
-import 'package:sensor_server/src/data/services/clock_service.dart';
 import 'package:sensor_server/src/data/services/settings_file_service.dart';
 
 /// The server's providers, held here for its endpoints, which Serverpod builds
@@ -43,6 +42,3 @@ final readingsRepositoryProvider = Provider<ReadingsRepository>(
   (ref) =>
       ReadingsRepository(ref.watch(zenohServiceProvider), nodeName: 'phone'),
 );
-
-/// The clock the levels are timed by.
-final clockServiceProvider = Provider<ClockService>((ref) => ClockService());
