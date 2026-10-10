@@ -11,4 +11,8 @@
   // Where the session connects: the router, on the laptop's loopback, as the
   // emulator reaches it.
   connect: { endpoints: ["tcp/10.0.2.2:7447"] },
+  // Timestamping on: the session stamps each reading it publishes with the
+  // time of its own clock, which every subscriber receives with the reading.
+  // Turned off, a subscriber uses the time each reading arrives instead.
+  timestamping: { enabled: true },
 }

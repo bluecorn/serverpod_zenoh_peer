@@ -11,4 +11,8 @@
   },
   // Where the session listens: the loopback, port 7447.
   listen: { endpoints: ["tcp/127.0.0.1:7447"] },
+  // Timestamping on: the session stamps each reading it publishes with the
+  // time of its own clock, which every subscriber receives with the reading.
+  // Turned off, a subscriber uses the time each reading arrives instead.
+  timestamping: { enabled: true },
 }

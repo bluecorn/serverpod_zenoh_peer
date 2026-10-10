@@ -16,4 +16,8 @@
   // Where the session connects: the router on the laptop. Replace 192.0.2.10
   // with your laptop's address on the Wi-Fi network.
   connect: { endpoints: ["tcp/192.0.2.10:7447"] },
+  // Timestamping on: the session stamps each reading it publishes with the
+  // time of its own clock, which every subscriber receives with the reading.
+  // Turned off, a subscriber uses the time each reading arrives instead.
+  timestamping: { enabled: true },
 }
