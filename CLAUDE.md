@@ -25,7 +25,7 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 |---|---|
 | device | `apps/sensor_node`, node role, on Android: the accelerometer and gyroscope, asked for every 20 ms (a hint: Android may deliver faster) |
 | network | zenoh peers introduced by `zenohd` (gossip); the emulator joins as a client while developing |
-| server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever arrived in that second |
+| server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever was stamped in that second, by the readings' zenoh timestamps |
 | archive | one SQLite table (time, key, level), time-indexed |
 | web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading and its count), plus its last *n* levels |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels |
@@ -34,7 +34,7 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 **Named, not built:** health indicators, retention, paging, thresholds and alerts, charts, authentication, commands,
 several nodes, the monitor on Android, a deterministic wire rate (the node thinning its own stream), a UI package
 shared by the three views (the page copies the phone's screen, since `sensor_core` brings `zenoh_dart` into a web
-build).
+build), a silent sensor's last second (it is closed only by the sensor's next reading).
 
 ## The architecture
 
@@ -123,6 +123,9 @@ fvm dart run apps/sensor_server/bin/main.dart       # the server (from stage 1);
 - **The sampling period is a hint.** Android's documentation: *"This is only a hint to the system. Events may be
   received faster or slower than the specified rate. Usually events are received faster."* Nothing may depend on the
   delivered rate.
+- **A reading's time is its zenoh timestamp,** which a session stamps on what it publishes only when its configuration
+  says `timestamping: { enabled: true }` (each of `sensor_node`'s files does; a router stamps by default). A reading
+  without one takes the time it arrived, so the setting can be turned off; no test asserts it.
 - **zenoh peers form a clique and pass nothing along;** a router in its default mode carries nothing between two
   peers, only introduces them (gossip). A router does carry data for its clients. Each pair of peers needs one side
   listening where the other can reach it: the phone listens on its port 7447, the server on the laptop's loopback.
