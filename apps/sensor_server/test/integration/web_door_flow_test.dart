@@ -30,6 +30,9 @@ import 'test_tools/serverpod_test_tools.dart';
 /// 7. A browser reaches the web door: `sensor_web`'s repository over the
 ///    generated client, which hands the client's stream on unchanged, shown by
 ///    a run rather than a test.
+/// 8. The phone asks each sensor for a reading every 20 ms, a hint that
+///    Android may answer faster: `sensor_node`'s `DeviceSensorService`, in its
+///    `test/data/services/device_sensor_service_test.dart`.
 void main() {
   withServerpod('Given the web door', serverDirectory: serverDirectory, (
     sessionBuilder,

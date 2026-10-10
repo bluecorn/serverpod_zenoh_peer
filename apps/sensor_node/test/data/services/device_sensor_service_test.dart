@@ -34,4 +34,34 @@ void main() {
     final fields = readings.map((r) => (r.x, r.y, r.z)).toList();
     expect(fields, [(0.1, 0.2, 0.3)]);
   });
+
+  test(
+    'the node asks each sensor for a reading every 20 ms, a hint to Android',
+    () async {
+      // Fakes of the plugin's two functions, which keep the period each one
+      // is asked for.
+      final asked = <String, Duration>{};
+      final service = DeviceSensorService(
+        accelerometerEvents:
+            ({samplingPeriod = SensorInterval.normalInterval}) {
+              asked['accelerometer'] = samplingPeriod;
+              return const Stream.empty();
+            },
+        gyroscopeEvents: ({samplingPeriod = SensorInterval.normalInterval}) {
+          asked['gyroscope'] = samplingPeriod;
+          return const Stream.empty();
+        },
+      );
+
+      // The code to implement: both sensors listened to.
+      await service.accelerometer().drain<void>();
+      await service.gyroscope().drain<void>();
+
+      // The claim: each sensor asked for a reading every 20 ms.
+      expect(asked, {
+        'accelerometer': const Duration(milliseconds: 20),
+        'gyroscope': const Duration(milliseconds: 20),
+      });
+    },
+  );
 }
