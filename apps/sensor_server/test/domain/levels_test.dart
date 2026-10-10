@@ -52,4 +52,50 @@ void main() {
       expect(got, [(second, accel, 2.0)]);
     },
   );
+
+  test("each key's seconds close on their own, and a key with no readings in a "
+      'second gives no level for it', () async {
+    // Readings that the test puts in by hand, each with its time.
+    final readings = StreamController<KeyedReading>();
+
+    // The code to implement: the levels of what the test puts in, collected
+    // into a list.
+    final levels = <SensorLevel>[];
+    final listening = levelsPerSecond(readings.stream).listen(levels.add);
+    addTearDown(listening.cancel);
+
+    // In the second from 12:00:00, magnitudes 5 and 10 on the accelerometer
+    // and 1 and 3 on the gyroscope; then 4 and 10 on the accelerometer in
+    // the next second, while the gyroscope is silent until the one after.
+    const accel = 'sensor/phone/accel';
+    const gyro = 'sensor/phone/gyro';
+    final first = DateTime.utc(2026, 10, 10, 12);
+    void put(String keyExpr, int millis, double x, double y, double z) =>
+        readings.add((
+          keyExpr: keyExpr,
+          reading: Reading(
+            x: x,
+            y: y,
+            z: z,
+            time: first.add(Duration(milliseconds: millis)),
+          ),
+        ));
+    put(accel, 100, 3, 4, 0);
+    put(gyro, 200, 0, 0, 1);
+    put(accel, 500, 6, 8, 0);
+    put(gyro, 600, 0, 0, 3);
+    put(accel, 1100, 0, 0, 4);
+    put(accel, 1500, 0, 0, 10);
+    put(gyro, 2100, 0, 0, 1);
+    put(accel, 2200, 0, 0, 9.81);
+    await pumpEventQueue();
+
+    // The claim: each key's level from its own readings of each second, as
+    // its next second begins, and none for the gyroscope's silent second.
+    final next = first.add(const Duration(seconds: 1));
+    final got = levels
+        .map((level) => (level.time, level.keyExpr, level.level))
+        .toList();
+    expect(got, [(first, accel, 2.5), (first, gyro, 1.0), (next, accel, 3.0)]);
+  });
 }
