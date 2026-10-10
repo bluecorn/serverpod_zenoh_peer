@@ -10,3 +10,6 @@ fields:
   y: double
   ### On the device's z axis, out of the screen.
   z: double
+  ### When the phone's session stamped the reading, in UTC, or when the server
+  ### received it if it carried no stamp.
+  time: DateTime

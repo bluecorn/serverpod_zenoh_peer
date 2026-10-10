@@ -18,12 +18,14 @@ void main() {
       x: 0.1,
       y: 9.776,
       z: 0.812,
+      time: DateTime.utc(2026, 10, 10, 12),
     );
     final gyro = SensorReading(
       keyExpr: 'sensor/phone/gyro',
       x: 0,
       y: 0,
       z: 0.5,
+      time: DateTime.utc(2026, 10, 10, 12),
     );
     final container = ProviderContainer.test(
       overrides: [

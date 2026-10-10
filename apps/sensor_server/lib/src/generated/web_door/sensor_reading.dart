@@ -21,6 +21,7 @@ abstract class SensorReading
     required this.x,
     required this.y,
     required this.z,
+    required this.time,
   });
 
   factory SensorReading({
@@ -28,6 +29,7 @@ abstract class SensorReading
     required double x,
     required double y,
     required double z,
+    required DateTime time,
   }) = _SensorReadingImpl;
 
   factory SensorReading.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -36,6 +38,7 @@ abstract class SensorReading
       x: (jsonSerialization['x'] as num).toDouble(),
       y: (jsonSerialization['y'] as num).toDouble(),
       z: (jsonSerialization['z'] as num).toDouble(),
+      time: _is.DateTimeJsonExtension.fromJson(jsonSerialization['time']),
     );
   }
 
@@ -51,10 +54,20 @@ abstract class SensorReading
   /// On the device's z axis, out of the screen.
   double z;
 
+  /// When the phone's session stamped the reading, in UTC, or when the server
+  /// received it if it carried no stamp.
+  DateTime time;
+
   /// Returns a shallow copy of this [SensorReading]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
-  SensorReading copyWith({String? keyExpr, double? x, double? y, double? z});
+  SensorReading copyWith({
+    String? keyExpr,
+    double? x,
+    double? y,
+    double? z,
+    DateTime? time,
+  });
   @override
   Map<String, dynamic> toJson() {
     return {
@@ -63,6 +76,7 @@ abstract class SensorReading
       'x': x,
       'y': y,
       'z': z,
+      'time': time.toJson(),
     };
   }
 
@@ -74,6 +88,7 @@ abstract class SensorReading
       'x': x,
       'y': y,
       'z': z,
+      'time': time.toJson(),
     };
   }
 
@@ -89,18 +104,26 @@ class _SensorReadingImpl extends SensorReading {
     required double x,
     required double y,
     required double z,
-  }) : super._(keyExpr: keyExpr, x: x, y: y, z: z);
+    required DateTime time,
+  }) : super._(keyExpr: keyExpr, x: x, y: y, z: z, time: time);
 
   /// Returns a shallow copy of this [SensorReading]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
   @override
-  SensorReading copyWith({String? keyExpr, double? x, double? y, double? z}) {
+  SensorReading copyWith({
+    String? keyExpr,
+    double? x,
+    double? y,
+    double? z,
+    DateTime? time,
+  }) {
     return SensorReading(
       keyExpr: keyExpr ?? this.keyExpr,
       x: x ?? this.x,
       y: y ?? this.y,
       z: z ?? this.z,
+      time: time ?? this.time,
     );
   }
 }
