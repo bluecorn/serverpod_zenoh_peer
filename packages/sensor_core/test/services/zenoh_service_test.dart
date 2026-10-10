@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:sensor_core/sensor_core.dart';
 import 'package:test/test.dart';
 import 'package:zenoh_dart/zenoh.dart';
@@ -548,4 +550,40 @@ void main() {
       {'n': '20', 'sensor': 'accel'},
     ]);
   });
+
+  test(
+    'disposing the service lets its isolate exit, with a queryable declared',
+    () async {
+      // A rule of the pattern: dispose closes what the service declared. A
+      // queryable left open keeps its isolate alive after the session has
+      // closed, so whether a program can end shows whether it was closed.
+      final exited = ReceivePort();
+      addTearDown(exited.close);
+
+      // The code to implement: a service that, on dispose, closes the
+      // queryable it declared, in a program of its own.
+      final program = await Isolate.spawn(
+        _declareAQueryableAndDispose,
+        null,
+        onExit: exited.sendPort,
+      );
+      addTearDown(() => program.kill(priority: Isolate.immediate));
+
+      // The claim: the program ends once it has disposed its service.
+      final ended = await exited.first
+          .then((_) => true)
+          .timeout(const Duration(seconds: 3), onTimeout: () => false);
+      expect(ended, isTrue, reason: 'still running 3 s after its dispose');
+    },
+  );
+}
+
+/// A program that opens a service, declares a queryable through it, and
+/// disposes the service. Nothing else is left to keep it running.
+Future<void> _declareAQueryableAndDispose(void _) async {
+  final service = ZenohService(collectorSettings());
+  await service.open();
+  service
+    ..declareQueryable('archive/phone/**', (_) => const [])
+    ..dispose();
 }
