@@ -405,8 +405,12 @@ void main() {
       final reader = await openCollector();
       addTearDown(reader.close);
       // The declaration travels to the reader, so give it time to arrive.
+      // The witness asks with no consolidation, so it sees every reply as it
+      // was sent.
       await Future<void>.delayed(delivery);
-      final replies = await reader.get('archive/phone/**').toList();
+      final replies = await reader
+          .get('archive/phone/**', consolidation: ConsolidationMode.none)
+          .toList();
 
       // The claim: each reply arrives with the key and the text the handler
       // gave it.
@@ -458,16 +462,19 @@ void main() {
     final replies = await readerNode.get('archive/phone/**').toList();
 
     // The claim: each reply arrives with the key it was answered on and its
-    // text.
-    expect(replies, [
-      (
-        keyExpr: 'archive/phone/accel',
-        payload: '2026-10-10T12:00:01.000Z,0.183',
-      ),
-      (
-        keyExpr: 'archive/phone/gyro',
-        payload: '2026-10-10T12:00:01.000Z,0.021',
-      ),
-    ]);
+    // text, in whatever order.
+    expect(
+      replies,
+      unorderedEquals([
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-10T12:00:01.000Z,0.183',
+        ),
+        (
+          keyExpr: 'archive/phone/gyro',
+          payload: '2026-10-10T12:00:01.000Z,0.021',
+        ),
+      ]),
+    );
   });
 }
