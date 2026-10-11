@@ -14,15 +14,10 @@ Future<void> run(List<String> args) async {
   final pod = generated.Serverpod(args, serverDirectory: serverDirectory);
 
   // The server's providers, and its zenoh session, open before the server
-  // starts. Serverpod owns SIGINT and SIGTERM, so the session closes with
-  // the providers in a shutdown task.
+  // starts.
   initZenohLogging('error');
   serverContainer = ProviderContainer();
   await serverContainer.read(sessionProvider.future);
-  pod.experimental.shutdownTasks.addTask(
-    #zenoh,
-    () async => serverContainer.dispose(),
-  );
 
   // The web app, built into the server's web/app.
   pod.webServer.addRoute(
@@ -30,4 +25,18 @@ Future<void> run(List<String> args) async {
   );
 
   await pod.start();
+
+  // The recorder, once the server and its database have started: it keeps the
+  // phone's levels in the archive through a session of its own, with logging
+  // off. Serverpod owns SIGINT and SIGTERM, so the recording stops, its
+  // session closes and zenoh closes with the providers in a shutdown task.
+  final archiveSession = await pod.createSession(enableLogging: false);
+  final recording = serverContainer
+      .read(recorderProvider)
+      .start(archiveSession);
+  pod.experimental.shutdownTasks.addTask(#zenoh, () async {
+    await recording.cancel();
+    await archiveSession.close();
+    serverContainer.dispose();
+  });
 }
