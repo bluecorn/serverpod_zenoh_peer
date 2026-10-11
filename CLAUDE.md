@@ -104,7 +104,7 @@ Every command from the **workspace root**, every Dart and Flutter command throug
 ```sh
 fvm flutter pub get
 fvm dart test packages/sensor_core
-fvm dart run apps/sensor_server/bin/main.dart       # the server (from stage 1); never from inside apps/sensor_server
+fvm dart run apps/sensor_server/bin/main.dart --apply-migrations   # the server; never from inside apps/sensor_server
 ```
 
 - **Why the root.** `zenoh_dart` 1.0.0-rc.1 looks for its native library in `.dart_tool/lib/` under the working
@@ -115,6 +115,10 @@ fvm dart run apps/sensor_server/bin/main.dart       # the server (from stage 1);
 - **Code generation** after changing an endpoint or a model, inside `apps/sensor_server`:
   `fvm dart pub global run serverpod_cli:serverpod_cli generate` (the CLI activated with
   `fvm dart pub global activate serverpod_cli 4.0.4`; its `serverpod` launcher runs whatever `dart` is on `PATH`).
+  After changing a table model, `… serverpod_cli create-migration` in the same folder; the migrations are committed.
+- **The database** is SQLite, `apps/sensor_server/server.db` (not committed); the tests make their own per group.
+  The workspace root depends on the server as on the core, so that `dart test` and `dart run` from the root build
+  and map SQLite's native libraries as well as zenoh's.
 - **The web app** is built into the server's `web/app`:
   `cd apps/sensor_web && fvm flutter build web --base-href / --output ../sensor_server/web/app`.
 
