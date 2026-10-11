@@ -195,4 +195,19 @@ void main() {
       ['archive/phone/gyro', DateTime.utc(2026, 10, 10, 12, 0, 3), 0.021],
     ]);
   });
+
+  test('cancelling the live levels closes the subscription', () async {
+    // A fake: a service that records what is closed, whose subscription stays
+    // quiet, as a real one does between levels.
+    final zenoh = FakeZenohService();
+    final repository = LevelsRepository(zenoh, nodeName: 'phone');
+
+    // The code to implement: a cancel that closes the subscription, even
+    // while nothing arrives.
+    final listening = repository.live().listen((_) {});
+    await listening.cancel();
+
+    // The claim: the subscription the repository declared is closed.
+    expect(zenoh.subscriptions.single.isClosed, isTrue);
+  });
 }
