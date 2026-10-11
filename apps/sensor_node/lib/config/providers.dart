@@ -57,6 +57,14 @@ final sensorNodeRepositoryProvider = FutureProvider<SensorNodeRepository>(
   ),
 );
 
+/// The monitor's repository: the phone's readings, as they arrive.
+final readingsRepositoryProvider = FutureProvider<ReadingsRepository>(
+  (ref) async => ReadingsRepository(
+    await ref.watch(zenohServiceProvider.future),
+    nodeName: 'phone',
+  ),
+);
+
 /// The session, opened once; what depends on it waits for this.
 final sessionProvider = FutureProvider<void>((ref) async {
   final service = await ref.watch(zenohServiceProvider.future);
