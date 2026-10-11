@@ -73,3 +73,14 @@ final readingsProvider = StreamProvider<KeyedReading>((ref) async* {
 
 /// How many of the archive's levels the monitor's panel shows.
 const recentCount = 20;
+
+/// The archive's last [recentCount] levels, newest first, asked for once the
+/// session is open.
+final recentLevelsProvider = FutureProvider<List<KeyedLevel>>(
+  (ref) async => const [],
+);
+
+/// Each level the archive publishes as it keeps it, once the session is open.
+final liveLevelsProvider = StreamProvider<KeyedLevel>(
+  (ref) => const Stream.empty(),
+);
