@@ -262,11 +262,38 @@ the guide [zenoh in Dart and Flutter](https://github.com/bluecorn/zenoh-dart-flu
 there; the server, the web app and the monitor are new. It uses [`zenoh_dart`](https://pub.dev/packages/zenoh_dart)
 and [Serverpod](https://serverpod.dev) 4.
 
-## How it is built
+## How it is built, and the part AI played
 
-A tracer bullet: every layer once, in its thinnest real form, test-first, each feature starting from one claim stated
-as a failing test, and its tests limited to what that claim needs. The rules are in [CLAUDE.md](CLAUDE.md). It is
-built with Claude Code, Anthropic's coding assistant, under those rules; the full account comes with the submission.
+This project was built with Claude Code, running Claude Opus 5.5. Claude wrote the code, the tests and this
+documentation. Every commit since the project was cloned from `zenoh_sensors` names Claude as co-author, and two of
+them merge the work of Claude's subagents.
+
+I decided what was built and how: the scope, the architecture and each design choice, settled question by question,
+the first set of questions and answers in an interview run with the *grilling* skill from Matt Pocock's
+[skills](https://github.com/mattpocock/skills) repository. I chose MVVM as the structure of each app. To keep Claude
+and its subagents from over-engineering, I gave them one mandate: build a skeleton as a tracer bullet, through every
+layer of the system, from the phone to the browser, each in its thinnest real form; leave anything more out, named
+rather than built; and ask me rather than widen the scope. Each stage ran while I watched, first on the emulator and
+then on my phone, before it was pushed.
+
+Test-driven development is what holds the assistant's code to what was asked for. The outer loop follows the
+double-loop method of Freeman and Pryce: each stage opens with a flow test, its name one sentence about the system,
+run against real zenoh sessions and committed failing on an assertion before any code, and it stays red until the
+inner loops make it pass. The inner loops follow Kent Beck's red, green, refactor, in the classic style: one test at a
+time, state asserted rather than calls, hand-written fakes and no mocking framework, each step to green named as Beck
+names them (fake it, triangulate, the obvious implementation), built middle-out on the data side and outside-in from
+each app's view. Refactoring is assessed at every cycle and done only where the structure needs it. A comment above
+the flow test maps each of its expectations to the inner test that makes it true, and that map is the test budget.
+
+Done this way, the tests check the feature, not the code. An assistant that writes code and tests together tends to
+test only the code's contract, that a method exists, returns something or does not throw, in tests that pass against a
+stub that does nothing. Every test here must survive three checks against that: the dumbest code that passes it must
+not be plausible, its name is a sentence about the system, and breaking the code it covers must fail it. A subagent's
+work is merged only after its tests are run again and read against those checks. The history shows the order: each
+`test:` commit before the `feat:` that makes it pass, never squashed. The rules are in [CLAUDE.md](CLAUDE.md).
+
+`sensor_core` and `sensor_node` come from `zenoh_sensors`, built by following my guide *zenoh in Dart and Flutter*,
+whose chapters were drafted with Claude Code too. No AI model or component is part of the project itself.
 
 ## Licence
 
