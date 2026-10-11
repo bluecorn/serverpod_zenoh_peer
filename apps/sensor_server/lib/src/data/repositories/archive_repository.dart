@@ -5,8 +5,11 @@ import 'package:serverpod/serverpod.dart';
 /// through the session of whoever calls.
 class ArchiveRepository {
   /// Keeps [level] in the archive.
-  Future<void> add(Session session, SensorLevel level) async {}
+  Future<void> add(Session session, SensorLevel level) async {
+    await SensorLevel.db.insertRow(session, level);
+  }
 
   /// The last [n] levels kept, newest first.
-  Future<List<SensorLevel>> recent(Session session, int n) async => const [];
+  Future<List<SensorLevel>> recent(Session session, int n) =>
+      SensorLevel.db.find(session, orderBy: (t) => t.time.desc(), limit: n);
 }

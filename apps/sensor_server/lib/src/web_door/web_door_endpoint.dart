@@ -22,6 +22,11 @@ class WebDoorEndpoint extends Endpoint {
 
   /// The archive's last [n] levels, newest first: at once, and again each
   /// time a level is kept.
-  Stream<List<SensorLevel>> recent(Session session, int n) =>
-      Stream.value(const []);
+  Stream<List<SensorLevel>> recent(Session session, int n) async* {
+    final archive = serverContainer.read(archiveRepositoryProvider);
+    yield await archive.recent(session, n);
+    await for (final _ in serverContainer.read(recorderProvider).kept) {
+      yield await archive.recent(session, n);
+    }
+  }
 }
