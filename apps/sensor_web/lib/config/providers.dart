@@ -20,7 +20,10 @@ final readingsProvider = StreamProvider<SensorReading>(
   (ref) => ref.watch(webDoorRepositoryProvider).readings(),
 );
 
+/// How many of the archive's levels the page shows.
+const recentCount = 20;
+
 /// The archive's latest levels, newest first, each list the web door sends.
 final recentLevelsProvider = StreamProvider<List<SensorLevel>>(
-  (ref) => const Stream.empty(),
+  (ref) => ref.watch(webDoorRepositoryProvider).recent(recentCount),
 );

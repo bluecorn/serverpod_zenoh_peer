@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sensor_web/config/providers.dart';
 import 'package:sensor_web/ui/recent/recent_view_model.dart';
-
-/// How many of the archive's levels the panel shows.
-const recentCount = 20;
 
 /// The panel beside the phone's screen: the archive's latest levels, each key
 /// with its levels newest first, each the second it covers, in UTC, and the

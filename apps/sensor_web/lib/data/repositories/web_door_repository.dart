@@ -11,4 +11,9 @@ class WebDoorRepository {
   /// Every reading the phone publishes, with its key. Listening calls the web
   /// door; cancelling ends the call.
   Stream<SensorReading> readings() => client.webDoor.readings();
+
+  /// The archive's last [n] levels, newest first: at once, and again each time
+  /// the server keeps a level. Listening calls the web door; cancelling ends
+  /// the call.
+  Stream<List<SensorLevel>> recent(int n) => client.webDoor.recent(n);
 }
