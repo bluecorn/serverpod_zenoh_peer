@@ -34,18 +34,24 @@ class LevelsRepository {
 
   /// Every level the archive publishes as it keeps it, parsed as [recent]'s
   /// replies are and handed on with the key it was put on. Listening declares
-  /// the subscription.
+  /// the subscription; cancelling closes it.
   Stream<KeyedLevel> live() {
+    late final Subscription subscription;
+    late final StreamSubscription<TimedPayload> listening;
     final controller = StreamController<KeyedLevel>();
-    controller.onListen = () => zenoh
-        .declareSubscription(liveKeyExpr)
-        .samples
-        .listen(
-          (sample) => controller.add((
-            keyExpr: sample.keyExpr,
-            level: _asLevel(sample.payload),
-          )),
-        );
+    controller.onListen = () {
+      subscription = zenoh.declareSubscription(liveKeyExpr);
+      listening = subscription.samples.listen(
+        (sample) => controller.add((
+          keyExpr: sample.keyExpr,
+          level: _asLevel(sample.payload),
+        )),
+      );
+    };
+    controller.onCancel = () async {
+      await listening.cancel();
+      subscription.close();
+    };
     return controller.stream;
   }
 
