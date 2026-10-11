@@ -38,11 +38,17 @@ void main() {
     // two levels newest first, then the gyroscope with its one.
     final byKey = [
       for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
-        (keyExpr, levels.map((l) => l.time.second).toList()),
+        [keyExpr, levels.map((l) => l.time.second).toList()],
     ];
     expect(byKey, [
-      (accel, [2, 1]),
-      (gyro, [2]),
+      [
+        accel,
+        [2, 1],
+      ],
+      [
+        gyro,
+        [2],
+      ],
     ]);
   });
 }
