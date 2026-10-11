@@ -1,6 +1,7 @@
 ### The vibration level of one of the phone's sensors over one second, as the
 ### web door sends it.
 class: SensorLevel
+table: sensor_level
 fields:
   ### The start of the second, in UTC, by the clock of the session that stamped
   ### the readings.
@@ -9,3 +10,6 @@ fields:
   keyExpr: String
   ### The root mean square of the readings' magnitudes around their mean.
   level: double
+indexes:
+  sensor_level_time_idx:
+    fields: time

@@ -17,12 +17,14 @@ import 'package:serverpod_client/serverpod_client.dart' as _isc;
 abstract class SensorLevel
     implements _isc.SerializableModel, _isc.ProtocolSerialization {
   SensorLevel._({
+    this.id,
     required this.time,
     required this.keyExpr,
     required this.level,
   });
 
   factory SensorLevel({
+    int? id,
     required DateTime time,
     required String keyExpr,
     required double level,
@@ -30,11 +32,17 @@ abstract class SensorLevel
 
   factory SensorLevel.fromJson(Map<String, dynamic> jsonSerialization) {
     return SensorLevel(
+      id: jsonSerialization['id'] as int?,
       time: _isc.DateTimeJsonExtension.fromJson(jsonSerialization['time']),
       keyExpr: jsonSerialization['keyExpr'] as String,
       level: (jsonSerialization['level'] as num).toDouble(),
     );
   }
+
+  /// The database id, set if the object has been inserted into the
+  /// database or if it has been fetched from the database. Otherwise,
+  /// the id will be null.
+  int? id;
 
   /// The start of the second, in UTC, by the clock of the session that stamped
   /// the readings.
@@ -49,11 +57,17 @@ abstract class SensorLevel
   /// Returns a shallow copy of this [SensorLevel]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
-  SensorLevel copyWith({DateTime? time, String? keyExpr, double? level});
+  SensorLevel copyWith({
+    int? id,
+    DateTime? time,
+    String? keyExpr,
+    double? level,
+  });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'SensorLevel',
+      if (id != null) 'id': id,
       'time': time.toJson(),
       'keyExpr': keyExpr,
       'level': level,
@@ -64,6 +78,7 @@ abstract class SensorLevel
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'SensorLevel',
+      if (id != null) 'id': id,
       'time': time.toJson(),
       'keyExpr': keyExpr,
       'level': level,
@@ -76,19 +91,28 @@ abstract class SensorLevel
   }
 }
 
+class _Undefined {}
+
 class _SensorLevelImpl extends SensorLevel {
   _SensorLevelImpl({
+    int? id,
     required DateTime time,
     required String keyExpr,
     required double level,
-  }) : super._(time: time, keyExpr: keyExpr, level: level);
+  }) : super._(id: id, time: time, keyExpr: keyExpr, level: level);
 
   /// Returns a shallow copy of this [SensorLevel]
   /// with some or all fields replaced by the given arguments.
   @_isc.useResult
   @override
-  SensorLevel copyWith({DateTime? time, String? keyExpr, double? level}) {
+  SensorLevel copyWith({
+    Object? id = _Undefined,
+    DateTime? time,
+    String? keyExpr,
+    double? level,
+  }) {
     return SensorLevel(
+      id: id is int? ? id : this.id,
       time: time ?? this.time,
       keyExpr: keyExpr ?? this.keyExpr,
       level: level ?? this.level,

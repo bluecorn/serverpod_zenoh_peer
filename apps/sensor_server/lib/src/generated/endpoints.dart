@@ -38,6 +38,27 @@ class Endpoints extends _is.EndpointDispatch {
                 session,
               ),
         ),
+        'recent': _is.MethodStreamConnector(
+          name: 'recent',
+          params: {
+            'n': _is.ParameterDescription(
+              name: 'n',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          streamParams: {},
+          returnType: _is.MethodStreamReturnType.streamType,
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+                Map<String, Stream> streamParams,
+              ) => (endpoints['webDoor'] as _izzwlzt8.WebDoorEndpoint).recent(
+                session,
+                params['n'],
+              ),
+        ),
       },
     );
   }

@@ -12,6 +12,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'package:http/http.dart' as _i85jenna;
+import 'package:sensor_client/src/protocol/web_door/sensor_level.dart'
+    as _i63isrvn;
 import 'package:sensor_client/src/protocol/web_door/sensor_reading.dart'
     as _iyrlr3sb;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
@@ -33,6 +35,14 @@ class EndpointWebDoor extends _isc.EndpointRef {
         _ida.Stream<_iyrlr3sb.SensorReading>,
         _iyrlr3sb.SensorReading
       >('webDoor', 'readings', {}, {});
+
+  /// The archive's last [n] levels, newest first: at once, and again each
+  /// time a level is kept.
+  _ida.Stream<List<_i63isrvn.SensorLevel>> recent(int n) =>
+      caller.callStreamingServerEndpoint<
+        _ida.Stream<List<_i63isrvn.SensorLevel>>,
+        List<_i63isrvn.SensorLevel>
+      >('webDoor', 'recent', {'n': n}, {});
 }
 
 class Client extends _isc.ServerpodClientShared {

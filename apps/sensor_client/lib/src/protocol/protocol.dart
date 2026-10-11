@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:sensor_client/src/protocol/web_door/sensor_level.dart'
+    as _i63isrvn;
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'web_door/sensor_level.dart' as _i4cxm9sa;
 import 'web_door/sensor_reading.dart' as _ixh9crma;
@@ -62,6 +64,12 @@ class Protocol extends _isc.SerializationManager {
       return (data != null ? _ixh9crma.SensorReading.fromJson(data) : null)
           as T;
     }
+    if (t == List<_i63isrvn.SensorLevel>) {
+      return (data as List)
+              .map((e) => deserialize<_i63isrvn.SensorLevel>(e))
+              .toList()
+          as T;
+    }
     return super.deserialize<T>(data, t);
   }
 
@@ -88,6 +96,9 @@ class Protocol extends _isc.SerializationManager {
       case _ixh9crma.SensorReading():
         return 'SensorReading';
     }
+    if (data is List<_i63isrvn.SensorLevel>) {
+      return 'List<SensorLevel>';
+    }
     return null;
   }
 
@@ -102,6 +113,9 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'SensorReading') {
       return deserialize<_ixh9crma.SensorReading>(data['data']);
+    }
+    if (dataClassName == 'List<SensorLevel>') {
+      return deserialize<List<_i63isrvn.SensorLevel>>(data['data']);
     }
     return super.deserializeByClassName(data);
   }

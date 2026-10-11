@@ -1,6 +1,8 @@
 import 'package:riverpod/riverpod.dart';
 import 'package:sensor_core/sensor_core.dart';
+import 'package:sensor_server/src/data/repositories/archive_repository.dart';
 import 'package:sensor_server/src/data/services/settings_file_service.dart';
+import 'package:sensor_server/src/domain/recorder.dart';
 
 /// The server's providers, held here for its endpoints, which Serverpod builds
 /// with no constructor arguments: `run()` fills it, and a test fills it with
@@ -42,3 +44,19 @@ final readingsRepositoryProvider = Provider<ReadingsRepository>(
   (ref) =>
       ReadingsRepository(ref.watch(zenohServiceProvider), nodeName: 'phone'),
 );
+
+/// The archive, in the server's database.
+final archiveRepositoryProvider = Provider<ArchiveRepository>(
+  (ref) => ArchiveRepository(),
+);
+
+/// The recorder, keeping the phone's levels in the archive; its stream of kept
+/// levels ends with the container.
+final recorderProvider = Provider<Recorder>((ref) {
+  final recorder = Recorder(
+    ref.watch(readingsRepositoryProvider),
+    ref.watch(archiveRepositoryProvider),
+  );
+  ref.onDispose(recorder.dispose);
+  return recorder;
+});

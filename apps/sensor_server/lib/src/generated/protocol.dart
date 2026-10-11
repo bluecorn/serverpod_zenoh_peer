@@ -11,6 +11,8 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:sensor_server/src/generated/web_door/sensor_level.dart'
+    as _isbo2nze;
 import 'package:serverpod/protocol.dart' as _isp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'web_door/sensor_level.dart' as _i4cxm9sa;
@@ -26,6 +28,56 @@ class Protocol extends _is.DatabaseSerializationManager {
   static final Protocol _instance = Protocol._();
 
   static List<_isp.TableDefinition> get targetTableDefinitions => [
+    _isp.TableDefinition(
+      name: 'sensor_level',
+      dartName: 'SensorLevel',
+      schema: 'public',
+      module: 'sensor',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'time',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+        _isp.ColumnDefinition(
+          name: 'keyExpr',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'level',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'sensor_level_time_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'time',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._isp.Protocol.targetTableDefinitions,
   ];
 
@@ -66,6 +118,12 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null ? _ixh9crma.SensorReading.fromJson(data) : null)
           as T;
     }
+    if (t == List<_isbo2nze.SensorLevel>) {
+      return (data as List)
+              .map((e) => deserialize<_isbo2nze.SensorLevel>(e))
+              .toList()
+          as T;
+    }
     try {
       return _isp.Protocol().deserialize<T>(data, t);
     } on _is.DeserializationTypeNotFoundException catch (_) {}
@@ -95,6 +153,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       case _ixh9crma.SensorReading():
         return 'SensorReading';
     }
+    if (data is List<_isbo2nze.SensorLevel>) {
+      return 'List<SensorLevel>';
+    }
     className = _isp.Protocol().getClassNameForObject(data);
     if (className != null) {
       return className.contains('.') ? className : 'serverpod.$className';
@@ -118,6 +179,9 @@ class Protocol extends _is.DatabaseSerializationManager {
       data['className'] = dataClassName.substring(10);
       return _isp.Protocol().deserializeByClassName(data);
     }
+    if (dataClassName == 'List<SensorLevel>') {
+      return deserialize<List<_isbo2nze.SensorLevel>>(data['data']);
+    }
     return super.deserializeByClassName(data);
   }
 
@@ -128,6 +192,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       if (table != null) {
         return table;
       }
+    }
+    switch (t) {
+      case _i4cxm9sa.SensorLevel:
+        return _i4cxm9sa.SensorLevel.t;
     }
     return null;
   }

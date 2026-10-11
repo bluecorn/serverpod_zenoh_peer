@@ -13,6 +13,8 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
+import 'package:sensor_server/src/generated/web_door/sensor_level.dart'
+    as _isbo2nze;
 import 'package:sensor_server/src/generated/web_door/sensor_reading.dart'
     as _i3c5rfqq;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -188,6 +190,36 @@ class _WebDoorEndpoint {
             endpointPath: 'webDoor',
             methodName: 'readings',
             arguments: {},
+            requestedInputStreams: [],
+            serializationManager: _serializationManager,
+          );
+      await _localTestStreamManager.callStreamMethod(
+        _localCallContext,
+        _localUniqueSession,
+        {},
+      );
+    }, _localTestStreamManager.outputStreamController);
+    return _localTestStreamManager.outputStreamController.stream;
+  }
+
+  _ida.Stream<List<_isbo2nze.SensorLevel>> recent(
+    _ist.TestSessionBuilder sessionBuilder,
+    int n,
+  ) {
+    var _localTestStreamManager =
+        _ist.TestStreamManager<List<_isbo2nze.SensorLevel>>();
+    _ist.callStreamFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'webDoor',
+            method: 'recent',
+          );
+      var _localCallContext = await _endpointDispatch
+          .getMethodStreamCallContext(
+            createSessionCallback: (_) => _localUniqueSession,
+            endpointPath: 'webDoor',
+            methodName: 'recent',
+            arguments: {'n': n},
             requestedInputStreams: [],
             serializationManager: _serializationManager,
           );

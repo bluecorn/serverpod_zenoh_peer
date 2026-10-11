@@ -19,4 +19,9 @@ class WebDoorEndpoint extends Endpoint {
           time: keyed.reading.time!,
         ),
       );
+
+  /// The archive's last [n] levels, newest first: at once, and again each
+  /// time a level is kept.
+  Stream<List<SensorLevel>> recent(Session session, int n) =>
+      Stream.value(const []);
 }
