@@ -71,12 +71,21 @@ final sessionProvider = FutureProvider<void>((ref) async {
   await service.open();
 });
 
-/// The readings the node publishes, each with its key, once the session is
-/// open.
+/// The readings the screen shows, each with its key, once the session is
+/// open: the ones the node publishes, or in the monitor role the ones it
+/// receives. Only this provider knows the role, so the view model and the
+/// screen are the same in both, and the monitor never builds the device's
+/// sensors.
 final readingsProvider = StreamProvider<KeyedReading>((ref) async* {
   await ref.watch(sessionProvider.future);
-  if (ref.watch(nodeRoleProvider) == NodeRole.monitor) return;
-  yield* (await ref.watch(sensorNodeRepositoryProvider.future)).publish();
+  yield* switch (ref.watch(nodeRoleProvider)) {
+    NodeRole.node => (await ref.watch(
+      sensorNodeRepositoryProvider.future,
+    )).publish(),
+    NodeRole.monitor => (await ref.watch(
+      readingsRepositoryProvider.future,
+    )).readings(),
+  };
 });
 
 /// How many of the archive's levels the monitor's panel shows.
