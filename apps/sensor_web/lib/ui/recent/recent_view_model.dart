@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_web/config/providers.dart';
 
 /// What the panel shows: the archive's latest levels, by key.
 class RecentState {
@@ -15,7 +16,23 @@ class RecentState {
 /// by key.
 class RecentViewModel extends Notifier<RecentState> {
   @override
-  RecentState build() => const RecentState();
+  RecentState build() {
+    ref.listen(recentLevelsProvider, (_, next) {
+      if (next case AsyncData(:final value)) {
+        // The keys already shown keep their places; a key no longer among the
+        // latest levels leaves.
+        final byKey = {
+          for (final keyExpr in state.byKey.keys) keyExpr: <SensorLevel>[],
+        };
+        for (final level in value) {
+          (byKey[level.keyExpr] ??= []).add(level);
+        }
+        byKey.removeWhere((_, levels) => levels.isEmpty);
+        state = RecentState(byKey: byKey);
+      }
+    });
+    return const RecentState();
+  }
 }
 
 /// The panel's view model.
