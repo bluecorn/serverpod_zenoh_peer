@@ -13,8 +13,14 @@ enum NodeRole {
   monitor,
 }
 
-/// The role the app plays.
-final nodeRoleProvider = Provider<NodeRole>((ref) => NodeRole.node);
+/// The role the build names in `NODE_ROLE` (`node` or `monitor`), or the
+/// node when the build names none.
+final NodeRole buildRole = NodeRole.values.byName(
+  const String.fromEnvironment('NODE_ROLE', defaultValue: 'node'),
+);
+
+/// The role the app plays: the build's.
+final nodeRoleProvider = Provider<NodeRole>((ref) => buildRole);
 
 /// The name of the session's configuration file under `config/`: the build's
 /// `ZENOH_CONFIG`, or `development` when the build names none.

@@ -1,5 +1,5 @@
 name: sensor_node
-description: The sensor node, an Android app that publishes the phone's sensors over zenoh.
+description: The sensor node, an Android app that publishes the phone's sensors over zenoh, and in the monitor role a Linux app that shows them with the archive's levels.
 publish_to: none
 version: 1.0.0+1
 
