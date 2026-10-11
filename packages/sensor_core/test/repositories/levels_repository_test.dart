@@ -151,4 +151,63 @@ void main() {
       ]);
     },
   );
+
+  test('the levels reader of the node sim listens on archive/sim/*', () async {
+    // A fake: a service that records what is declared on it.
+    final zenoh = FakeZenohService();
+
+    // The code to implement: listening to the live levels declares one
+    // subscription, on the expression built from the node's name.
+    final repository = LevelsRepository(zenoh, nodeName: 'sim');
+    final listening = repository.live().listen((_) {});
+    addTearDown(listening.cancel);
+
+    // The claim: one subscription, on the expression that matches each of the
+    // sim node's keys in the archive.
+    final keys = zenoh.subscriptions.map((s) => s.keyExpr).toList();
+    expect(keys, ['archive/sim/*']);
+  });
+
+  test('a published time,value arrives as a level under its key', () async {
+    // A fake: a service whose subscription plays what the test puts into it,
+    // a level as the archive publishes it, on the gyroscope's key.
+    final zenoh = FakeZenohService();
+    final repository = LevelsRepository(zenoh, nodeName: 'phone');
+    final received = <KeyedLevel>[];
+    final listening = repository.live().listen(received.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: each payload parsed as the history's replies
+    // are, and handed on with the key it was put on.
+    zenoh.subscriptions.single.arrivals.add((
+      keyExpr: 'archive/phone/gyro',
+      payload: '2026-10-10T12:00:03.000Z,0.021',
+      time: DateTime.utc(2026, 10, 10, 12, 0, 4),
+    ));
+    await pumpEventQueue();
+
+    // The claim: one level, under the key of the sample, with the time and the
+    // value of its text.
+    final levels = received
+        .map((l) => [l.keyExpr, l.level.time, l.level.value])
+        .toList();
+    expect(levels, [
+      ['archive/phone/gyro', DateTime.utc(2026, 10, 10, 12, 0, 3), 0.021],
+    ]);
+  });
+
+  test('cancelling the live levels closes the subscription', () async {
+    // A fake: a service that records what is closed, whose subscription stays
+    // quiet, as a real one does between levels.
+    final zenoh = FakeZenohService();
+    final repository = LevelsRepository(zenoh, nodeName: 'phone');
+
+    // The code to implement: a cancel that closes the subscription, even
+    // while nothing arrives.
+    final listening = repository.live().listen((_) {});
+    await listening.cancel();
+
+    // The claim: the subscription the repository declared is closed.
+    expect(zenoh.subscriptions.single.isClosed, isTrue);
+  });
 }

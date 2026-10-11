@@ -1,0 +1,18 @@
+// The monitor's session in the tests: it listens nowhere and connects to the
+// phone's and the archive's session, on the loopback.
+{
+  // A peer: it listens, and it connects to other peers itself.
+  mode: "peer",
+  scouting: {
+    // No multicast scouting: the session asks the network for no one.
+    multicast: { enabled: false },
+    // No gossip scouting: no node tells this one about the nodes it knows.
+    gossip: { enabled: false },
+  },
+  // Where the session listens: nowhere, where a peer listens on every
+  // interface by default.
+  listen: { endpoints: [] },
+  // Where the session connects: the phone's and the archive's session, on the
+  // loopback.
+  connect: { endpoints: ["tcp/127.0.0.1:7448"] },
+}
