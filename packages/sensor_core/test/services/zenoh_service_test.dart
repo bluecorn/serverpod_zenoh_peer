@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:isolate';
 
 import 'package:sensor_core/sensor_core.dart';
@@ -662,6 +663,55 @@ void main() {
       time.difference(sent).inMicroseconds,
       inInclusiveRange(0, waited.difference(sent).inMicroseconds),
     );
+  });
+
+  test('a get to a queryable whose handler fails ends at once with the '
+      "handler's error, which goes no further", () async {
+    // The archive's end: a queryable whose handler fails, as the archive's
+    // does when its database cannot be read. It is declared in a zone that
+    // keeps every error escaping it: in the server, such an error ends the
+    // program.
+    final archiveNode = ZenohService(sensorNodeSettings());
+    addTearDown(archiveNode.dispose);
+    await archiveNode.open();
+    final escaped = <Object>[];
+    runZonedGuarded(
+      () => archiveNode.declareQueryable(
+        'archive/phone/**',
+        (_) => throw StateError('the archive cannot be read'),
+      ),
+      (error, _) => escaped.add(error),
+    );
+
+    // The reader's end: a session from the settings that connect.
+    final readerNode = ZenohService(collectorSettings());
+    addTearDown(readerNode.dispose);
+    await readerNode.open();
+    // The declaration travels to the reader, so give it time to arrive.
+    await Future<void>.delayed(delivery);
+
+    // The code to implement: the handler's failure answered with zenoh's
+    // error reply, the query let go, and the error reply handed up as an
+    // error. The get is followed to its end, its errors kept on the way.
+    final errors = <Object>[];
+    final ended = await readerNode
+        .get('archive/phone/**')
+        .handleError(errors.add)
+        .drain<void>()
+        .then((_) => true)
+        .timeout(const Duration(seconds: 2), onTimeout: () => false);
+
+    // The claim: the get ends well before the asker's timeout of 10 s, having
+    // handed up the handler's error, and nothing escapes the queryable.
+    expect(ended, isTrue, reason: 'still waiting 2 s after the get');
+    expect(errors, [
+      isA<QueryError>().having(
+        (error) => error.message,
+        'message',
+        contains('the archive cannot be read'),
+      ),
+    ]);
+    expect(escaped, isEmpty);
   });
 }
 

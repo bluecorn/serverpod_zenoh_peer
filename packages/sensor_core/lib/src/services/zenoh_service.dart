@@ -33,6 +33,19 @@ class Publication {
 /// its payload as text.
 typedef KeyedPayload = ({String keyExpr, String payload});
 
+/// A queryable's error reply, as a get hands it up: the text it was answered
+/// with.
+class QueryError implements Exception {
+  /// An error reply whose text is [message].
+  new(this.message);
+
+  /// The error reply's text.
+  final String message;
+
+  @override
+  String toString() => 'QueryError: $message';
+}
+
 /// A sample as a subscription hands it up: the key expression it was put on,
 /// its payload as text, and its time.
 typedef TimedPayload = ({String keyExpr, String payload, DateTime time});
