@@ -27,13 +27,11 @@ void main() {
   ///    each with its key and text: "a queryable answers a get with the keys
   ///    and texts its handler returns" (`zenoh_service_test.dart`, a plain
   ///    session asking).
-  /// 4. A query hands up each reply with the key it was answered on and its
-  ///    text: "a get receives each reply with its key and its text"
+  /// 4. A query hands up every reply with the key it was answered on and its
+  ///    text, several on one key included, in the order it was sent: "every
+  ///    reply to a get arrives, several on one key, in the order sent"
   ///    (`zenoh_service_test.dart`).
-  /// 5. Every reply arrives, several on one key included, in the order it
-  ///    was sent: "every reply to a get arrives, several on one key, in the
-  ///    order sent" (`zenoh_service_test.dart`).
-  /// 6. The query's parameters reach the queryable's handler, so `n` does:
+  /// 5. The query's parameters reach the queryable's handler, so `n` does:
   ///    "the parameters of a get reach the handler of the queryable"
   ///    (`zenoh_service_test.dart`).
   ///

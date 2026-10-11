@@ -439,54 +439,6 @@ void main() {
     },
   );
 
-  test('a get receives each reply with its key and its text', () async {
-    // The archive's end: its session, and a queryable that answers every
-    // query with two replies, each a key and its text.
-    final archiveNode = ZenohService(sensorNodeSettings());
-    addTearDown(archiveNode.dispose);
-    await archiveNode.open();
-    archiveNode.declareQueryable(
-      'archive/phone/**',
-      (_) => const [
-        (
-          keyExpr: 'archive/phone/accel',
-          payload: '2026-10-10T12:00:01.000Z,0.183',
-        ),
-        (
-          keyExpr: 'archive/phone/gyro',
-          payload: '2026-10-10T12:00:01.000Z,0.021',
-        ),
-      ],
-    );
-
-    // The reader's end: a session from the settings that connect.
-    final readerNode = ZenohService(collectorSettings());
-    addTearDown(readerNode.dispose);
-    await readerNode.open();
-    // The declaration travels to the reader, so give it time to arrive.
-    await Future<void>.delayed(delivery);
-
-    // The new contract to implement: send a query on a key expression, then
-    // collect the replies that come back.
-    final replies = await readerNode.get('archive/phone/**').toList();
-
-    // The claim: each reply arrives with the key it was answered on and its
-    // text, in whatever order.
-    expect(
-      replies,
-      unorderedEquals([
-        (
-          keyExpr: 'archive/phone/accel',
-          payload: '2026-10-10T12:00:01.000Z,0.183',
-        ),
-        (
-          keyExpr: 'archive/phone/gyro',
-          payload: '2026-10-10T12:00:01.000Z,0.021',
-        ),
-      ]),
-    );
-  });
-
   test(
     'every reply to a get arrives, several on one key, in the order sent',
     () async {
