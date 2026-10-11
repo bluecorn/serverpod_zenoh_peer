@@ -3,6 +3,7 @@ import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_server/src/data/repositories/archive_repository.dart';
 import 'package:sensor_server/src/data/services/settings_file_service.dart';
 import 'package:sensor_server/src/domain/recorder.dart';
+import 'package:sensor_server/src/zenoh_door/zenoh_door.dart';
 
 /// The server's providers, held here for its endpoints, which Serverpod builds
 /// with no constructor arguments: `run()` fills it, and a test fills it with
@@ -60,3 +61,12 @@ final recorderProvider = Provider<Recorder>((ref) {
   ref.onDispose(recorder.dispose);
   return recorder;
 });
+
+/// The zenoh door, over the archive and the recorder.
+final zenohDoorProvider = Provider<ZenohDoor>(
+  (ref) => ZenohDoor(
+    ref.watch(zenohServiceProvider),
+    ref.watch(archiveRepositoryProvider),
+    ref.watch(recorderProvider),
+  ),
+);
