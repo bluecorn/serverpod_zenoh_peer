@@ -1,0 +1,20 @@
+// The monitor's session, on the laptop: a peer that connects to the router on
+// the same laptop, which introduces it to the server and the phone, and links
+// to each of them directly. It listens nowhere, so it is the one that
+// connects.
+{
+  // A peer: it listens, and it connects to other peers itself.
+  mode: "peer",
+  scouting: {
+    // No multicast scouting: the session asks the network for no one.
+    multicast: { enabled: false },
+    // Gossip scouting on: the router tells this session about the peers it
+    // knows, and this session connects to them.
+    gossip: { enabled: true },
+  },
+  // Where the session listens: nowhere, where a peer listens on every
+  // interface by default.
+  listen: { endpoints: [] },
+  // Where the session connects: the router, on the laptop's loopback.
+  connect: { endpoints: ["tcp/127.0.0.1:7447"] },
+}
