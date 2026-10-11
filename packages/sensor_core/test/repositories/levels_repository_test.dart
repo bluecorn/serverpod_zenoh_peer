@@ -151,4 +151,20 @@ void main() {
       ]);
     },
   );
+
+  test('the levels reader of the node sim listens on archive/sim/*', () async {
+    // A fake: a service that records what is declared on it.
+    final zenoh = FakeZenohService();
+
+    // The code to implement: listening to the live levels declares one
+    // subscription, on the expression built from the node's name.
+    final repository = LevelsRepository(zenoh, nodeName: 'sim');
+    final listening = repository.live().listen((_) {});
+    addTearDown(listening.cancel);
+
+    // The claim: one subscription, on the expression that matches each of the
+    // sim node's keys in the archive.
+    final keys = zenoh.subscriptions.map((s) => s.keyExpr).toList();
+    expect(keys, ['archive/sim/*']);
+  });
 }
