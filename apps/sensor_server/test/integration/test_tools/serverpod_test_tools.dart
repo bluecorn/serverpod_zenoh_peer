@@ -13,7 +13,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
 import 'dart:io' as _idi;
-
 import 'package:sensor_server/src/generated/web_door/sensor_reading.dart'
     as _i3c5rfqq;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -37,7 +36,29 @@ export 'package:serverpod_test/serverpod_test_public_exports.dart';
 ///
 /// **Configuration options**
 ///
+/// [applyMigrations] Whether pending migrations should be applied when starting Serverpod. Defaults to `true`
+///
 /// [enableSessionLogging] Whether session logging should be enabled. Defaults to `false`
+///
+/// [ephemeralDatabase] Whether this group gets its own empty database, created when the group starts and dropped when it finishes. Defaults to `true`.
+/// Set this to `false` to use the database configured for [runMode], including a previously seeded database. [configOverride] can still replace that database. The configured database is not created or dropped, so groups that share it cannot run in parallel. [rollbackDatabase] still controls whether writes inside the group are rolled back.
+///
+/// [rollbackDatabase] Options for when to rollback the database during the test lifecycle.
+/// By default `withServerpod` does all database operations inside a transaction that is rolled back after each `test` case.
+/// Just like the following enum describes, the behavior of the automatic rollbacks can be configured:
+/// ```dart
+/// /// Options for when to rollback the database during the test lifecycle.
+/// enum RollbackDatabase {
+///   /// After each test. This is the default.
+///   afterEach,
+///
+///   /// After all tests.
+///   afterAll,
+///
+///   /// Disable rolling back the database.
+///   disabled,
+/// }
+/// ```
 ///
 /// [runMode] The run mode that Serverpod should be running in. Defaults to `test`.
 ///
@@ -68,6 +89,9 @@ export 'package:serverpod_test/serverpod_test_public_exports.dart';
 /// and before it is used to start the server. Use this to override particular
 /// settings in the server configuration.
 ///
+/// [databaseInterceptor] Optional interceptor that replaces the default database for each session.
+/// See [Serverpod.databaseInterceptor] for more information.
+///
 /// [testGroupTagsOverride] By default Serverpod test tools tags the `withServerpod` test group with `"integration"`.
 /// This is to provide a simple way to only run unit or integration tests.
 /// This property allows this tag to be overridden to something else. Defaults to `['integration']`.
@@ -84,10 +108,15 @@ export 'package:serverpod_test/serverpod_test_public_exports.dart';
 void withServerpod(
   String testGroupName,
   _ist.TestClosure<TestEndpoints> testClosure, {
+  bool? applyMigrations,
   _is.ServerpodConfig Function(_is.ServerpodConfig)? configOverride,
+  _is.DatabaseInterceptor? databaseInterceptor,
   bool? enableSessionLogging,
+  bool? ephemeralDatabase,
   _is.ExperimentalFeatures? experimentalFeatures,
+  _ist.RollbackDatabase? rollbackDatabase,
   String? runMode,
+  _is.RuntimeParametersListBuilder? runtimeParametersBuilder,
   _idi.Directory? serverDirectory,
   _is.ServerpodLoggingMode? serverpodLoggingMode,
   Duration? serverpodStartTimeout,
@@ -101,15 +130,18 @@ void withServerpod(
       endpoints: Endpoints(),
       serializationManager: Protocol(),
       runMode: runMode,
-      applyMigrations: false,
-      isDatabaseEnabled: false,
+      applyMigrations: applyMigrations,
+      ephemeralDatabase: ephemeralDatabase,
+      isDatabaseEnabled: true,
       serverpodLoggingMode: serverpodLoggingMode,
       testServerOutputMode: testServerOutputMode,
       serverDirectory: serverDirectory,
       experimentalFeatures: experimentalFeatures,
       configOverride: configOverride,
+      runtimeParametersBuilder: runtimeParametersBuilder,
+      databaseInterceptor: databaseInterceptor,
     ),
-    maybeRollbackDatabase: _ist.RollbackDatabase.disabled,
+    maybeRollbackDatabase: rollbackDatabase,
     maybeEnableSessionLogging: enableSessionLogging,
     maybeTestGroupTagsOverride: testGroupTagsOverride,
     maybeServerpodStartTimeout: serverpodStartTimeout,

@@ -32,7 +32,12 @@ webServer:
 
 maxRequestSize: 524288 # The maximum size of requests allowed in bytes
 
+# The database: SQLite, in a file resolved against the server's folder.
+database:
+  filePath: server.db
+
 sessionLogs:
+  persistentEnabled: false # SQLite keeps no session logs
   consoleEnabled: true
   consoleLogFormat: text # Defaults to "json", options are "text" or "json"
 

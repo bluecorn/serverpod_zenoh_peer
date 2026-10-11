@@ -6,6 +6,7 @@ environment:
 
 dependencies:
   sensor_core: ^1.0.0
+  sensor_server: ^1.0.0
 
 workspace:
   - apps/sensorctl

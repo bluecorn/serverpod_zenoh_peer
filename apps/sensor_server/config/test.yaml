@@ -24,7 +24,12 @@ insightsServer:
 
 
 
+# The database: SQLite, in a file resolved against the server's folder.
+database:
+  filePath: test.db
+
 sessionLogs:
+  persistentEnabled: false # SQLite keeps no session logs
   consoleEnabled: true
 # consoleLogFormat: json # Defaults to "json", options are "text" or "json"
 

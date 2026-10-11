@@ -1,6 +1,7 @@
 name: sensor_server
 description: The Serverpod server, a zenoh peer that turns the phone's readings into vibration levels.
 publish_to: none
+version: 1.0.0
 
 environment:
   sdk: ^3.13.2
