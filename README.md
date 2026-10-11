@@ -241,6 +241,19 @@ server and the monitor; they connect to the phone directly.
 
 The server, the page and the monitor run as above.
 
+### Checking the readings from a terminal
+
+`sensorctl`, the collector of the guide this project comes from, shows the phone's readings straight from zenoh,
+without the server:
+
+```sh
+fvm dart run apps/sensorctl/bin/sensorctl.dart --config apps/sensorctl/config/router-peer.json5 watch
+```
+
+It prints each sensor's latest reading and how many have arrived. If it shows readings while the page stays empty, the
+phone is publishing and the trouble is on the server's side; if it shows none, look at the phone and the router. Its
+configuration is the monitor's: a peer that `zenohd` introduces. `Ctrl-C` stops it.
+
 ### Stopping, and the tests
 
 `Ctrl-C` stops the router and the server, which closes its zenoh session on the way out; the monitor stops with its

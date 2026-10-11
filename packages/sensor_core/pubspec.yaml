@@ -1,5 +1,5 @@
 name: sensor_core
-description: The zenoh data layer that sensorctl and the phone app share.
+description: The zenoh data layer that the phone app, the server, the monitor and sensorctl share.
 version: 1.0.0
 
 environment:

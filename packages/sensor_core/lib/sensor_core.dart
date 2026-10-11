@@ -1,4 +1,5 @@
-/// The zenoh data layer that `sensorctl` and the phone app share.
+/// The zenoh data layer that the phone app, the server, the monitor and
+/// `sensorctl` share.
 library;
 
 export 'src/domain/level.dart';
