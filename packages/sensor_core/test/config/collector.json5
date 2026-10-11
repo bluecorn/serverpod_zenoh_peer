@@ -12,5 +12,5 @@
   // interface by default.
   listen: { endpoints: [] },
   // Where the session connects: the sensor node, on the loopback.
-  connect: { endpoints: ["tcp/127.0.0.1:7447"] },
+  connect: { endpoints: ["tcp/127.0.0.1:7451"] },
 }

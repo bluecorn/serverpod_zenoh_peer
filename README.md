@@ -257,7 +257,7 @@ configuration is the monitor's: a peer that `zenohd` introduces. `Ctrl-C` stops 
 ### Stopping, and the tests
 
 `Ctrl-C` stops the router and the server, which closes its zenoh session on the way out; the monitor stops with its
-window. The tests run with the server stopped, since some listen on its port:
+window. The tests use loopback ports of their own, 7450 to 7452, so they run beside the router and the server:
 
 ```sh
 fvm dart test packages/sensor_core apps/sensor_server apps/sensorctl

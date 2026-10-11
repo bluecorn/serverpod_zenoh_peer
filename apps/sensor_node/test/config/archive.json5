@@ -9,9 +9,9 @@
     // No gossip scouting: no node tells this one about the nodes it knows.
     gossip: { enabled: false },
   },
-  // Where the session listens: the loopback, port 7448, which no other test
-  // folder uses.
-  listen: { endpoints: ["tcp/127.0.0.1:7448"] },
+  // Where the session listens: the loopback, port 7452, which nothing else
+  // uses: not the router's 7447, the server's 7448 nor another test folder.
+  listen: { endpoints: ["tcp/127.0.0.1:7452"] },
   // Timestamping on: the session stamps each sample it publishes with the
   // time of its own clock, as the phone's configuration has it do.
   timestamping: { enabled: true },

@@ -14,5 +14,5 @@
   listen: { endpoints: [] },
   // Where the session connects: the phone's and the archive's session, on the
   // loopback.
-  connect: { endpoints: ["tcp/127.0.0.1:7448"] },
+  connect: { endpoints: ["tcp/127.0.0.1:7452"] },
 }

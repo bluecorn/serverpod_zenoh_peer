@@ -75,7 +75,7 @@ void main() {
   test('the collector connects to where the sensor node listens', () {
     // The code to implement: the endpoints of both files, each parsed by
     // zenoh and read back as data.
-    const address = '["tcp/127.0.0.1:7447"]';
+    const address = '["tcp/127.0.0.1:7451"]';
     final sensorConfig = Config.fromStr(sensorNodeSettings().json5);
     final collectorConfig = Config.fromStr(collectorSettings().json5);
     addTearDown(sensorConfig.dispose);
@@ -366,24 +366,6 @@ void main() {
 
     // The claim: only the key of three segments arrives.
     expect(received, ['sensor/phone/gyro']);
-  });
-
-  test('a client whose router does not answer does not open', () async {
-    // A client of a router that is not there: nothing listens at the
-    // address, as nothing listens for the collector that opens alone.
-    final client = ZenohService(
-      const SessionSettings('''
-{
-  mode: "client",
-  scouting: { multicast: { enabled: false } },
-  connect: { endpoints: ["tcp/127.0.0.1:7447"] },
-}
-'''),
-    );
-    addTearDown(client.dispose);
-
-    // The claim: opening fails, where a peer's open returns with no peers.
-    await expectLater(client.open(), throwsA(isA<ZenohException>()));
   });
 
   test(

@@ -8,6 +8,7 @@
     // No gossip scouting: no node tells this one about the nodes it knows.
     gossip: { enabled: false },
   },
-  // Where the session listens: the loopback, port 7447.
-  listen: { endpoints: ["tcp/127.0.0.1:7447"] },
+  // Where the session listens: the loopback, port 7451, which nothing else
+  // uses: not the router's 7447 nor the server's 7448.
+  listen: { endpoints: ["tcp/127.0.0.1:7451"] },
 }
