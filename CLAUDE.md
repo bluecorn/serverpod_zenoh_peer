@@ -35,7 +35,8 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 several nodes, the monitor on Android, zenoh's advanced publisher and subscriber for history and live in one (unstable,
 behind `zenoh_unstable.dart`), a deterministic wire rate (the node thinning its own stream), a UI package
 shared by the three views (the page copies the phone's screen, since `sensor_core` brings `zenoh_dart` into a web
-build), a silent sensor's last second (it is closed only by the sensor's next reading).
+build), a silent sensor's last second (it is closed only by the sensor's next reading), the server's own log of a
+failed archive read (the error goes to the asker, as zenoh's error reply).
 
 ## The architecture
 
