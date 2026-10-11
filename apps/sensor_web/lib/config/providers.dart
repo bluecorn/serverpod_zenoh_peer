@@ -19,3 +19,8 @@ final webDoorRepositoryProvider = Provider<WebDoorRepository>(
 final readingsProvider = StreamProvider<SensorReading>(
   (ref) => ref.watch(webDoorRepositoryProvider).readings(),
 );
+
+/// The archive's latest levels, newest first, each list the web door sends.
+final recentLevelsProvider = StreamProvider<List<SensorLevel>>(
+  (ref) => const Stream.empty(),
+);
