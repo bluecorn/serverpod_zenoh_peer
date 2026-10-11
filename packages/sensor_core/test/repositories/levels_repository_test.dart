@@ -167,4 +167,32 @@ void main() {
     final keys = zenoh.subscriptions.map((s) => s.keyExpr).toList();
     expect(keys, ['archive/sim/*']);
   });
+
+  test('a published time,value arrives as a level under its key', () async {
+    // A fake: a service whose subscription plays what the test puts into it,
+    // a level as the archive publishes it, on the gyroscope's key.
+    final zenoh = FakeZenohService();
+    final repository = LevelsRepository(zenoh, nodeName: 'phone');
+    final received = <KeyedLevel>[];
+    final listening = repository.live().listen(received.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: each payload parsed as the history's replies
+    // are, and handed on with the key it was put on.
+    zenoh.subscriptions.single.arrivals.add((
+      keyExpr: 'archive/phone/gyro',
+      payload: '2026-10-10T12:00:03.000Z,0.021',
+      time: DateTime.utc(2026, 10, 10, 12, 0, 4),
+    ));
+    await pumpEventQueue();
+
+    // The claim: one level, under the key of the sample, with the time and the
+    // value of its text.
+    final levels = received
+        .map((l) => [l.keyExpr, l.level.time, l.level.value])
+        .toList();
+    expect(levels, [
+      ['archive/phone/gyro', DateTime.utc(2026, 10, 10, 12, 0, 3), 0.021],
+    ]);
+  });
 }
