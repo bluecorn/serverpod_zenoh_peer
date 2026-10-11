@@ -53,4 +53,31 @@ void main() {
       '00:50:03   0.231',
     ]);
   });
+
+  testWidgets('the panel says no levels yet while it has none', (tester) async {
+    // A fake: a view model that holds no levels, as before the archive
+    // answers.
+    final container = ProviderContainer.test(
+      overrides: [
+        recentViewModelProvider.overrideWith(
+          () => FakeRecentViewModel(const RecentState()),
+        ),
+      ],
+    );
+
+    // The code to implement: the panel, built once from that state.
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: Scaffold(body: RecentPanel())),
+      ),
+    );
+
+    // The claim: the header, then the line that says there are none yet.
+    final texts = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((text) => text.data)
+        .toList();
+    expect(texts, ['vibration level, last 20 (UTC)', 'no levels yet']);
+  });
 }
