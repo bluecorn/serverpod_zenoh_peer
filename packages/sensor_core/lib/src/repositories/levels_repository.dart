@@ -32,11 +32,22 @@ class LevelsRepository {
       .map((reply) => (keyExpr: reply.keyExpr, level: _asLevel(reply.payload)))
       .toList();
 
-  /// Every level the archive publishes as it keeps it. Listening declares
+  /// Every level the archive publishes as it keeps it, parsed as [recent]'s
+  /// replies are and handed on with the key it was put on. Listening declares
   /// the subscription.
-  Stream<KeyedLevel> live() => StreamController<KeyedLevel>(
-    onListen: () => zenoh.declareSubscription(liveKeyExpr),
-  ).stream;
+  Stream<KeyedLevel> live() {
+    final controller = StreamController<KeyedLevel>();
+    controller.onListen = () => zenoh
+        .declareSubscription(liveKeyExpr)
+        .samples
+        .listen(
+          (sample) => controller.add((
+            keyExpr: sample.keyExpr,
+            level: _asLevel(sample.payload),
+          )),
+        );
+    return controller.stream;
+  }
 
   static Level _asLevel(String text) {
     final [time, value] = text.split(',');
