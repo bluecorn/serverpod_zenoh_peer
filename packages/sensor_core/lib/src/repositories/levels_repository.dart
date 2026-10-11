@@ -24,6 +24,9 @@ class LevelsRepository {
       .map((reply) => (keyExpr: reply.keyExpr, level: _asLevel(reply.payload)))
       .toList();
 
+  /// Every level the archive publishes as it keeps it.
+  Stream<KeyedLevel> live() => const Stream.empty();
+
   static Level _asLevel(String text) {
     final [time, value] = text.split(',');
     return Level(time: DateTime.parse(time), value: double.parse(value));

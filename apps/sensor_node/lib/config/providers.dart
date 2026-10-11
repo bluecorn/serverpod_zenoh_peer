@@ -3,6 +3,19 @@ import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_node/data/services/device_sensor_service.dart';
 import 'package:sensor_node/data/services/settings_asset_service.dart';
 
+/// The two roles of the app: the node, which publishes the phone's sensors,
+/// and the monitor, which receives them and shows the archive's levels.
+enum NodeRole {
+  /// The phone, publishing its sensors.
+  node,
+
+  /// The laptop, receiving the phone's readings and the archive's levels.
+  monitor,
+}
+
+/// The role the app plays.
+final nodeRoleProvider = Provider<NodeRole>((ref) => NodeRole.node);
+
 /// The name of the session's configuration file under `config/`: the build's
 /// `ZENOH_CONFIG`, or `development` when the build names none.
 final configNameProvider = Provider<String>(
@@ -54,5 +67,6 @@ final sessionProvider = FutureProvider<void>((ref) async {
 /// open.
 final readingsProvider = StreamProvider<KeyedReading>((ref) async* {
   await ref.watch(sessionProvider.future);
+  if (ref.watch(nodeRoleProvider) == NodeRole.monitor) return;
   yield* (await ref.watch(sensorNodeRepositoryProvider.future)).publish();
 });
