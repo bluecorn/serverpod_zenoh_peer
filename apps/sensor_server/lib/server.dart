@@ -28,13 +28,17 @@ Future<void> run(List<String> args) async {
 
   // The recorder, once the server and its database have started: it keeps the
   // phone's levels in the archive through a session of its own, with logging
-  // off. Serverpod owns SIGINT and SIGTERM, so the recording stops, its
-  // session closes and zenoh closes with the providers in a shutdown task.
+  // off; and the zenoh door, which answers from the archive through the same
+  // session and publishes each level kept. Serverpod owns SIGINT and SIGTERM,
+  // so the door and the recording stop, their session closes and zenoh closes
+  // with the providers in a shutdown task.
   final archiveSession = await pod.createSession(enableLogging: false);
   final recording = serverContainer
       .read(recorderProvider)
       .start(archiveSession);
+  final door = serverContainer.read(zenohDoorProvider).open(archiveSession);
   pod.experimental.shutdownTasks.addTask(#zenoh, () async {
+    await door.cancel();
     await recording.cancel();
     await archiveSession.close();
     serverContainer.dispose();
