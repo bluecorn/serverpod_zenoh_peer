@@ -27,6 +27,138 @@ them:
 - **One app, two roles:** the monitor is the same Flutter app as the node, with the same view model and screen, reading
   instead of publishing.
 
+## Run it
+
+Run on Linux x86_64, with the node on an Android emulator (an x86_64 image) and on a Pixel 9a over Wi-Fi.
+
+**What you need:**
+- [fvm](https://fvm.app), which installs the Flutter version this repository pins in `.fvmrc` (3.47.5, with Dart
+  3.13.4). Every Dart and Flutter command below goes through it.
+- Flutter's [Linux desktop](https://docs.flutter.dev/platform-integration/linux/setup) and
+  [Android](https://docs.flutter.dev/platform-integration/android/setup) setups: the monitor is a Linux app, the node
+  an Android app, run on an emulator or a phone.
+- `zenohd`, zenoh's router, 1.8.0 or newer, from [zenoh's releases](https://github.com/eclipse-zenoh/zenoh/releases).
+- No database server: the archive is a SQLite file the server creates.
+
+**Every command runs from the repository's root** unless it says otherwise. `zenoh_dart` finds its native library
+under the working directory's `.dart_tool/lib/`, where the build puts it; from inside `apps/sensor_server`, the server
+fails with `Could not find libzenoh_dart.so`.
+
+### 1. The code and the page
+
+```sh
+git clone https://github.com/bluecorn/serverpod_zenoh_bridge.git
+cd serverpod_zenoh_bridge
+fvm install
+fvm flutter pub get
+cd apps/sensor_web
+fvm flutter build web --base-href / --output ../sensor_server/web/app
+cd ../..
+```
+
+The page is a Flutter web app; the server serves its build.
+
+### 2. The router, the server and the page
+
+In a first terminal, the router, listening on the laptop's loopback:
+
+```sh
+zenohd --no-multicast-scouting -l tcp/127.0.0.1:7447
+```
+
+In a second, the server:
+
+```sh
+fvm dart run apps/sensor_server/bin/main.dart --apply-migrations
+```
+
+`--apply-migrations` creates the archive, `apps/sensor_server/server.db`, on the first run. Serverpod's warning that
+its Insights server is disabled is expected. Open <http://localhost:8082/>.
+
+### 3. The node, on the Android emulator
+
+Start an emulator, then build the node with the configuration that makes it a client of the router (the emulator
+reaches the laptop at `10.0.2.2`) and install it:
+
+```sh
+cd apps/sensor_node
+fvm flutter build apk --debug --dart-define=ZENOH_CONFIG=emulator-client
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+cd ../..
+```
+
+Open `sensor_node` on the emulator. The emulator's sensors are still, so move them, from the emulator window's
+Virtual sensors panel or with `adb`:
+
+```sh
+adb emu sensor set acceleration 2.5:9.8:1.0
+adb emu sensor set gyroscope 0.8:0:0
+```
+
+The page shows each sensor's latest reading, the time the phone stamped it and the count, and beside them the last
+levels the archive kept.
+
+### 4. The monitor, on Linux
+
+In a third terminal:
+
+```sh
+cd apps/sensor_node
+fvm flutter build linux --dart-define=NODE_ROLE=monitor --dart-define=ZENOH_CONFIG=monitor
+cd build/linux/x64/release/bundle
+./sensor_node
+```
+
+Start it from its bundle folder, as here: from a folder with a `.dart_tool/lib/`, it would load that folder's zenoh
+library instead of the one it was built with. Its window shows the phone's screen, read over zenoh, and a panel that
+asks the server's zenoh door for the last levels, then follows each one the server keeps.
+
+### With a real phone over Wi-Fi
+
+The phone is a peer: it listens on its port 7447 and connects to the router on the laptop, which introduces it to the
+server and the monitor; they connect to the phone directly.
+
+1. Put the laptop and the phone on the same Wi-Fi network. A VPN on either can block the traffic between them: turn
+   it off, or let local traffic through (with NordVPN, LAN Discovery, on both).
+2. Make a copy of the phone's configuration, and in it replace `192.0.2.10` with the laptop's address on the Wi-Fi
+   network (`ip -4 addr` shows it). Git ignores the copy.
+
+   ```sh
+   cp apps/sensor_node/config/router-peer.json5 apps/sensor_node/config/router-peer.local.json5
+   ```
+
+3. Start the router on that address and on the loopback, in place of the router of step 2:
+
+   ```sh
+   zenohd --no-multicast-scouting -l tcp/<the laptop's address>:7447 -l tcp/127.0.0.1:7447
+   ```
+
+   Name the two addresses rather than `0.0.0.0`: the phone announces every address it has, and two devices on the
+   same VPN can share a tunnel address, so a connection meant for the phone could reach the laptop's own router.
+4. Build the node with the copy and install it, over USB or wireless debugging:
+
+   ```sh
+   cd apps/sensor_node
+   fvm flutter build apk --release --dart-define=ZENOH_CONFIG=router-peer.local
+   adb install -r build/app/outputs/flutter-apk/app-release.apk
+   cd ../..
+   ```
+
+5. Open `sensor_node` on the phone and leave it on screen: Android cuts an app's network seconds after it leaves the
+   screen, so the node keeps the screen on.
+
+The server, the page and the monitor run as above.
+
+### Stopping, and the tests
+
+`Ctrl-C` stops the router and the server, which closes its zenoh session on the way out; the monitor stops with its
+window. The tests run with the server stopped, since some listen on its port:
+
+```sh
+fvm dart test packages/sensor_core apps/sensor_server apps/sensorctl
+fvm flutter test apps/sensor_node apps/sensor_web
+```
+
 ## Where it comes from
 
 It continues the EF IoT webinar of 17 June 2026, *Building a UI for Robotics Using Flutter and Zenoh*

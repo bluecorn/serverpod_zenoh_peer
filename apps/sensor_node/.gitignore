@@ -46,3 +46,6 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# A copy of a configuration with a real address in it, such as the laptop's on the Wi-Fi network.
+config/*.local.json5
