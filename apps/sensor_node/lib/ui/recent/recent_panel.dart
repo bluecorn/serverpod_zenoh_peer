@@ -5,7 +5,8 @@ import 'package:sensor_node/ui/recent/recent_view_model.dart';
 
 /// The panel beside the phone's screen in the monitor role: the archive's
 /// latest levels, each key with its levels newest first, each the second it
-/// covers, in UTC, and the level to three decimals.
+/// covers, in UTC, and the level to three decimals; while there are none, a
+/// line that says so.
 class RecentPanel extends ConsumerWidget {
   /// The panel; it watches [recentViewModelProvider].
   const new({super.key});
@@ -24,6 +25,7 @@ class RecentPanel extends ConsumerWidget {
             'vibration level, last $recentCount (UTC)',
             style: theme.titleLarge,
           ),
+          if (recent.byKey.isEmpty) const Text('no levels yet'),
           for (final MapEntry(key: keyExpr, value: levels)
               in recent.byKey.entries) ...[
             Text(keyExpr, style: theme.titleMedium),
