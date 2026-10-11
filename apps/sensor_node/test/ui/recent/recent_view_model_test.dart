@@ -54,4 +54,50 @@ void main() {
       ],
     ]);
   });
+
+  test('the panel keeps the newest 20 levels in all, the oldest leaving as a '
+      'new one arrives', () async {
+    // Fakes: the history provider, overridden with twenty levels newest
+    // first, nineteen on the accelerometer's key and the oldest on the
+    // gyroscope's, and the live provider with a stream the test plays.
+    KeyedLevel level(String keyExpr, int second) => (
+      keyExpr: keyExpr,
+      level: Level(time: DateTime.utc(2026, 10, 11, 0, 50, second), value: 0.5),
+    );
+    const accel = 'archive/phone/accel';
+    const gyro = 'archive/phone/gyro';
+    final live = StreamController<KeyedLevel>();
+    addTearDown(live.close);
+    final container = ProviderContainer.test(
+      overrides: [
+        recentLevelsProvider.overrideWith(
+          (ref) async => [
+            for (var second = 20; second >= 2; second--) level(accel, second),
+            level(gyro, 1),
+          ],
+        ),
+        liveLevelsProvider.overrideWith((ref) => live.stream),
+      ],
+    )..listen(recentViewModelProvider, (_, _) {});
+    await pumpEventQueue();
+
+    // The code to implement: a twenty-first level, published on the
+    // accelerometer's key, newer than every other.
+    live.add(level(accel, 21));
+    await pumpEventQueue();
+    final state = container.read(recentViewModelProvider);
+
+    // The claim: the accelerometer's twenty newest levels, and the gyroscope
+    // gone with the oldest.
+    final byKey = [
+      for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
+        [keyExpr, levels.map((l) => l.time.second).toList()],
+    ];
+    expect(byKey, [
+      [
+        accel,
+        [for (var second = 21; second >= 2; second--) second],
+      ],
+    ]);
+  });
 }
