@@ -155,8 +155,9 @@ class ZenohService {
   /// Sends a query on [keyExpr] with the selector's [parameters], and hands up
   /// each reply as the key it was answered on and its text, every one of them
   /// in the order it arrives: no consolidation, where zenoh's default keeps
-  /// only the latest reply on each key. The stream ends when every queryable
-  /// has answered.
+  /// only the latest reply on each key. An error reply arrives as a
+  /// [QueryError] with its text. The stream ends when every queryable has
+  /// answered.
   Stream<KeyedPayload> get(
     String keyExpr, {
     Map<String, String> parameters = const {},
@@ -166,19 +167,29 @@ class ZenohService {
         parameters: _asSelectorParameters(parameters),
         consolidation: ConsolidationMode.none,
       )
-      .map((reply) => (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload));
+      .map(
+        (reply) => reply.isOk
+            ? (keyExpr: reply.ok.keyExpr, payload: reply.ok.payload)
+            : throw QueryError(reply.error.payload),
+      );
 
   /// Declares a queryable on [keyExpr] that answers each query with what
-  /// [answer] returns for its parameters, then lets the query go, which tells
-  /// the asker this queryable has finished. The service closes it on
-  /// [dispose].
+  /// [answer] returns for its parameters, or, when [answer] fails, with
+  /// zenoh's error reply carrying the failure's text, which goes no further.
+  /// Either way it then lets the query go, which tells the asker this
+  /// queryable has finished. The service closes it on [dispose].
   Answerer declareQueryable(String keyExpr, QueryHandler answer) {
     final queryable = _opened.declareQueryable(keyExpr);
     queryable.stream.listen((query) async {
-      for (final reply in await answer(_asParameterMap(query.parameters))) {
-        query.reply(reply.keyExpr, reply.payload);
+      try {
+        for (final reply in await answer(_asParameterMap(query.parameters))) {
+          query.reply(reply.keyExpr, reply.payload);
+        }
+      } on Object catch (error) {
+        query.replyErr('$error');
+      } finally {
+        query.dispose();
       }
-      query.dispose();
     });
     final answerer = Answerer._(queryable);
     _answerers.add(answerer);
