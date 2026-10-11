@@ -70,3 +70,6 @@ final readingsProvider = StreamProvider<KeyedReading>((ref) async* {
   if (ref.watch(nodeRoleProvider) == NodeRole.monitor) return;
   yield* (await ref.watch(sensorNodeRepositoryProvider.future)).publish();
 });
+
+/// How many of the archive's levels the monitor's panel shows.
+const recentCount = 20;
