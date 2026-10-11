@@ -14,9 +14,9 @@ class RecentState {
 
 /// The view model behind the panel, which keeps the archive's latest levels,
 /// by key: the history the archive answers with, then each level it publishes
-/// on top.
+/// on top, the newest [recentCount] in all.
 class RecentViewModel extends Notifier<RecentState> {
-  /// Every key's levels together, newest first.
+  /// The newest [recentCount] levels of every key together, newest first.
   var _levels = <KeyedLevel>[];
 
   @override
@@ -31,14 +31,15 @@ class RecentViewModel extends Notifier<RecentState> {
     return const RecentState();
   }
 
-  /// Shows [levels], newest first, by key. The keys already shown keep their
-  /// places.
+  /// Shows the newest [recentCount] of [levels], newest first, by key. The
+  /// keys already shown keep their places; a key no longer among them leaves.
   void _show(List<KeyedLevel> levels) {
-    _levels = levels;
+    _levels = levels.take(recentCount).toList();
     final byKey = {for (final keyExpr in state.byKey.keys) keyExpr: <Level>[]};
-    for (final (:keyExpr, :level) in levels) {
+    for (final (:keyExpr, :level) in _levels) {
       (byKey[keyExpr] ??= []).add(level);
     }
+    byKey.removeWhere((_, levels) => levels.isEmpty);
     state = RecentState(byKey: byKey);
   }
 }
