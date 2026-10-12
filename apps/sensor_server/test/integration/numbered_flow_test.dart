@@ -22,16 +22,27 @@ import 'test_tools/serverpod_test_tools.dart';
 ///    `readings_repository_test.dart`, a fake service).
 /// 3. The web door sends each reading with its number: `WebDoorEndpoint`,
 ///    this test.
-/// 4. The phone's screen shows the node's number as each sensor's count, and
-///    the monitor's its own count of what it received beside it:
-///    `sensor_node`'s `NodeScreen` tests, a fake view model.
-/// 5. The page shows the node's number and its own count of what it
-///    received: `sensor_web`'s `WatchScreen` tests, a fake view model.
-/// 6. `sensorctl`'s line shows the node's number and its own count of what it
-///    received: its `watch_view_test.dart`.
+/// 4. The monitor's screen shows the node's number as each key's count and,
+///    beside it, how many arrived there; the phone's only the number: "the
+///    monitor's screen shows the node's number as each key's count of
+///    readings, and how many arrived here" and "the phone's screen shows the
+///    node's number as each key's count of readings, and nothing of what
+///    arrived" (`sensor_node`'s `node_screen_test.dart`, a fake view model).
+/// 5. The node's view model says from the role whether its readings are
+///    received: "in the monitor role the view model's readings are received,
+///    in the node role published" (`sensor_node`'s `node_view_model_test.dart`,
+///    fake providers).
+/// 6. The page shows the node's number and its own count of what arrived:
+///    "the page shows the node's number as each key's count of readings, and
+///    how many arrived here" (`sensor_web`'s `watch_screen_test.dart`, a fake
+///    view model).
+/// 7. `sensorctl`'s line shows the node's number and its own count of what
+///    arrived: "watch shows each key's reading with the node's number and its
+///    own count of what it received" (its `watch_view_test.dart`).
 ///
 /// The view models already keep each key's latest reading and their own
-/// count; the number travels inside the reading, so they are unchanged.
+/// count; the number travels inside the reading, so only the node's changes,
+/// for the role.
 void main() {
   withServerpod('Given the web door', serverDirectory: serverDirectory, (
     sessionBuilder,
