@@ -32,15 +32,18 @@ class NodeState {
 }
 
 /// The view model behind the node's screen, which keeps the latest reading and
-/// counts the readings, for each key.
+/// counts the readings, for each key, and says from the role whether they are
+/// received here.
 class NodeViewModel extends Notifier<NodeState> {
   @override
   NodeState build() {
+    final receives = ref.watch(nodeRoleProvider) == NodeRole.monitor;
     ref.listen(readingsProvider, (_, next) {
       if (next case AsyncData(:final value)) {
         final (:keyExpr, :reading) = value;
         final count = state.sensors[keyExpr]?.count ?? 0;
         state = NodeState(
+          receives: receives,
           sensors: {
             ...state.sensors,
             keyExpr: SensorState(latest: reading, count: count + 1),
@@ -48,7 +51,7 @@ class NodeViewModel extends Notifier<NodeState> {
         );
       }
     });
-    return const NodeState();
+    return NodeState(receives: receives);
   }
 }
 
