@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/config/providers.dart';
 import 'package:sensor_web/domain/sensed.dart';
 
@@ -8,8 +9,7 @@ class RecentState {
   /// sensor.
   const new({this.byKey = const {}});
 
-  /// Each key's levels, newest first, the keys in the order they first
-  /// appeared.
+  /// Each key's levels, newest first, the keys in the sensor list's order.
   final Map<String, List<SensedLevel>> byKey;
 }
 
@@ -20,8 +20,8 @@ class RecentViewModel extends Notifier<RecentState> {
   RecentState build() {
     ref.listen(recentLevelsProvider, (_, next) {
       if (next case AsyncData(:final value)) {
-        // The keys already shown keep their places; a key no longer among the
-        // latest levels leaves.
+        // The keys in the sensor list's order, a tie keeping its place; a key
+        // no longer among the latest levels leaves.
         final byKey = {
           for (final keyExpr in state.byKey.keys) keyExpr: <SensedLevel>[],
         };
@@ -29,7 +29,11 @@ class RecentViewModel extends Notifier<RecentState> {
           (byKey[sensed.level.keyExpr] ??= []).add(sensed);
         }
         byKey.removeWhere((_, levels) => levels.isEmpty);
-        state = RecentState(byKey: byKey);
+        state = RecentState(
+          byKey: Map.fromEntries(
+            inSensorOrder(byKey.entries, (entry) => entry.value.first.sensor),
+          ),
+        );
       }
     });
     return const RecentState();
