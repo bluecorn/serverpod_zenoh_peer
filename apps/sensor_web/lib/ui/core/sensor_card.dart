@@ -64,8 +64,10 @@ class SensorCard extends StatelessWidget {
                       style: value,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Text(sensor.unit, style: text.titleMedium),
+                  if (sensor.unit.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    Text(sensor.unit, style: text.titleMedium),
+                  ],
                 ],
               ),
             const SizedBox(height: 12),
