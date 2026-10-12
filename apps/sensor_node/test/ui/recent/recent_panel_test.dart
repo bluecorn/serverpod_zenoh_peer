@@ -33,7 +33,7 @@ void main() {
         .widgetList<Text>(find.byType(Text))
         .map((text) => text.data)
         .toList();
-    expect(texts, ['vibration level, last 20 (UTC)', 'no levels yet']);
+    expect(texts, ['Vibration level, per second (UTC)', 'no levels yet']);
   });
 
   testWidgets('the History tab shows its heading and a levels card for each '
