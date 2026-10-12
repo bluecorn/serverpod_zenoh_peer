@@ -4,7 +4,8 @@ import 'package:sensor_node/ui/node/node_view_model.dart';
 
 /// The node's one screen: a block for each key, with the key, its latest
 /// reading to three decimals, the time it was stamped, in UTC, when the
-/// reading has one, and its count.
+/// reading has one, the node's number for it as the count of readings, and,
+/// where the readings are received, how many arrived here.
 class NodeScreen extends ConsumerWidget {
   /// The screen; it watches [nodeViewModelProvider].
   const new({super.key});
@@ -32,7 +33,7 @@ class NodeScreen extends ConsumerWidget {
                     if (sensor.latest.time case final time?)
                       Text('${_clock(time)} UTC'),
                     Text('${sensor.latest.number} readings'),
-                    Text('${sensor.count} received here'),
+                    if (node.receives) Text('${sensor.count} received here'),
                   ],
                 ),
             ],
