@@ -5,8 +5,8 @@ import 'package:dart_console/dart_console.dart';
 import 'package:sensorctl/ui/watch/watch_view_model.dart';
 
 /// The lines `watch` shows for [state]: one for each key, with the key, its
-/// latest reading to three decimals and its count, or one that says so before
-/// the first reading.
+/// latest reading to three decimals, the node's number for it and how many
+/// readings arrived here, or one that says so before the first reading.
 List<String> watchLines(WatchState state) {
   if (state.sensors.isEmpty) return const ['no readings yet'];
   final width = state.sensors.keys.map((key) => key.length).reduce(max);
@@ -16,10 +16,12 @@ List<String> watchLines(WatchState state) {
   ];
 }
 
-/// The line for one key: [key], its latest reading and its count.
+/// The line for one key: [key], its latest reading, the node's number for
+/// it, and how many arrived here.
 String _line(String key, SensorState sensor) =>
     '$key  x ${_fixed(sensor.latest.x)}  y ${_fixed(sensor.latest.y)}  '
-    'z ${_fixed(sensor.latest.z)}  ${sensor.count} readings';
+    'z ${_fixed(sensor.latest.z)}  ${sensor.latest.number} readings · '
+    '${sensor.count} received here';
 
 /// [value] to three decimals, seven characters wide, so that the columns stay
 /// in place when a value turns negative.
