@@ -124,6 +124,28 @@ sensor_node (the phone)       sensor_server                                senso
 | the levels | a query for the last *n*, then each new one as the server publishes it | `recent(n)`: the last *n*, then again each time one is kept |
 | if the server stops | the live readings go on; the levels stop | the page stops |
 
+## What it opens
+
+The bridge is shown on one application. The same two halves, zenoh between the devices and Serverpod on the server,
+fit others. Each row says what zenoh does, what Serverpod does, and how much of it this project shows.
+
+| application | zenoh's part | Serverpod's part | in this project |
+|---|---|---|---|
+| **Machine vibration monitoring**: a sensor on a machine, its vibration kept per second, watched from a desk and a browser | the device publishes; the server, a peer, subscribes, answers queries on the archive and publishes each level | a streaming endpoint for each browser; the archive, an ORM table with its migration; the page, served by the web server | **shown** |
+| **Fleet monitoring**: many devices, one dashboard | each device on keys of its own, `sensor/<device>/*` (the repositories already take the device's name); one subscription, `sensor/*/*`, for all | the same endpoints and archive, keyed by device | **partly**: one device, `phone`; several are named, not built |
+| **An edge server** beside the machines | the server a peer on the plant's own network, with no cloud on the path | one process on SQLite, as here | **partly**: on a laptop; an edge box not tried |
+| **Commands to devices**: "start program 12", "go to the dock", not joystick rates | a put or a query from the server on a device's key | endpoints only signed-in users may call (`requireLogin`), each becoming a put or a query | **opened, not built** |
+| **Scheduled work**: retention, nightly summaries, dispatch | queries to the devices on a schedule | future calls and recurring tasks (`callRecurring`) | **opened, not built** |
+| **Alerts on thresholds** | a level published on a key of its own when it crosses one | the rule kept in a table, the alert streamed to the browsers | **opened, not built** |
+
+**Where it stops.** Control loops and safety functions stay on the devices and on zenoh: a WebSocket over TCP and a
+garbage-collected runtime promise no timing. The web door carries every reading to every browser, about a hundred a
+second for each one at this demo's scale. Rates in the kilohertz, or many browsers, are where that ends, and the
+levels are what scale. Device-to-device traffic is zenoh's, not the server's.
+
+**What is not claimed.** An HTTP backend could already reach zenoh through zenoh's REST plugin. What is new here is
+Serverpod as a zenoh peer in its own process, which `zenoh_dart` makes possible.
+
 ## Run it
 
 Run on Linux x86_64, with the node on an Android emulator (an x86_64 image) and on a Pixel 9a over Wi-Fi.
