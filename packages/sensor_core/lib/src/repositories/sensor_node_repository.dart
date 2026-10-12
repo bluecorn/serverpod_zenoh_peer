@@ -12,8 +12,8 @@ class SensorNodeRepository {
   /// A repository publishing [sensor]'s readings through [zenoh], on the key
   /// expressions of the node called [nodeName].
   new(this.zenoh, this.sensor, {required String nodeName})
-    : accelKeyExpr = 'sensor/$nodeName/accel',
-      gyroKeyExpr = 'sensor/$nodeName/gyro';
+    : accelKeyExpr = 'sensor/$nodeName/${accelerometer.segment}',
+      gyroKeyExpr = 'sensor/$nodeName/${gyroscope.segment}';
 
   /// The service the readings are published through.
   final ZenohService zenoh;
