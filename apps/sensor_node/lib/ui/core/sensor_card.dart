@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sensor_core/sensor_core.dart';
 
 /// A sensor's card: its label, its key, its latest reading on each axis with
-/// the unit, and at its foot the stamp and the node's number.
+/// the unit, and at its foot the stamp when there is one, the node's number,
+/// and, where the readings are received, how many arrived.
 class SensorCard extends StatelessWidget {
   /// The card of [latest], the newest reading on [keyExpr], after [count]
   /// readings, received here when [receives] is true.
@@ -73,12 +74,18 @@ class SensorCard extends StatelessWidget {
               ),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${_clock(latest.time!)} UTC', style: secondary),
+                if (latest.time case final time?)
+                  Text('${_clock(time)} UTC', style: secondary),
+                const Spacer(),
                 Text('${latest.number} readings', style: secondary),
               ],
             ),
+            if (receives)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text('$count received here', style: secondary),
+              ),
           ],
         ),
       ),
