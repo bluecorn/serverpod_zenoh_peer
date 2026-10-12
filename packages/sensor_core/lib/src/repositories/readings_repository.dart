@@ -30,7 +30,7 @@ class ReadingsRepository {
       listening = subscription.samples.listen(
         (sample) => controller.add((
           keyExpr: sample.keyExpr,
-          reading: _asReading(sample.payload, sample.time),
+          reading: _asReading(sample.keyExpr, sample.payload, sample.time),
         )),
       );
     };
@@ -41,11 +41,11 @@ class ReadingsRepository {
     return controller.stream;
   }
 
-  /// A sensor no reading is of yet.
-  static const Sensor _none = (segment: '', label: '', unit: '');
-
-  static Reading _asReading(String text, DateTime time) {
+  /// The reading [text] carries, of the sensor the last segment of [keyExpr]
+  /// names, at [time].
+  static Reading _asReading(String keyExpr, String text, DateTime time) {
     final [x, y, z] = text.split(',').map(double.parse).toList();
-    return Reading(sensor: _none, x: x, y: y, z: z, time: time);
+    final sensor = sensorOf(keyExpr.split('/').last);
+    return Reading(sensor: sensor, x: x, y: y, z: z, time: time);
   }
 }
