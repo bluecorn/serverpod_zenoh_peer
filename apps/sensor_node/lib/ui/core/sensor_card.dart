@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sensor_core/sensor_core.dart';
+import 'package:sensor_node/ui/core/theme.dart';
 
 /// A sensor's card: its label, its key, its latest reading on each axis with
 /// the unit, and at its foot the stamp when there is one, the node's number,
@@ -30,9 +31,10 @@ class SensorCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final text = theme.textTheme;
+    final onCard = onCardColorOf(theme.colorScheme);
+    final text = theme.textTheme.apply(bodyColor: onCard, displayColor: onCard);
     final secondary = text.bodyMedium?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
+      color: onCard.withValues(alpha: 0.72),
     );
     final value = text.titleMedium?.copyWith(
       fontFeatures: const [FontFeature.tabularFigures()],

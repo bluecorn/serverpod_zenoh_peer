@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sensor_core/sensor_core.dart';
+import 'package:sensor_node/ui/core/theme.dart';
 
 /// A sensor's levels card: its label, its unit, and its levels, newest first,
 /// each the second it covers, in UTC, and its value.
@@ -16,9 +17,10 @@ class LevelsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final text = theme.textTheme;
+    final onCard = onCardColorOf(theme.colorScheme);
+    final text = theme.textTheme.apply(bodyColor: onCard, displayColor: onCard);
     final secondary = text.bodyMedium?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
+      color: onCard.withValues(alpha: 0.72),
     );
     final value = text.bodyLarge?.copyWith(
       fontFeatures: const [FontFeature.tabularFigures()],
