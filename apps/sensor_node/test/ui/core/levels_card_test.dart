@@ -61,4 +61,34 @@ void main() {
         .toList();
     expect(texts, ['Gyroscope', 'rad/s', 'no levels yet']);
   });
+
+  testWidgets("a levels card says what its levels are, in its sensor's unit", (
+    tester,
+  ) async {
+    // The code to implement: the cards of the accelerometer and of a sensor
+    // no one has listed, which has no unit.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              const LevelsCard(sensor: accelerometer, levels: []),
+              LevelsCard(sensor: sensorOf('baro'), levels: const []),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // The claim: beneath each label, what a level is, then the unit when the
+    // sensor has one.
+    expect(
+      find.text('vibration: spread of the magnitude around its mean, in m/s²'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('vibration: spread of the magnitude around its mean'),
+      findsOneWidget,
+    );
+  });
 }
