@@ -7,58 +7,6 @@ import 'package:sensor_node/config/providers.dart';
 import 'package:sensor_node/ui/recent/recent_view_model.dart';
 
 void main() {
-  test("the panel's view model shows the history, then each published level "
-      'on top, the keys in the order they first appeared', () async {
-    // Fakes: the history provider, overridden with three levels newest first,
-    // the accelerometer's the newest, and the live provider with a stream the
-    // test plays.
-    KeyedLevel level(String keyExpr, int second) => (
-      keyExpr: keyExpr,
-      level: Level(
-        sensor: keyExpr.endsWith('gyro') ? gyroscope : accelerometer,
-        time: DateTime.utc(2026, 10, 11, 0, 50, second),
-        value: 0.5,
-      ),
-    );
-    const accel = 'archive/phone/accel';
-    const gyro = 'archive/phone/gyro';
-    final live = StreamController<KeyedLevel>();
-    addTearDown(live.close);
-    final container = ProviderContainer.test(
-      overrides: [
-        recentLevelsProvider.overrideWith(
-          (ref) async => [level(accel, 4), level(gyro, 3), level(accel, 2)],
-        ),
-        liveLevelsProvider.overrideWith((ref) => live.stream),
-      ],
-    )..listen(recentViewModelProvider, (_, _) {});
-    await pumpEventQueue();
-
-    // The code to implement: the history shown, then a level published on
-    // the gyroscope's key, newer than every other.
-    live.add(level(gyro, 5));
-    await pumpEventQueue();
-    final state = container.read(recentViewModelProvider);
-
-    // The claim: the accelerometer first, as it first appeared, with its two
-    // levels newest first, then the gyroscope with the published level above
-    // its history.
-    final byKey = [
-      for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
-        [keyExpr, levels.map((l) => l.time.second).toList()],
-    ];
-    expect(byKey, [
-      [
-        accel,
-        [4, 2],
-      ],
-      [
-        gyro,
-        [5, 3],
-      ],
-    ]);
-  });
-
   test('the panel keeps the newest 20 levels in all, the oldest leaving as a '
       'new one arrives', () async {
     // Fakes: the history provider, overridden with twenty levels newest
@@ -105,6 +53,58 @@ void main() {
       [
         accel,
         [for (var second = 21; second >= 2; second--) second],
+      ],
+    ]);
+  });
+
+  test("the panel's view model shows the history, then each published level "
+      "on top, the keys in the sensor list's order", () async {
+    // Fakes: the history provider, overridden with three levels newest first,
+    // the gyroscope's the newest, and the live provider with a stream the
+    // test plays.
+    KeyedLevel level(String keyExpr, int second) => (
+      keyExpr: keyExpr,
+      level: Level(
+        sensor: keyExpr.endsWith('gyro') ? gyroscope : accelerometer,
+        time: DateTime.utc(2026, 10, 12, 12, 0, second),
+        value: 0.5,
+      ),
+    );
+    const accel = 'archive/phone/accel';
+    const gyro = 'archive/phone/gyro';
+    final live = StreamController<KeyedLevel>();
+    addTearDown(live.close);
+    final container = ProviderContainer.test(
+      overrides: [
+        recentLevelsProvider.overrideWith(
+          (ref) async => [level(gyro, 4), level(accel, 3), level(gyro, 2)],
+        ),
+        liveLevelsProvider.overrideWith((ref) => live.stream),
+      ],
+    )..listen(recentViewModelProvider, (_, _) {});
+    await pumpEventQueue();
+
+    // The code to implement: the history shown, then a level published on
+    // the accelerometer's key, newer than every other.
+    live.add(level(accel, 5));
+    await pumpEventQueue();
+    final state = container.read(recentViewModelProvider);
+
+    // The claim: the accelerometer first, as the list has it, with the
+    // published level above its history, then the gyroscope with its two
+    // levels newest first.
+    final byKey = [
+      for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
+        [keyExpr, levels.map((l) => l.time.second).toList()],
+    ];
+    expect(byKey, [
+      [
+        accel,
+        [5, 3],
+      ],
+      [
+        gyro,
+        [4, 2],
       ],
     ]);
   });
