@@ -110,4 +110,34 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('a column whose sensor has no reading yet says so above its '
+      'levels card', (tester) async {
+    // A fake: a view model that holds the gyroscope's column, two levels the
+    // archive kept and no reading yet.
+    Level level(int second) => Level(
+      sensor: gyroscope,
+      time: DateTime.utc(2026, 10, 12, 12, 0, second),
+      value: 0.5,
+    );
+    await _pumpMonitor(
+      tester,
+      MonitorState(
+        columns: [
+          MonitorColumn(sensor: gyroscope, levels: [level(2), level(1)]),
+        ],
+        receives: true,
+      ),
+    );
+
+    // The claim: a line that says there is no reading yet, above the levels
+    // card, and no live card.
+    final line = find.text('no readings yet');
+    expect(line, findsOneWidget);
+    expect(find.byType(SensorCard), findsNothing);
+    expect(
+      tester.getTopLeft(line).dy,
+      lessThan(tester.getTopLeft(find.byType(LevelsCard)).dy),
+    );
+  });
 }
