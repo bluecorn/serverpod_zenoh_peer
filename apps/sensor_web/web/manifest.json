@@ -1,11 +1,11 @@
 {
-    "name": "sensor_web",
-    "short_name": "sensor_web",
+    "name": "Sensor page",
+    "short_name": "Sensor page",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "The web door: the phone's vibration levels in a browser, through Serverpod.",
+    "description": "The web door: the phone's readings and vibration levels in a browser, through Serverpod.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

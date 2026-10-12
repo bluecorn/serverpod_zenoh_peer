@@ -1,5 +1,5 @@
 name: sensor_web
-description: "The web door: the phone's vibration levels in a browser, through Serverpod."
+description: "The web door: the phone's readings and vibration levels in a browser, through Serverpod."
 publish_to: none
 version: 1.0.0+1
 
