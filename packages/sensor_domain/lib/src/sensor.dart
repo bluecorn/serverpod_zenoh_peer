@@ -22,4 +22,10 @@ Sensor sensorOf(String segment) =>
 
 /// Orders [a] and [b] as the list does, a sensor it does not list after every
 /// one it does.
-int compareSensors(Sensor a, Sensor b) => 0;
+int compareSensors(Sensor a, Sensor b) => _rank(a).compareTo(_rank(b));
+
+/// [sensor]'s place in the list, or the place after the list's last.
+int _rank(Sensor sensor) {
+  final place = sensors.values.toList().indexOf(sensor);
+  return place < 0 ? sensors.length : place;
+}
