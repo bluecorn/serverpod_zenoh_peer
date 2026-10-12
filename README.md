@@ -5,7 +5,7 @@ Serverpod has no device transport of its own. This project puts a Serverpod serv
 so a Dart and Flutter team can have one language from the device to the server to the browser.
 
 > Built for *Build Something Real*, the Serverpod hackathon (submissions close 14 October 2026). Everything described
-> below is built and runs.
+> below is built and runs, but for what the applications map marks as opened, not built.
 
 ## What it shows
 
@@ -25,12 +25,12 @@ them, and publishes each one as it is kept:
 │ sensor_node   node role     │readings │ sensor_server   Serverpod, and a zenoh peer                                │
 │   a zenoh peer              │════════►│   zenoh in:    subscribed to sensor/phone/*                                │
 │   put on sensor/phone/accel │         │                └─► a level per sensor per second ──► the archive (SQLite)  │
-│   put on sensor/phone/gyro  │         │   zenoh out:   queryable on archive/phone/**: the last n levels            │
-└───────╥─────────────────────┘         │                each level, as it is kept, put on archive/phone/<sensor>    │
-        ║                               │   Serverpod out, for clients without zenoh:                                │
-        ║                               │                readings(): every reading, live                             │
-        ║                               │                recent(n): the last n levels, again each time one is kept   │
-        ║                               │   API server :8080                         web server :8082                │
+│   put on sensor/phone/gyro  │ levels  │   zenoh out:   queryable on archive/phone/**: the last n levels            │
+│   History tab: a get on     │◄════════│                each level, as it is kept, put on archive/phone/<sensor>    │
+│   archive/phone/**?n=20,    │         │   Serverpod out, for clients without zenoh:                                │
+│   then subscribed to        │         │                readings(): every reading, live                             │
+│   archive/phone/*           │         │                recent(n): the last n levels, again each time one is kept   │
+└───────╥─────────────────────┘         │   API server :8080                         web server :8082                │
         ║                               └────╥────────────┬──────────────────────────────────────┬───────────────────┘
         ║                                    ║            │                                      │
         ║ live readings,                     ║            │ WebSocket: readings(),               │ HTTP: the page
@@ -43,8 +43,8 @@ them, and publishes each one as it is kept:
         ║                                    ║       ┌────▼──────────────────────────────────────▼───────────────────┐
 ┌───────╨───────────────────────────────┐    ║       │ a browser: sensor_web   Flutter web                           │
 │ sensor_node   monitor role, on Linux  │◄═══╝       │   the generated client, no zenoh                              │
-│   a zenoh peer                        │            │   readings() for the phone's screen                           │
-│   subscribed to sensor/phone/*        │            │   recent(20) for the panel of levels                          │
+│   a zenoh peer                        │            │   readings() for the live cards                               │
+│   subscribed to sensor/phone/*        │            │   recent(20) for the levels cards                             │
 │   get on archive/phone/**?n=20        │            └───────────────────────────────────────────────────────────────┘
 │   subscribed to archive/phone/*       │
 └───────────────────────────────────────┘
@@ -57,8 +57,8 @@ carries none of their data; each pair then links directly. On the emulator, whil
 - **The web door:** browsers, which cannot join a zenoh network, reach the data through Serverpod's endpoints.
 - **The zenoh door:** native apps on the network ask the server for the levels it keeps with a zenoh query, and follow
   each new one by subscribing to its key.
-- **One app, two roles:** the monitor is the same Flutter app as the node, with the same view model and screen, reading
-  instead of publishing.
+- **One app, two roles:** the monitor is the same Flutter app as the node, with the same view models and cards in a
+  window of its own, reading instead of publishing. The phone's History tab asks the zenoh door too.
 
 ### The two doors
 
@@ -73,9 +73,13 @@ sensor_node (the phone)       sensor_server                     sensor_node, mon
         │                           │                                           │ at start: subscribe sensor/phone/*
         │                           │                                           │           subscribe archive/phone/*
         │                           │                                           │
-        │                           │◄─── get archive/phone/**?n=20 ────────────┤ the panel asks for the levels
+        │                           │◄─── get archive/phone/**?n=20 ────────────┤ the levels cards ask for the levels
         │                           ├──── a reply per level, newest first ─────►│
         │                           ├──── done ────────────────────────────────►│ the get completes
+        │                           │                                           │
+        ├─ get archive/phone/** ───►│                                           │ the phone's History tab asks the
+        │◄──── a reply per level ───┤                                           │ same when first opened, then
+        │                           │                                           │ subscribes to archive/phone/*
         │                           │                                           │
         ├─ put sensor/phone/accel ─►│                                           │
         │ as n,x,y,z                │                                           │
@@ -84,8 +88,8 @@ sensor_node (the phone)       sensor_server                     sensor_node, mon
         │                           │                                           │ phone's number; count + 1
         │                           │                                           │
         │                           │ a second ends: keep its level             │
-        │                           ├──── put archive/phone/accel ─────────────►│ the panel shows it
-        │                           │      as <time>,<level>                    │
+        │◄──────────────────────────┼──── put archive/phone/accel ─────────────►│ the levels cards and the
+        │                           │      as <time>,<level>                    │ phone's History tab show it
 ```
 
 A browser cannot speak zenoh, so the server is on every path: the page itself, the live readings and the levels:
@@ -96,9 +100,9 @@ sensor_node (the phone)       sensor_server                                senso
         │                           │◄─── HTTP GET :8082/ ────────────────────────────┤ open the page
         │                           ├──── index.html, main.dart.js (web/app) ────────►│ the app starts
         │                           │                                                 │
-        │                           │◄─── WebSocket :8080, call readings() ───────────┤ the phone's screen
+        │                           │◄─── WebSocket :8080, call readings() ───────────┤ the live cards
         │                           │ a zenoh subscription for this call              │
-        │                           │◄─── call recent(20) ────────────────────────────┤ the panel
+        │                           │◄─── call recent(20) ────────────────────────────┤ the levels cards
         │                           ├──── the last 20 levels ────────────────────────►│
         │                           │                                                 │
         ├─ put sensor/phone/accel ─►│                                                 │
@@ -109,7 +113,7 @@ sensor_node (the phone)       sensor_server                                senso
         │                           │                                                 │ count + 1
         │                           │                                                 │
         │                           │ a second ends: keep its level                   │
-        │                           ├──── the last 20 levels again ──────────────────►│ the panel shows it
+        │                           ├──── the last 20 levels again ──────────────────►│ the levels cards show it
         │                           │                                                 │
         │                           │◄─── the streams are cancelled ──────────────────┤ the tab closes
         │                           │ that call's subscription closes; the            │
@@ -315,17 +319,18 @@ the first set of questions and answers in an interview run with the *grilling* s
 [skills](https://github.com/mattpocock/skills) repository. I chose MVVM as the structure of each app. To keep Claude
 and its subagents from over-engineering, I gave them one mandate: build a skeleton as a tracer bullet, through every
 layer of the system, from the phone to the browser, each in its thinnest real form; leave anything more out, named
-rather than built; and ask me rather than widen the scope. Each stage ran while I watched, first on the emulator and
-then on my phone, before it was pushed.
+rather than built; and ask me rather than widen the scope. Each stage ran while I watched before it was pushed, on
+the emulator, the Linux monitor or the browser, and the whole ran on my phone.
 
 Test-driven development is what holds the assistant's code to what was asked for. The outer loop follows the
 double-loop method of Freeman and Pryce: each stage opens with a flow test, its name one sentence about the system,
-run against real zenoh sessions and committed failing on an assertion before any code, and it stays red until the
-inner loops make it pass. The inner loops follow Kent Beck's red, green, refactor, in the classic style: one test at a
-time, state asserted rather than calls, hand-written fakes and no mocking framework, each step to green named as Beck
-names them (fake it, triangulate, the obvious implementation), built middle-out on the data side and outside-in from
-each app's view. Refactoring is assessed at every cycle and done only where the structure needs it. A comment above
-the flow test maps each of its expectations to the inner test that makes it true, and that map is the test budget.
+run against real zenoh sessions (the page's, which speaks no zenoh, against a fake of the web door) and committed
+failing on an assertion before any code, and it stays red until the inner loops make it pass. The inner loops follow
+Kent Beck's red, green, refactor, in the classic style: one test at a time, state asserted rather than calls,
+hand-written fakes and no mocking framework, each step to green named as Beck names them (fake it, triangulate, the
+obvious implementation), built middle-out on the data side and outside-in from each app's view. Refactoring is
+assessed at every cycle and done only where the structure needs it. A comment above the flow test maps each of its
+expectations to the inner test that makes it true, and that map is the test budget.
 
 Done this way, the tests check the feature, not the code. An assistant that writes code and tests together tends to
 test only the code's contract, that a method exists, returns something or does not throw, in tests that pass against a
