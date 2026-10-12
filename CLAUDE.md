@@ -29,7 +29,7 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 | archive | one SQLite table (time, key, level), time-indexed |
 | web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading, the time it was stamped, the phone's number for it and how many reached the page), plus its last *n* levels |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels (n in total, newest first), each on `archive/phone/<sensor>` as `<ISO-8601 time>,<level>`; and each level published on the same key as it is kept: history by query, live by subscription |
-| native view | `sensor_node` in the **monitor role**, on Linux: the same view model and screen over a zenoh subscription, plus a recent-levels panel fed by the zenoh door |
+| native view | `sensor_node` in the **monitor role**, on Linux: the phone's view models over a zenoh subscription and the zenoh door, paired by sensor in a monitor view model; a window of a column per sensor, the phone's cards reused |
 
 **Named, not built:** health indicators, retention, paging, thresholds and alerts, charts, authentication, commands,
 several nodes, the monitor on Android, zenoh's advanced publisher and subscriber for history and live in one (unstable,

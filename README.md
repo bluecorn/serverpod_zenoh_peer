@@ -207,8 +207,9 @@ cd build/linux/x64/release/bundle
 ```
 
 Start it from its bundle folder, as here: from a folder with a `.dart_tool/lib/`, it would load that folder's zenoh
-library instead of the one it was built with. Its window shows the phone's screen, read over zenoh, and a panel that
-asks the server's zenoh door for the last levels, then follows each one the server keeps.
+library instead of the one it was built with. Its window, *Sensor monitor*, shows a column for each sensor: the
+phone's latest reading, read over zenoh, with the phone's number for it and how many arrived, above the last levels,
+which it asks the server's zenoh door for and then follows as the server keeps them.
 
 ### With a real phone over Wi-Fi
 
