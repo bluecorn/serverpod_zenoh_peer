@@ -3,7 +3,8 @@ import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_node/ui/core/theme.dart';
 
 /// A sensor's levels card: its label, its unit, and its levels, newest first,
-/// each the second it covers, in UTC, and its value.
+/// each the second it covers, in UTC, and its value, or a line that says there
+/// are none yet.
 class LevelsCard extends StatelessWidget {
   /// The card of [sensor]'s [levels], newest first.
   const new({required this.sensor, required this.levels, super.key});
@@ -34,6 +35,7 @@ class LevelsCard extends StatelessWidget {
             Text(sensor.label, style: text.titleLarge),
             Text(sensor.unit, style: secondary),
             const SizedBox(height: 8),
+            if (levels.isEmpty) Text('no levels yet', style: secondary),
             for (final level in levels)
               Row(
                 children: [
