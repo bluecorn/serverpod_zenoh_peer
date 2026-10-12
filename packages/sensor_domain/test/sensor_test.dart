@@ -14,4 +14,17 @@ void main() {
       (segment: 'gyro', label: 'Gyroscope', unit: 'rad/s'),
     ]);
   });
+
+  test(
+    'a segment the list does not know gives a sensor of its own, labelled with '
+    'the segment, with no unit',
+    () {
+      // The code to implement: a sensor for a key no one has listed, such as a
+      // third sensor of a node, so that it is shown rather than lost.
+      final found = sensorOf('baro');
+
+      // The claim: its segment, its segment again as the label, and no unit.
+      expect(found, (segment: 'baro', label: 'baro', unit: ''));
+    },
+  );
 }
