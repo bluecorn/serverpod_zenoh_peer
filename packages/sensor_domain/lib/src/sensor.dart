@@ -15,6 +15,7 @@ const Sensor gyroscope = (segment: 'gyro', label: 'Gyroscope', unit: 'rad/s');
 /// The phone's sensors, by their segment.
 const Map<String, Sensor> sensors = {'accel': accelerometer, 'gyro': gyroscope};
 
-/// The sensor whose segment is [segment].
+/// The sensor whose segment is [segment]; a segment the list does not know
+/// becomes a sensor of its own, labelled with the segment and with no unit.
 Sensor sensorOf(String segment) =>
-    sensors[segment] ?? (segment: '', label: '', unit: '');
+    sensors[segment] ?? (segment: segment, label: segment, unit: '');
