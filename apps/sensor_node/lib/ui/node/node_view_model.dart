@@ -15,14 +15,20 @@ class SensorState {
   final int count;
 }
 
-/// What the node's screen shows: the state of each key.
+/// What the node's screen shows: the state of each key, and whether the
+/// readings are received here or published.
 class NodeState {
-  /// A state with [sensors] as the state of each key.
-  const new({this.sensors = const {}});
+  /// A state with [sensors] as the state of each key, of readings received
+  /// here when [receives] is true.
+  const new({this.sensors = const {}, this.receives = false});
 
   /// The state of each key the node has published on, in the order the keys
   /// first arrived.
   final Map<String, SensorState> sensors;
+
+  /// Whether the readings are received here, as the monitor receives them,
+  /// rather than published, as the node publishes them.
+  final bool receives;
 }
 
 /// The view model behind the node's screen, which keeps the latest reading and

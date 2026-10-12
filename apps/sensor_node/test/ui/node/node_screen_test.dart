@@ -109,4 +109,44 @@ void main() {
       expect(find.textContaining('UTC'), findsOneWidget);
     },
   );
+
+  testWidgets("the monitor's screen shows the node's number as each key's "
+      'count of readings, and how many arrived here', (tester) async {
+    // A fake: a view model that holds a fixed state of readings received
+    // here, the node's 1042nd reading of the accelerometer after 980 arrived.
+    const accel = Reading(
+      sensor: accelerometer,
+      number: 1042,
+      x: 0.1,
+      y: 9.776,
+      z: 0.812,
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        nodeViewModelProvider.overrideWith(
+          () => FakeNodeViewModel(
+            const NodeState(
+              receives: true,
+              sensors: {
+                'sensor/phone/accel': SensorState(latest: accel, count: 980),
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    // The code to implement: the screen, built once from that state.
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: NodeScreen()),
+      ),
+    );
+
+    // The claim: the node's number as the count of readings, and the
+    // monitor's own count as what arrived here.
+    expect(find.text('1042 readings'), findsOneWidget);
+    expect(find.text('980 received here'), findsOneWidget);
+  });
 }
