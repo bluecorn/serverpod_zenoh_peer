@@ -40,4 +40,25 @@ void main() {
       '0.170',
     ]);
   });
+
+  testWidgets('a levels card without levels says there are none yet', (
+    tester,
+  ) async {
+    // The code to implement: the gyroscope's card, before the archive holds
+    // any of its levels.
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: LevelsCard(sensor: gyroscope, levels: []),
+        ),
+      ),
+    );
+
+    // The claim: the label, the unit, and a line that says so.
+    final texts = tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data)
+        .toList();
+    expect(texts, ['Gyroscope', 'rad/s', 'no levels yet']);
+  });
 }
