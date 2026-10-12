@@ -180,6 +180,32 @@ void main() {
       'sensor/phone/gyro': [0, 0, 0.5],
     });
   });
+  test(
+    'each raw reading is handed on as a reading of the sensor it came from',
+    () async {
+      // Fakes: a service that records what is put through it, and a sensor
+      // that delivers one raw reading of each kind.
+      final zenoh = FakeZenohService();
+      final sensor = FakeSensorService(
+        Stream.value((x: 0.0, y: 9.776, z: 0.812)),
+        gyroscope: Stream.value((x: 0.0, y: 0.0, z: 0.5)),
+      );
+
+      // The code to implement: each raw reading made a reading of the sensor
+      // whose stream it came from.
+      final repository = SensorNodeRepository(zenoh, sensor, nodeName: 'phone');
+      final published = await repository.publish().toList();
+
+      // The claim: under each key, a reading of that key's sensor.
+      final byKey = {
+        for (final (:keyExpr, :reading) in published) keyExpr: reading.sensor,
+      };
+      expect(byKey, {
+        'sensor/phone/accel': accelerometer,
+        'sensor/phone/gyro': gyroscope,
+      });
+    },
+  );
 }
 
 /// A handed-on reading's key and its three values, which the claims compare.
