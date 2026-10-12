@@ -93,4 +93,55 @@ void main() {
       '7 readings',
     ]);
   });
+
+  testWidgets('the card shows how many readings arrived only where they are '
+      'received, and the stamp only when there is one', (tester) async {
+    // A stamped reading received here, and an unstamped one as the node
+    // publishes it.
+    final received = Reading(
+      sensor: accelerometer,
+      number: 1042,
+      x: 0.1,
+      y: 9.776,
+      z: 0.812,
+      time: DateTime.utc(2026, 10, 12, 12, 0, 1, 250),
+    );
+    const published = Reading(sensor: gyroscope, number: 7, x: 0, y: 0, z: 0.5);
+
+    // The code to implement: the two cards, side by side.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              SensorCard(
+                keyExpr: 'sensor/phone/accel',
+                latest: received,
+                count: 980,
+                receives: true,
+              ),
+              const SensorCard(
+                keyExpr: 'sensor/phone/gyro',
+                latest: published,
+                count: 7,
+                receives: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // The claim: the received card's foot holds its stamp, the node's number
+    // and what arrived here; the published card's only the node's number.
+    final texts = _texts(tester);
+    final accel = texts.sublist(0, texts.indexOf('Gyroscope'));
+    final gyro = texts.sublist(texts.indexOf('Gyroscope'));
+    expect(accel.skip(11), [
+      '12:00:01.250 UTC',
+      '1042 readings',
+      '980 received here',
+    ]);
+    expect(gyro.skip(11), ['7 readings']);
+  });
 }
