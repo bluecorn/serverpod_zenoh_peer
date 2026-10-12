@@ -1,4 +1,5 @@
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_web/ui/page/page_view_model.dart';
 import 'package:sensor_web/ui/recent/recent_view_model.dart';
 import 'package:sensor_web/ui/watch/watch_view_model.dart';
 
@@ -36,4 +37,13 @@ class FakeWebDoor extends EndpointWebDoor {
 
   @override
   Stream<List<SensorLevel>> recent(int n) => recentStream;
+}
+
+class FakePageViewModel extends PageViewModel {
+  new(this.fixed);
+
+  final PageState fixed;
+
+  @override
+  PageState build() => fixed;
 }
