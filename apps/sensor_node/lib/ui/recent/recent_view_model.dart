@@ -7,8 +7,7 @@ class RecentState {
   /// A state with [byKey] as each key's levels, newest first.
   const new({this.byKey = const {}});
 
-  /// Each key's levels, newest first, the keys in the order they first
-  /// appeared.
+  /// Each key's levels, newest first, the keys in the sensor list's order.
   final Map<String, List<Level>> byKey;
 }
 
@@ -31,8 +30,9 @@ class RecentViewModel extends Notifier<RecentState> {
     return const RecentState();
   }
 
-  /// Shows the newest [recentCount] of [levels], newest first, by key. The
-  /// keys already shown keep their places; a key no longer among them leaves.
+  /// Shows the newest [recentCount] of [levels], newest first, by key, the
+  /// keys in the sensor list's order; keys of the same rank keep the places
+  /// they had, and a key no longer among them leaves.
   void _show(List<KeyedLevel> levels) {
     _levels = levels.take(recentCount).toList();
     final byKey = {for (final keyExpr in state.byKey.keys) keyExpr: <Level>[]};
@@ -40,7 +40,15 @@ class RecentViewModel extends Notifier<RecentState> {
       (byKey[keyExpr] ??= []).add(level);
     }
     byKey.removeWhere((_, levels) => levels.isEmpty);
-    state = RecentState(byKey: byKey);
+    final entries = byKey.entries.indexed.toList()
+      ..sort((a, b) {
+        final bySensor = compareSensors(
+          a.$2.value.first.sensor,
+          b.$2.value.first.sensor,
+        );
+        return bySensor != 0 ? bySensor : a.$1.compareTo(b.$1);
+      });
+    state = RecentState(byKey: Map.fromEntries(entries.map((e) => e.$2)));
   }
 }
 
