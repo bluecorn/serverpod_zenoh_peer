@@ -13,8 +13,9 @@ class WebDoorRepository {
 
   /// Every reading the phone publishes, with its sensor. Listening calls the
   /// web door; cancelling ends the call.
-  Stream<SensedReading> readings() =>
-      webDoor.readings().map((reading) => (sensor: _none, reading: reading));
+  Stream<SensedReading> readings() => webDoor.readings().map(
+    (reading) => (sensor: _sensorOf(reading.keyExpr), reading: reading),
+  );
 
   /// The archive's last [n] levels, newest first, each with its sensor: at
   /// once, and again each time the server keeps a level. Listening calls the
@@ -22,9 +23,12 @@ class WebDoorRepository {
   Stream<List<SensedLevel>> recent(int n) => webDoor
       .recent(n)
       .map(
-        (levels) => [for (final level in levels) (sensor: _none, level: level)],
+        (levels) => [
+          for (final level in levels)
+            (sensor: _sensorOf(level.keyExpr), level: level),
+        ],
       );
 
-  /// A sensor nothing is of yet.
-  static const Sensor _none = (segment: '', label: '', unit: '');
+  /// The sensor the last segment of [keyExpr] names.
+  static Sensor _sensorOf(String keyExpr) => sensorOf(keyExpr.split('/').last);
 }
