@@ -211,4 +211,37 @@ void main() {
     // The claim: the reading has the sample's time.
     expect(received.map((r) => r.reading.time), [stamped]);
   });
+  test('a reading arrives with the sensor its key names', () async {
+    // A fake: a service whose subscription plays what the test puts into it,
+    // one sample on each of the phone's keys.
+    final zenoh = FakeZenohService();
+    final repository = ReadingsRepository(zenoh, nodeName: 'phone');
+    final received = <KeyedReading>[];
+    final listening = repository.readings().listen(received.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: the sensor read from the last segment of the
+    // sample's key.
+    zenoh.subscriptions.single.arrivals
+      ..add((
+        keyExpr: 'sensor/phone/accel',
+        payload: '0.000,9.776,0.812',
+        time: DateTime.utc(2026, 10, 12, 7),
+      ))
+      ..add((
+        keyExpr: 'sensor/phone/gyro',
+        payload: '0.000,0.000,0.500',
+        time: DateTime.utc(2026, 10, 12, 7),
+      ));
+    await pumpEventQueue();
+
+    // The claim: each reading of the sensor its key names.
+    final byKey = {
+      for (final (:keyExpr, :reading) in received) keyExpr: reading.sensor,
+    };
+    expect(byKey, {
+      'sensor/phone/accel': accelerometer,
+      'sensor/phone/gyro': gyroscope,
+    });
+  });
 }
