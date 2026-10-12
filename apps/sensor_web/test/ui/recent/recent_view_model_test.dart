@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/config/providers.dart';
+import 'package:sensor_web/domain/sensed.dart';
 import 'package:sensor_web/ui/recent/recent_view_model.dart';
 
 void main() {
@@ -9,10 +11,13 @@ void main() {
       'the order they first appeared', () async {
     // A fake: the recent levels provider, overridden with two lists, the
     // second naming the gyroscope first.
-    SensorLevel level(String keyExpr, int second) => SensorLevel(
-      time: DateTime.utc(2026, 10, 11, 0, 50, second),
-      keyExpr: keyExpr,
-      level: 0.5,
+    SensedLevel level(String keyExpr, int second) => (
+      sensor: sensorOf(keyExpr.split('/').last),
+      level: SensorLevel(
+        time: DateTime.utc(2026, 10, 11, 0, 50, second),
+        keyExpr: keyExpr,
+        level: 0.5,
+      ),
     );
     const accel = 'sensor/phone/accel';
     const gyro = 'sensor/phone/gyro';
@@ -38,7 +43,7 @@ void main() {
     // two levels newest first, then the gyroscope with its one.
     final byKey = [
       for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
-        [keyExpr, levels.map((l) => l.time.second).toList()],
+        [keyExpr, levels.map((l) => l.level.time.second).toList()],
     ];
     expect(byKey, [
       [

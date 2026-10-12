@@ -1,15 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sensor_client/sensor_client.dart';
 import 'package:sensor_web/config/providers.dart';
+import 'package:sensor_web/domain/sensed.dart';
 
 /// What the panel shows: the archive's latest levels, by key.
 class RecentState {
-  /// A state with [byKey] as each key's levels, newest first.
+  /// A state with [byKey] as each key's levels, newest first, each with its
+  /// sensor.
   const new({this.byKey = const {}});
 
   /// Each key's levels, newest first, the keys in the order they first
   /// appeared.
-  final Map<String, List<SensorLevel>> byKey;
+  final Map<String, List<SensedLevel>> byKey;
 }
 
 /// The view model behind the panel, which keeps the archive's latest levels,
@@ -22,10 +23,10 @@ class RecentViewModel extends Notifier<RecentState> {
         // The keys already shown keep their places; a key no longer among the
         // latest levels leaves.
         final byKey = {
-          for (final keyExpr in state.byKey.keys) keyExpr: <SensorLevel>[],
+          for (final keyExpr in state.byKey.keys) keyExpr: <SensedLevel>[],
         };
-        for (final level in value) {
-          (byKey[level.keyExpr] ??= []).add(level);
+        for (final sensed in value) {
+          (byKey[sensed.level.keyExpr] ??= []).add(sensed);
         }
         byKey.removeWhere((_, levels) => levels.isEmpty);
         state = RecentState(byKey: byKey);

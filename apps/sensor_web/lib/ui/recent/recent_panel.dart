@@ -28,7 +28,7 @@ class RecentPanel extends ConsumerWidget {
           for (final MapEntry(key: keyExpr, value: levels)
               in recent.byKey.entries) ...[
             Text(keyExpr, style: theme.titleMedium),
-            for (final level in levels)
+            for (final (:level, sensor: _) in levels)
               Text(
                 '${_clock(level.time)}   ${level.level.toStringAsFixed(3)}',
                 style: theme.bodyLarge,

@@ -1,15 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/config/providers.dart';
 
-/// What the page shows for one key: the latest reading on it, and how many
-/// there were.
+/// What the page shows for one key: the latest reading on it, its sensor, and
+/// how many there were.
 class SensorState {
-  /// A state with [latest] as the newest reading and [count] readings so far.
-  const new({required this.latest, required this.count});
+  /// A state with [latest] as the newest reading, of [sensor], and [count]
+  /// readings so far.
+  const new({required this.latest, required this.sensor, required this.count});
 
   /// The newest reading on the key.
   final SensorReading latest;
+
+  /// The sensor the key's readings are of.
+  final Sensor sensor;
 
   /// How many readings have arrived on the key.
   final int count;
@@ -31,12 +36,16 @@ class WatchViewModel extends Notifier<WatchState> {
   @override
   WatchState build() {
     ref.listen(readingsProvider, (_, next) {
-      if (next case AsyncData(:final value)) {
-        final count = state.sensors[value.keyExpr]?.count ?? 0;
+      if (next case AsyncData(value: (:final sensor, :final reading))) {
+        final count = state.sensors[reading.keyExpr]?.count ?? 0;
         state = WatchState(
           sensors: {
             ...state.sensors,
-            value.keyExpr: SensorState(latest: value, count: count + 1),
+            reading.keyExpr: SensorState(
+              latest: reading,
+              sensor: sensor,
+              count: count + 1,
+            ),
           },
         );
       }

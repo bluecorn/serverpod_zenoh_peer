@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/ui/watch/watch_screen.dart';
 import 'package:sensor_web/ui/watch/watch_view_model.dart';
 
@@ -36,8 +37,16 @@ void main() {
             () => FakeWatchViewModel(
               WatchState(
                 sensors: {
-                  'sensor/phone/accel': SensorState(latest: accel, count: 42),
-                  'sensor/phone/gyro': SensorState(latest: gyro, count: 7),
+                  'sensor/phone/accel': SensorState(
+                    latest: accel,
+                    sensor: accelerometer,
+                    count: 42,
+                  ),
+                  'sensor/phone/gyro': SensorState(
+                    latest: gyro,
+                    sensor: gyroscope,
+                    count: 7,
+                  ),
                 },
               ),
             ),
@@ -89,7 +98,11 @@ void main() {
           () => FakeWatchViewModel(
             WatchState(
               sensors: {
-                'sensor/phone/accel': SensorState(latest: accel, count: 980),
+                'sensor/phone/accel': SensorState(
+                  latest: accel,
+                  sensor: accelerometer,
+                  count: 980,
+                ),
               },
             ),
           ),

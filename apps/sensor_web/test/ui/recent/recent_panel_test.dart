@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_domain/sensor_domain.dart';
+import 'package:sensor_web/domain/sensed.dart';
 import 'package:sensor_web/ui/recent/recent_panel.dart';
 import 'package:sensor_web/ui/recent/recent_view_model.dart';
 
@@ -13,10 +15,13 @@ void main() {
   ) async {
     // A fake: a view model that holds a fixed state, two levels on the
     // accelerometer's key and one on the gyroscope's.
-    SensorLevel level(String keyExpr, int second, double value) => SensorLevel(
-      time: DateTime.utc(2026, 10, 11, 0, 50, second),
-      keyExpr: keyExpr,
-      level: value,
+    SensedLevel level(String keyExpr, int second, double value) => (
+      sensor: sensorOf(keyExpr.split('/').last),
+      level: SensorLevel(
+        time: DateTime.utc(2026, 10, 11, 0, 50, second),
+        keyExpr: keyExpr,
+        level: value,
+      ),
     );
     final container = ProviderContainer.test(
       overrides: [

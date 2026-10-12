@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sensor_client/sensor_client.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/config/providers.dart';
 import 'package:sensor_web/ui/watch/watch_view_model.dart';
 
@@ -37,7 +38,11 @@ void main() {
       final container = ProviderContainer.test(
         overrides: [
           readingsProvider.overrideWith(
-            (ref) => Stream.fromIterable([first, second, third]),
+            (ref) => Stream.fromIterable([
+              (sensor: accelerometer, reading: first),
+              (sensor: gyroscope, reading: second),
+              (sensor: accelerometer, reading: third),
+            ]),
           ),
         ],
       )..listen(watchViewModelProvider, (_, _) {});
