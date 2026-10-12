@@ -37,7 +37,7 @@ class SensorNodeRepository {
     var delivering = 0;
     final controller = StreamController<KeyedReading>();
 
-    void publishOn(String keyExpr, Stream<RawReading> readings) {
+    void publishOn(String keyExpr, Sensor sensor, Stream<RawReading> readings) {
       final publication = zenoh.declarePublication(keyExpr);
       publications.add(publication);
       delivering += 1;
@@ -45,7 +45,7 @@ class SensorNodeRepository {
         readings.listen(
           (raw) {
             final reading = Reading(
-              sensor: _none,
+              sensor: sensor,
               x: raw.x,
               y: raw.y,
               z: raw.z,
@@ -65,8 +65,8 @@ class SensorNodeRepository {
 
     controller
       ..onListen = () {
-        publishOn(accelKeyExpr, sensor.accelerometer());
-        publishOn(gyroKeyExpr, sensor.gyroscope());
+        publishOn(accelKeyExpr, accelerometer, sensor.accelerometer());
+        publishOn(gyroKeyExpr, gyroscope, sensor.gyroscope());
       }
       ..onCancel = () async {
         for (final subscription in subscriptions) {
@@ -78,9 +78,6 @@ class SensorNodeRepository {
       };
     return controller.stream;
   }
-
-  /// A sensor no reading is of yet.
-  static const Sensor _none = (segment: '', label: '', unit: '');
 
   static String _asText(Reading reading) {
     final x = reading.x.toStringAsFixed(3);
