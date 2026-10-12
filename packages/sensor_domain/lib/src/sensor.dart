@@ -16,4 +16,5 @@ const Sensor gyroscope = (segment: 'gyro', label: 'Gyroscope', unit: 'rad/s');
 const Map<String, Sensor> sensors = {'accel': accelerometer, 'gyro': gyroscope};
 
 /// The sensor whose segment is [segment].
-Sensor sensorOf(String segment) => (segment: '', label: '', unit: '');
+Sensor sensorOf(String segment) =>
+    sensors[segment] ?? (segment: '', label: '', unit: '');
