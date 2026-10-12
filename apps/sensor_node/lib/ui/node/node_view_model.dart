@@ -23,8 +23,8 @@ class NodeState {
   /// here when [receives] is true.
   const new({this.sensors = const {}, this.receives = false});
 
-  /// The state of each key the node has published on, in the order the keys
-  /// first arrived.
+  /// The state of each key the node has published on, in the sensor list's
+  /// order.
   final Map<String, SensorState> sensors;
 
   /// Whether the readings are received here, as the monitor receives them,
@@ -45,14 +45,30 @@ class NodeViewModel extends Notifier<NodeState> {
         final count = state.sensors[keyExpr]?.count ?? 0;
         state = NodeState(
           receives: receives,
-          sensors: {
+          sensors: _inSensorOrder({
             ...state.sensors,
             keyExpr: SensorState(latest: reading, count: count + 1),
-          },
+          }),
         );
       }
     });
     return NodeState(receives: receives);
+  }
+
+  /// [sensors] in the sensor list's order; keys of the same rank, such as two
+  /// unlisted sensors, keep the order they had.
+  static Map<String, SensorState> _inSensorOrder(
+    Map<String, SensorState> sensors,
+  ) {
+    final entries = sensors.entries.indexed.toList()
+      ..sort((a, b) {
+        final bySensor = compareSensors(
+          a.$2.value.latest.sensor,
+          b.$2.value.latest.sensor,
+        );
+        return bySensor != 0 ? bySensor : a.$1.compareTo(b.$1);
+      });
+    return Map.fromEntries(entries.map((entry) => entry.$2));
   }
 }
 
