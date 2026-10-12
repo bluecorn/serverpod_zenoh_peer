@@ -84,4 +84,35 @@ void main() {
     // The claim: the monitor's readings are received, the node's are not.
     expect(receives, [true, false]);
   });
+
+  test('the view model orders its keys as the sensor list does, whatever '
+      'order they arrive in', () async {
+    // A fake: the readings provider, overridden with a reading on an unlisted
+    // key, then the gyroscope's, then the accelerometer's.
+    Reading reading(Sensor sensor) =>
+        Reading(sensor: sensor, number: 1, x: 0, y: 0, z: 1);
+    final container = ProviderContainer.test(
+      overrides: [
+        readingsProvider.overrideWith(
+          (ref) => Stream.fromIterable([
+            (keyExpr: 'sensor/phone/baro', reading: reading(sensorOf('baro'))),
+            (keyExpr: 'sensor/phone/gyro', reading: reading(gyroscope)),
+            (keyExpr: 'sensor/phone/accel', reading: reading(accelerometer)),
+          ]),
+        ),
+      ],
+    )..listen(nodeViewModelProvider, (_, _) {});
+    await pumpEventQueue();
+
+    // The code to implement: the view model's state.
+    final state = container.read(nodeViewModelProvider);
+
+    // The claim: the accelerometer's key, the gyroscope's, then the unlisted
+    // one.
+    expect(state.sensors.keys, [
+      'sensor/phone/accel',
+      'sensor/phone/gyro',
+      'sensor/phone/baro',
+    ]);
+  });
 }
