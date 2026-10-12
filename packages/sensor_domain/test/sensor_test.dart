@@ -27,4 +27,17 @@ void main() {
       expect(found, (segment: 'baro', label: 'baro', unit: ''));
     },
   );
+
+  test('the sensors sort in the order of the list, a sensor no one has '
+      'listed after them', () {
+    // Three sensors in the order they might arrive: the gyroscope, an
+    // unlisted one, the accelerometer.
+    final arrived = [gyroscope, sensorOf('baro'), accelerometer];
+
+    // The code to implement: the order the views show them in.
+    final shown = [...arrived]..sort(compareSensors);
+
+    // The claim: the accelerometer, the gyroscope, then the unlisted one.
+    expect(shown.map((sensor) => sensor.segment), ['accel', 'gyro', 'baro']);
+  });
 }

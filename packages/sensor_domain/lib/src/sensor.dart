@@ -19,3 +19,7 @@ const Map<String, Sensor> sensors = {'accel': accelerometer, 'gyro': gyroscope};
 /// becomes a sensor of its own, labelled with the segment and with no unit.
 Sensor sensorOf(String segment) =>
     sensors[segment] ?? (segment: segment, label: segment, unit: '');
+
+/// Orders [a] and [b] as the list does, a sensor it does not list after every
+/// one it does.
+int compareSensors(Sensor a, Sensor b) => 0;
