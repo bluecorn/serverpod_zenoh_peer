@@ -23,11 +23,11 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 
 | layer | its thinnest real form |
 |---|---|
-| device | `apps/sensor_node`, node role, on Android: the accelerometer and gyroscope, asked for every 20 ms (a hint: Android may deliver faster) |
+| device | `apps/sensor_node`, node role, on Android: the accelerometer and gyroscope, asked for every 20 ms (a hint: Android may deliver faster); each sensor's readings numbered from 1 each time the node starts, and put as `n,x,y,z` |
 | network | zenoh peers introduced by `zenohd` (gossip); the emulator joins as a client while developing |
 | server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever was stamped in that second, by the readings' zenoh timestamps |
 | archive | one SQLite table (time, key, level), time-indexed |
-| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading, the time it was stamped and its count), plus its last *n* levels |
+| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading, the time it was stamped, the phone's number for it and how many reached the page), plus its last *n* levels |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels (n in total, newest first), each on `archive/phone/<sensor>` as `<ISO-8601 time>,<level>`; and each level published on the same key as it is kept: history by query, live by subscription |
 | native view | `sensor_node` in the **monitor role**, on Linux: the same view model and screen over a zenoh subscription, plus a recent-levels panel fed by the zenoh door |
 
@@ -39,7 +39,8 @@ build), a silent sensor's last second (it is closed only by the sensor's next re
 failed archive read (the error goes to the asker, as zenoh's error reply), the shared domain model (`Reading` and
 `Level` moved into `sensor_domain` and carried by Serverpod's models: dart_mappable or Freezed classes as extra
 classes, a Serverpod shared package, or records), a codec that carries readings and levels as `ZBytes` in zenoh's
-own serialization, sensors that describe themselves on the wire.
+own serialization, sensors that describe themselves on the wire, the node's number as a zenoh attachment beside the
+payload, telling one run of the node from another (its zenoh session id).
 
 ## The architecture
 

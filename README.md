@@ -78,8 +78,10 @@ sensor_node (the phone)       sensor_server                     sensor_node, mon
         │                           ├──── done ────────────────────────────────►│ the get completes
         │                           │                                           │
         ├─ put sensor/phone/accel ─►│                                           │
+        │ as n,x,y,z                │                                           │
         │                           │ into this second's level                  │
-        ├───────────────────────────┼──────────────────────────────────────────►│ the same reading: show it, count + 1
+        ├───────────────────────────┼──────────────────────────────────────────►│ the same reading: show it with the
+        │                           │                                           │ phone's number; count + 1
         │                           │                                           │
         │                           │ a second ends: keep its level             │
         │                           ├──── put archive/phone/accel ─────────────►│ the panel shows it
@@ -100,8 +102,11 @@ sensor_node (the phone)       sensor_server                                senso
         │                           ├──── the last 20 levels ────────────────────────►│
         │                           │                                                 │
         ├─ put sensor/phone/accel ─►│                                                 │
+        │ as n,x,y,z                │                                                 │
         │                           │ into this second's level                        │
-        │                           ├──── a SensorReading ───────────────────────────►│ show it, count + 1
+        │                           ├──── a SensorReading ───────────────────────────►│ show it with the
+        │                           │                                                 │ phone's number;
+        │                           │                                                 │ count + 1
         │                           │                                                 │
         │                           │ a second ends: keep its level                   │
         │                           ├──── the last 20 levels again ──────────────────►│ the panel shows it
@@ -187,8 +192,8 @@ adb emu sensor set acceleration 2.5:9.8:1.0
 adb emu sensor set gyroscope 0.8:0:0
 ```
 
-The page shows each sensor's latest reading, the time the phone stamped it and the count, and beside them the last
-levels the archive kept.
+The page shows each sensor's latest reading, the time the phone stamped it, the phone's number for it and how many
+reached the page, and beside them the last levels the archive kept.
 
 ### 4. The monitor, on Linux
 
