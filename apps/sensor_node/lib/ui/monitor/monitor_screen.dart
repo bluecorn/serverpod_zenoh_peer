@@ -45,6 +45,11 @@ class MonitorScreen extends ConsumerWidget {
                       latest: live.state.latest,
                       count: live.state.count,
                       receives: monitor.receives,
+                    )
+                  else
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('no readings yet'),
                     ),
                   LevelsCard(sensor: column.sensor, levels: column.levels),
                 ],
