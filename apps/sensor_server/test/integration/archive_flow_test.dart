@@ -45,8 +45,11 @@ void main() {
         addTearDown(phone.close);
         final publisher = phone.declarePublisher('sensor/phone/accel');
         addTearDown(publisher.close);
-        void put(double x, double y, double z) =>
-            publisher.put('$x,$y,$z', timestamp: phone.newTimestamp());
+        var number = 0;
+        void put(double x, double y, double z) => publisher.put(
+          '${number += 1},$x,$y,$z',
+          timestamp: phone.newTimestamp(),
+        );
 
         // The server's end: its providers, with a session that connects to
         // the phone, and the recorder started through a session of the

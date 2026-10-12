@@ -18,7 +18,7 @@ class ReadingsRepository {
   /// sensor, so it matches each of the node's keys.
   final String keyExpr;
 
-  /// Every reading that arrives, parsed from `x,y,z`, with the key it arrived
+  /// Every reading that arrives, parsed from `n,x,y,z`, with the key it arrived
   /// on and its sample's time. Listening declares the subscription;
   /// cancelling closes it.
   Stream<KeyedReading> readings() {
@@ -44,8 +44,14 @@ class ReadingsRepository {
   /// The reading [text] carries, of the sensor the last segment of [keyExpr]
   /// names, at [time].
   static Reading _asReading(String keyExpr, String text, DateTime time) {
-    final [x, y, z] = text.split(',').map(double.parse).toList();
-    final sensor = sensorOf(keyExpr.split('/').last);
-    return Reading(sensor: sensor, number: 0, x: x, y: y, z: z, time: time);
+    final [number, x, y, z] = text.split(',');
+    return Reading(
+      sensor: sensorOf(keyExpr.split('/').last),
+      number: int.parse(number),
+      x: double.parse(x),
+      y: double.parse(y),
+      z: double.parse(z),
+      time: time,
+    );
   }
 }

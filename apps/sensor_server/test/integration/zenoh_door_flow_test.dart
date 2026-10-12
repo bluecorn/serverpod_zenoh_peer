@@ -93,10 +93,10 @@ void main() {
           await _untilNextSecond();
           final second = _startOfSecond(DateTime.now());
           readings
-            ..put('3.0,4.0,0.0')
-            ..put('6.0,8.0,0.0');
+            ..put('1,3.0,4.0,0.0')
+            ..put('2,6.0,8.0,0.0');
           await _untilNextSecond();
-          readings.put('0.0,0.0,9.81');
+          readings.put('3,0.0,0.0,9.81');
           // A put returns before the sample arrives, so give it time to cross.
           await Future<void>.delayed(delivery);
 

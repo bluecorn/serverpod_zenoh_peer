@@ -39,7 +39,7 @@ void main() {
     // and the reading handed on for the screen with that key.
     final keys = received.map((sample) => sample.keyExpr).toList();
     expect(keys, ['sensor/phone/accel']);
-    expect(received.single.payload, '0.000,9.776,0.812');
+    expect(received.single.payload, '1,0.000,9.776,0.812');
     expect(received.single.encoding, 'text/plain');
     expect(published.map(_keyAndValues), [
       ('sensor/phone/accel', 0, 9.776, 0.812),
@@ -125,7 +125,7 @@ void main() {
       final puts = {for (final p in zenoh.publications) p.keyExpr: p.puts};
       expect(puts, {
         'sensor/phone/accel': <String>[],
-        'sensor/phone/gyro': ['0.000,0.000,0.500'],
+        'sensor/phone/gyro': ['1,0.000,0.000,0.500'],
       });
       expect(published.map(_keyAndValues), [('sensor/phone/gyro', 0, 0, 0.5)]);
     },

@@ -27,8 +27,9 @@ class SensorNodeRepository {
   /// The key expression the gyroscope's readings are published on.
   final String gyroKeyExpr;
 
-  /// Publishes every reading of each sensor as `x,y,z` to three decimals, on
-  /// that sensor's key, and hands each on with its key. Listening declares
+  /// Publishes every reading of each sensor, numbered from 1 for that sensor,
+  /// as `n,x,y,z` with the values to three decimals, on that sensor's key, and
+  /// hands each on with its key. Listening declares
   /// the publications; cancelling closes them. The stream ends when both
   /// sensors have ended.
   Stream<KeyedReading> publish() {
@@ -41,12 +42,14 @@ class SensorNodeRepository {
       final publication = zenoh.declarePublication(keyExpr);
       publications.add(publication);
       delivering += 1;
+      var number = 0;
       subscriptions.add(
         readings.listen(
           (raw) {
+            number += 1;
             final reading = Reading(
               sensor: sensor,
-              number: 0,
+              number: number,
               x: raw.x,
               y: raw.y,
               z: raw.z,
@@ -84,6 +87,6 @@ class SensorNodeRepository {
     final x = reading.x.toStringAsFixed(3);
     final y = reading.y.toStringAsFixed(3);
     final z = reading.z.toStringAsFixed(3);
-    return '$x,$y,$z';
+    return '${reading.number},$x,$y,$z';
   }
 }

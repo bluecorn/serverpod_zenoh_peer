@@ -63,7 +63,7 @@ void main() {
       final stamp = phone.newTimestamp();
       final after = DateTime.now();
       await Future<void>.delayed(const Duration(milliseconds: 200));
-      publisher.put('0.000,9.776,0.812', timestamp: stamp);
+      publisher.put('1,0.000,9.776,0.812', timestamp: stamp);
       // A put returns before the sample arrives, so give it time to cross.
       await Future<void>.delayed(delivery);
 

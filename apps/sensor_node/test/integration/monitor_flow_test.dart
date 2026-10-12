@@ -106,7 +106,7 @@ void main() {
     final reading = archive.declarePublication('sensor/phone/accel');
     final level = archive.declarePublication('archive/phone/accel');
     final before = DateTime.now();
-    reading.put('0.000,9.776,0.812');
+    reading.put('1,0.000,9.776,0.812');
     final after = DateTime.now();
     level.put('2026-10-10T12:00:03.000Z,0.183');
     // A put returns before the sample arrives, so give it time to cross.
