@@ -44,31 +44,6 @@ void main() {
     ]);
   });
 
-  test('a payload x,y,z arrives as a reading', () async {
-    // A fake: a service whose subscription plays what the test puts into it.
-    final zenoh = FakeZenohService();
-    final repository = ReadingsRepository(zenoh, nodeName: 'phone');
-    final received = <KeyedReading>[];
-    final listening = repository.readings().listen(received.add);
-    addTearDown(listening.cancel);
-
-    // The code to implement: each payload parsed back into a reading.
-    zenoh.subscriptions.single.arrivals.add((
-      keyExpr: 'sensor/phone/accel',
-      payload: '0.000,9.776,0.812',
-      time: DateTime.utc(2026, 10, 10, 12),
-    ));
-    await pumpEventQueue();
-
-    // The claim: one reading, with the three values of the text.
-    final values = received
-        .map((r) => [r.reading.x, r.reading.y, r.reading.z])
-        .toList();
-    expect(values, [
-      [0, 9.776, 0.812],
-    ]);
-  });
-
   test('cancelling the stream closes the subscription', () async {
     // A fake: a service that records what is closed, whose subscription
     // stays quiet, as a real one does between readings.
@@ -243,5 +218,30 @@ void main() {
       'sensor/phone/accel': accelerometer,
       'sensor/phone/gyro': gyroscope,
     });
+  });
+
+  test('a payload n,x,y,z arrives as a reading with its number', () async {
+    // A fake: a service whose subscription plays what the test puts into it.
+    final zenoh = FakeZenohService();
+    final repository = ReadingsRepository(zenoh, nodeName: 'phone');
+    final received = <KeyedReading>[];
+    final listening = repository.readings().listen(received.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: each payload parsed back into a reading, its
+    // number first.
+    zenoh.subscriptions.single.arrivals.add((
+      keyExpr: 'sensor/phone/accel',
+      payload: '42,0.000,9.776,0.812',
+      time: DateTime.utc(2026, 10, 12, 8),
+    ));
+    await pumpEventQueue();
+
+    // The claim: one reading, with the number and the three values of the
+    // text.
+    final fields = received
+        .map((r) => (r.reading.number, r.reading.x, r.reading.y, r.reading.z))
+        .toList();
+    expect(fields, [(42, 0, 9.776, 0.812)]);
   });
 }
