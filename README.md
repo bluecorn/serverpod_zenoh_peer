@@ -192,8 +192,9 @@ adb emu sensor set acceleration 2.5:9.8:1.0
 adb emu sensor set gyroscope 0.8:0:0
 ```
 
-The page shows each sensor's latest reading, the time the phone stamped it, the phone's number for it and how many
-reached the page, and beside them the last levels the archive kept.
+The page, *Sensor page*, shows a column for each sensor: its latest reading, the time the phone stamped it, the
+phone's number for it and how many reached the page, above the last levels the archive kept. In a browser narrower
+than 720 pixels the columns stack into one.
 
 ### 4. The monitor, on Linux
 

@@ -27,15 +27,15 @@ native apps' zenoh queries on it, **the zenoh door**. It extends
 | network | zenoh peers introduced by `zenohd` (gossip); the emulator joins as a client while developing |
 | server | `apps/sensor_server` (Serverpod 4.0.4): a zenoh subscription on `sensor/phone/*`; each reading streamed to the web door, and a vibration level per key per second for the archive (the RMS of the acceleration's magnitude around its mean), computed from whatever was stamped in that second, by the readings' zenoh timestamps |
 | archive | one SQLite table (time, key, level), time-indexed |
-| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app with the phone's own screen (each key's latest reading, the time it was stamped, the phone's number for it and how many reached the page), plus its last *n* levels |
+| web door | the endpoints `readings()` (a stream of every reading) and `recent(n)`; `apps/sensor_web`, a Flutter web app, a column per sensor as the monitor's (its latest reading, the time it was stamped, the phone's number for it and how many reached the page, above its last levels), one column below 720 pixels; the sensor attached in its repository from `sensor_domain` |
 | zenoh door | the server's zenoh queryable on `archive/phone/**`, answering the last *n* levels (n in total, newest first), each on `archive/phone/<sensor>` as `<ISO-8601 time>,<level>`; and each level published on the same key as it is kept: history by query, live by subscription |
 | native view | `sensor_node` in the **monitor role**, on Linux: the phone's view models over a zenoh subscription and the zenoh door, paired by sensor in a monitor view model; a window of a column per sensor, the phone's cards reused |
 
 **Named, not built:** health indicators, retention, paging, thresholds and alerts, charts, authentication, commands,
 several nodes, the monitor on Android, zenoh's advanced publisher and subscriber for history and live in one (unstable,
 behind `zenoh_unstable.dart`), a deterministic wire rate (the node thinning its own stream), a UI package
-shared by the three views (the page copies the phone's screen, since `sensor_core` brings `zenoh_dart` into a web
-build), a silent sensor's last second (it is closed only by the sensor's next reading), the server's own log of a
+shared by the three views (the page copies the phone's cards and theme, since `sensor_node` is an app carrying
+zenoh's native libraries), a silent sensor's last second (it is closed only by the sensor's next reading), the server's own log of a
 failed archive read (the error goes to the asker, as zenoh's error reply), the shared domain model (`Reading` and
 `Level` moved into `sensor_domain` and carried by Serverpod's models: dart_mappable or Freezed classes as extra
 classes, a Serverpod shared package, or records), a codec that carries readings and levels as `ZBytes` in zenoh's
