@@ -4,7 +4,8 @@ import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/ui/core/theme.dart';
 
 /// A sensor's levels card on the page, as the phone's: its label, what its
-/// levels are in its unit, and its levels, newest first.
+/// levels are in its unit, and its levels, newest first, or a line that says
+/// there are none yet.
 class LevelsCard extends StatelessWidget {
   /// The card of [sensor]'s [levels], newest first.
   const new({required this.sensor, required this.levels, super.key});
@@ -35,6 +36,7 @@ class LevelsCard extends StatelessWidget {
             Text(sensor.label, style: text.titleLarge),
             Text(_described(sensor.unit), style: secondary),
             const SizedBox(height: 8),
+            if (levels.isEmpty) Text('no levels yet', style: secondary),
             for (final level in levels)
               Row(
                 children: [
