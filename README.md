@@ -4,6 +4,12 @@
 Serverpod has no device transport of its own. This project puts a Serverpod server *on* the zenoh network, as a peer,
 so a Dart and Flutter team can have one language from the device to the server to the browser.
 
+[Zenoh](https://zenoh.io), an Eclipse project, is a pub/sub/query protocol that unifies data in motion, data at rest
+and computation, from the microcontroller to the data centre. Its site names the fields it serves: robotics, as a
+next-generation middleware in place of DDS, ROS 2 included (`rmw_zenoh`); autonomous vehicles and automotive, from
+V2X to software-defined vehicles; and IoT and edge computing. [ZettaScale](https://zettascale.tech), which offers it
+commercially, adds case studies in agriculture, industry and transportation.
+
 > Built for *Build Something Real*, the Serverpod hackathon (submissions close 14 October 2026). Everything described
 > below is built and runs, but for what the applications map marks as opened, not built.
 
