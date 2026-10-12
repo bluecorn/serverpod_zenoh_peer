@@ -25,8 +25,8 @@ class WatchState {
   /// A state with [sensors] as the state of each key.
   const new({this.sensors = const {}});
 
-  /// The state of each key a reading has arrived on, in the order the keys
-  /// first arrived.
+  /// The state of each key a reading has arrived on, in the sensor list's
+  /// order.
   final Map<String, SensorState> sensors;
 }
 
@@ -38,15 +38,18 @@ class WatchViewModel extends Notifier<WatchState> {
     ref.listen(readingsProvider, (_, next) {
       if (next case AsyncData(value: (:final sensor, :final reading))) {
         final count = state.sensors[reading.keyExpr]?.count ?? 0;
+        final sensors = {
+          ...state.sensors,
+          reading.keyExpr: SensorState(
+            latest: reading,
+            sensor: sensor,
+            count: count + 1,
+          ),
+        };
         state = WatchState(
-          sensors: {
-            ...state.sensors,
-            reading.keyExpr: SensorState(
-              latest: reading,
-              sensor: sensor,
-              count: count + 1,
-            ),
-          },
+          sensors: Map.fromEntries(
+            inSensorOrder(sensors.entries, (entry) => entry.value.sensor),
+          ),
         );
       }
     });
