@@ -15,12 +15,14 @@ void main() {
     expect(lines, ['no readings yet']);
   });
 
-  test('watch shows a line for each key', () {
-    // A state with a reading and a count on each of the phone's two keys,
-    // made by the test.
+  test("watch shows each key's reading with the node's number and its own "
+      'count of what it received', () {
+    // A state made by the test: on the accelerometer's key, the node's
+    // 1042nd reading after 980 received here; on the gyroscope's, the 7th
+    // after 7.
     const accel = Reading(
       sensor: accelerometer,
-      number: 42,
+      number: 1042,
       x: 0.1,
       y: 9.776,
       z: 0.812,
@@ -28,7 +30,7 @@ void main() {
     const gyro = Reading(sensor: gyroscope, number: 7, x: 0, y: 0, z: 0.5);
     const state = WatchState(
       sensors: {
-        'sensor/phone/accel': SensorState(latest: accel, count: 42),
+        'sensor/phone/accel': SensorState(latest: accel, count: 980),
         'sensor/phone/gyro': SensorState(latest: gyro, count: 7),
       },
     );
@@ -36,11 +38,15 @@ void main() {
     // The code to implement: the lines for that state, one for each key.
     final lines = watchLines(state);
 
-    // The claim: each key, its reading to three decimals, and its count, the
-    // keys padded so that the readings line up.
-    expect(lines, [
-      'sensor/phone/accel  x   0.100  y   9.776  z   0.812  42 readings',
-      'sensor/phone/gyro   x   0.000  y   0.000  z   0.500  7 readings',
-    ]);
+    // The claim: each key, its reading to three decimals, the node's number
+    // as its count of readings, and how many were received here, the keys
+    // padded so that the readings line up.
+    const accelLine =
+        'sensor/phone/accel  x   0.100  y   9.776  z   0.812  '
+        '1042 readings · 980 received here';
+    const gyroLine =
+        'sensor/phone/gyro   x   0.000  y   0.000  z   0.500  '
+        '7 readings · 7 received here';
+    expect(lines, [accelLine, gyroLine]);
   });
 }
