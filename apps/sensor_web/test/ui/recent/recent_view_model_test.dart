@@ -8,13 +8,13 @@ import 'package:sensor_web/ui/recent/recent_view_model.dart';
 
 void main() {
   test('the view model keeps the latest list by key, newest first, the keys in '
-      'the order they first appeared', () async {
+      "the sensor list's order", () async {
     // A fake: the recent levels provider, overridden with two lists, the
-    // second naming the gyroscope first.
+    // gyroscope's level the newest in the second.
     SensedLevel level(String keyExpr, int second) => (
       sensor: sensorOf(keyExpr.split('/').last),
       level: SensorLevel(
-        time: DateTime.utc(2026, 10, 11, 0, 50, second),
+        time: DateTime.utc(2026, 10, 12, 12, 0, second),
         keyExpr: keyExpr,
         level: 0.5,
       ),
@@ -25,22 +25,19 @@ void main() {
       overrides: [
         recentLevelsProvider.overrideWith(
           (ref) => Stream.fromIterable([
-            [level(accel, 1)],
-            [level(gyro, 2), level(accel, 2), level(accel, 1)],
+            [level(gyro, 1)],
+            [level(gyro, 3), level(accel, 2), level(gyro, 1)],
           ]),
         ),
       ],
     )..listen(recentViewModelProvider, (_, _) {});
-
-    // Let the two lists flow through before reading the state.
     await pumpEventQueue();
 
-    // The code to implement: the view model's state, the latest list by
-    // key.
+    // The code to implement: the view model's state, the latest list by key.
     final state = container.read(recentViewModelProvider);
 
-    // The claim: the accelerometer first, as it first appeared, with its
-    // two levels newest first, then the gyroscope with its one.
+    // The claim: the accelerometer first, as the list has it, then the
+    // gyroscope with its two levels newest first.
     final byKey = [
       for (final MapEntry(key: keyExpr, value: levels) in state.byKey.entries)
         [keyExpr, levels.map((l) => l.level.time.second).toList()],
@@ -48,11 +45,11 @@ void main() {
     expect(byKey, [
       [
         accel,
-        [2, 1],
+        [2],
       ],
       [
         gyro,
-        [2],
+        [3, 1],
       ],
     ]);
   });
