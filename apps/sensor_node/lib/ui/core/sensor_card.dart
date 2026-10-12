@@ -75,11 +75,14 @@ class SensorCard extends StatelessWidget {
                 ],
               ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 12,
               children: [
                 if (latest.time case final time?)
-                  Text('${_clock(time)} UTC', style: secondary),
-                const Spacer(),
+                  Text('${_clock(time)} UTC', style: secondary)
+                else
+                  const SizedBox.shrink(),
                 Text('${latest.number} readings', style: secondary),
               ],
             ),
