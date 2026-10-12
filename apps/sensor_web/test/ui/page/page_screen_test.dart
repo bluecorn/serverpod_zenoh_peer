@@ -167,4 +167,27 @@ void main() {
       expect(tops[i].dy, greaterThan(tops[i - 1].dy));
     }
   });
+
+  testWidgets('a column whose sensor has no reading yet says so above its '
+      'levels card', (tester) async {
+    // A fake: the gyroscope's column, two levels and no reading yet.
+    await _pumpPage(
+      tester,
+      PageState(
+        columns: [
+          _column(gyroscope, 'sensor/phone/gyro', live: false, levels: 2),
+        ],
+      ),
+    );
+
+    // The claim: a line that says there is no reading yet, above the levels
+    // card, and no live card.
+    final line = find.text('no readings yet');
+    expect(line, findsOneWidget);
+    expect(find.byType(SensorCard), findsNothing);
+    expect(
+      tester.getTopLeft(line).dy,
+      lessThan(tester.getTopLeft(find.byType(LevelsCard)).dy),
+    );
+  });
 }
