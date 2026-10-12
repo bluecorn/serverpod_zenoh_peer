@@ -52,4 +52,45 @@ void main() {
       '42 readings',
     ]);
   });
+
+  testWidgets('the card of a sensor no one has listed is titled with its '
+      'segment, with no unit', (tester) async {
+    // A reading on a key whose segment the list does not know.
+    final reading = Reading(
+      sensor: sensorOf('baro'),
+      number: 7,
+      x: 0,
+      y: 0,
+      z: 0.5,
+      time: DateTime.utc(2026, 10, 12, 12, 0, 1, 250),
+    );
+
+    // The code to implement: the card of that reading.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SensorCard(
+            keyExpr: 'sensor/phone/baro',
+            latest: reading,
+            count: 7,
+            receives: false,
+          ),
+        ),
+      ),
+    );
+
+    // The claim: the segment as the title, and each axis without a unit.
+    expect(_texts(tester), [
+      'baro',
+      'sensor/phone/baro',
+      'x',
+      '0.000',
+      'y',
+      '0.000',
+      'z',
+      '0.500',
+      '12:00:01.250 UTC',
+      '7 readings',
+    ]);
+  });
 }
