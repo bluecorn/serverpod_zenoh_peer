@@ -149,4 +149,43 @@ void main() {
     expect(find.text('1042 readings'), findsOneWidget);
     expect(find.text('980 received here'), findsOneWidget);
   });
+
+  testWidgets("the phone's screen shows the node's number as each key's count "
+      'of readings, and nothing of what arrived', (tester) async {
+    // A fake: a view model that holds a fixed state of readings the node
+    // publishes, its 42nd of the accelerometer.
+    const accel = Reading(
+      sensor: accelerometer,
+      number: 42,
+      x: 0.1,
+      y: 9.776,
+      z: 0.812,
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        nodeViewModelProvider.overrideWith(
+          () => FakeNodeViewModel(
+            const NodeState(
+              sensors: {
+                'sensor/phone/accel': SensorState(latest: accel, count: 42),
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    // The code to implement: the screen, built once from that state.
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: NodeScreen()),
+      ),
+    );
+
+    // The claim: the node's number as the count of readings, and no line of
+    // what arrived, since the node receives nothing.
+    expect(find.text('42 readings'), findsOneWidget);
+    expect(find.textContaining('received here'), findsNothing);
+  });
 }
