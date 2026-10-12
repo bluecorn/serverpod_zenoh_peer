@@ -40,7 +40,9 @@ failed archive read (the error goes to the asker, as zenoh's error reply), the s
 `Level` moved into `sensor_domain` and carried by Serverpod's models: dart_mappable or Freezed classes as extra
 classes, a Serverpod shared package, or records), a codec that carries readings and levels as `ZBytes` in zenoh's
 own serialization, sensors that describe themselves on the wire, the node's number as a zenoh attachment beside the
-payload, telling one run of the node from another (its zenoh session id).
+payload, telling one run of the node from another (its zenoh session id), a
+summary of each axis per second beside the vibration level (the archive's table, both doors' formats and both apps
+would change).
 
 ## The architecture
 

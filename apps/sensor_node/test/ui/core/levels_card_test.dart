@@ -33,7 +33,7 @@ void main() {
         .toList();
     expect(texts, [
       'Accelerometer',
-      'm/s²',
+      'vibration: spread of the magnitude around its mean, in m/s²',
       '12:00:09',
       '0.183',
       '12:00:08',
@@ -59,7 +59,11 @@ void main() {
         .widgetList<Text>(find.byType(Text))
         .map((t) => t.data)
         .toList();
-    expect(texts, ['Gyroscope', 'rad/s', 'no levels yet']);
+    expect(texts, [
+      'Gyroscope',
+      'vibration: spread of the magnitude around its mean, in rad/s',
+      'no levels yet',
+    ]);
   });
 
   testWidgets("a levels card says what its levels are, in its sensor's unit", (
