@@ -29,14 +29,15 @@ import '../support/loopback.dart';
 ///    readings arrived only where they are received, and the stamp only when
 ///    there is one" (the same file).
 /// 4. The Live tab shows a card for each key: "the Live tab shows a card for
-///    each key, in the order the keys arrived"
+///    each key, in the view model's order"
 ///    (`test/ui/node/node_screen_test.dart`, a fake view model).
 /// 5. A levels card shows its sensor's label and unit and its levels, newest
 ///    first, each its second and value: "a levels card shows its sensor's
 ///    label and unit, and each level's second and value, newest first"
 ///    (`test/ui/core/levels_card_test.dart`).
 /// 6. The History tab shows a levels card for each sensor, or says there are
-///    no levels yet: "the History tab shows a levels card for each key" and
+///    no levels yet: "the History tab shows its heading and a levels card for
+///    each key" and
 ///    "the panel says no levels yet while it has none"
 ///    (`test/ui/recent/recent_panel_test.dart`, a fake view model).
 /// 7. The phone's shell has a title bar, "Sensor node", and the Live and
@@ -45,7 +46,14 @@ import '../support/loopback.dart';
 ///    History tabs, building History only when it is opened"
 ///    (`test/ui/phone/phone_shell_test.dart`, fake view models).
 /// 8. The node keeps publishing while History shows: this test.
-/// 9. The app is called "Sensor node", on its title bar, in Android's recent
+/// 9. Both tabs show the sensors in the list's order, an unlisted one last:
+///    "the sensors sort in the order of the list, a sensor no one has listed
+///    after them" (`sensor_domain`), "the view model orders its keys as the
+///    sensor list does, whatever order they arrive in"
+///    (`test/ui/node/node_view_model_test.dart`) and "the panel's view model
+///    shows the history, then each published level on top, the keys in the
+///    sensor list's order" (`test/ui/recent/recent_view_model_test.dart`).
+/// 10. The app is called "Sensor node", on its title bar, in Android's recent
 ///    apps and under its icon, and is themed from one seed colour, light and
 ///    dark as the device is: `main.dart` and the manifest, shown by the run.
 void main() {

@@ -88,8 +88,8 @@ void main() {
     expect(find.textContaining('received here'), findsNothing);
   });
 
-  testWidgets('the Live tab shows a card for each key, in the order the keys '
-      'arrived', (tester) async {
+  testWidgets("the Live tab shows a card for each key, in the view model's "
+      'order', (tester) async {
     // A fake: a view model that holds a fixed state, a reading and a count on
     // each of the phone's two keys.
     const accel = Reading(
