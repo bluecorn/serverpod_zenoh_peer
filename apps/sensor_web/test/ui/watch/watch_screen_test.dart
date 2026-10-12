@@ -70,4 +70,44 @@ void main() {
       expect(find.text('7 readings'), findsOneWidget);
     },
   );
+
+  testWidgets("the page shows the node's number as each key's count of "
+      'readings, and how many arrived here', (tester) async {
+    // A fake: a view model that holds a fixed state, the node's 1042nd
+    // reading of the accelerometer after 980 arrived here.
+    final accel = SensorReading(
+      keyExpr: 'sensor/phone/accel',
+      number: 1042,
+      x: 0.1,
+      y: 9.776,
+      z: 0.812,
+      time: DateTime.utc(2026, 10, 12, 8),
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        watchViewModelProvider.overrideWith(
+          () => FakeWatchViewModel(
+            WatchState(
+              sensors: {
+                'sensor/phone/accel': SensorState(latest: accel, count: 980),
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    // The code to implement: the page, built once from that state.
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: WatchScreen()),
+      ),
+    );
+
+    // The claim: the node's number as the count of readings, and the page's
+    // own count as what arrived here.
+    expect(find.text('1042 readings'), findsOneWidget);
+    expect(find.text('980 received here'), findsOneWidget);
+  });
 }
