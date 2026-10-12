@@ -31,7 +31,8 @@ class NodeScreen extends ConsumerWidget {
                     Text('z ${_fixed(sensor.latest.z)}'),
                     if (sensor.latest.time case final time?)
                       Text('${_clock(time)} UTC'),
-                    Text('${sensor.count} readings'),
+                    Text('${sensor.latest.number} readings'),
+                    Text('${sensor.count} received here'),
                   ],
                 ),
             ],
