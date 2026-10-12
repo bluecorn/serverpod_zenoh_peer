@@ -55,4 +55,33 @@ void main() {
       '980 received here',
     ]);
   });
+
+  testWidgets('the card of a sensor no one has listed is titled with its '
+      'segment, with no unit', (tester) async {
+    // The code to implement: the card of a reading on a key whose segment the
+    // list does not know.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SensorCard(
+            latest: _reading('sensor/phone/baro'),
+            sensor: sensorOf('baro'),
+            count: 980,
+          ),
+        ),
+      ),
+    );
+
+    // The claim: the segment as the title, and each axis without a unit.
+    expect(_texts(tester).take(8), [
+      'baro',
+      'sensor/phone/baro',
+      'x',
+      '0.100',
+      'y',
+      '9.776',
+      'z',
+      '0.812',
+    ]);
+  });
 }
