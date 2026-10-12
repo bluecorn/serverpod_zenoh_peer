@@ -2,7 +2,9 @@
 
 **Serverpod as a native zenoh peer.** Robots and IoT devices increasingly talk over [zenoh](https://zenoh.io), and
 Serverpod has no device transport of its own. This project puts a Serverpod server *on* the zenoh network, as a peer,
-so a Dart and Flutter team can have one language from the device to the server to the browser.
+so a Dart and Flutter team can have one language from the device to the server to the browser. It is a skeleton
+application, in Dart and Flutter, with every layer present in its thinnest real form and tested, meant as a template
+for building applications on zenoh and Serverpod.
 
 [Zenoh](https://zenoh.io), an Eclipse project, is a pub/sub/query protocol that unifies data in motion, data at rest
 and computation, from the microcontroller to the data centre. Its site names the fields it serves: robotics, as a
