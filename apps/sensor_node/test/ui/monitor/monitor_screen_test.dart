@@ -86,4 +86,28 @@ void main() {
     expect(columns.map((c) => c.left == c.levelsLeft), [true, true]);
     expect(columns.map((c) => c.above), [true, true]);
   });
+
+  testWidgets("the monitor's title bar names it and the routes its data "
+      'takes', (tester) async {
+    // A fake: a view model that holds no columns yet.
+    await _pumpMonitor(tester, const MonitorState(receives: true));
+
+    // The claim: the name, and beneath it where the readings and the levels
+    // come from.
+    final bar = find.byType(AppBar);
+    expect(
+      find.descendant(of: bar, matching: find.text('Sensor monitor')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: bar,
+        matching: find.text(
+          "readings from the node over zenoh · levels through the server's "
+          'zenoh door',
+        ),
+      ),
+      findsOneWidget,
+    );
+  });
 }
