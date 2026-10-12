@@ -28,7 +28,7 @@ void main() {
 
     // The code to implement: a repository that publishes one reading
     // from a fake sensor, through the node's session.
-    const reading = Reading(x: 0, y: 9.776, z: 0.812);
+    const reading = (x: 0.0, y: 9.776, z: 0.812);
     final sensor = FakeSensorService(Stream.value(reading));
     final repository = SensorNodeRepository(zenoh, sensor, nodeName: 'phone');
     final published = await repository.publish().toList();
@@ -41,14 +41,16 @@ void main() {
     expect(keys, ['sensor/phone/accel']);
     expect(received.single.payload, '0.000,9.776,0.812');
     expect(received.single.encoding, 'text/plain');
-    expect(published, [(keyExpr: 'sensor/phone/accel', reading: reading)]);
+    expect(published.map(_keyAndValues), [
+      ('sensor/phone/accel', 0, 9.776, 0.812),
+    ]);
   });
 
   test('a reading is put as x,y,z to three decimals and handed on', () async {
     // Fakes: a service that records what is put through it, and a
     // sensor that delivers one reading.
     final zenoh = FakeZenohService();
-    const reading = Reading(x: 0, y: 9.776, z: 0.812);
+    const reading = (x: 0.0, y: 9.776, z: 0.812);
     final sensor = FakeSensorService(Stream.value(reading));
 
     // The code to implement: each reading put as text, then handed on.
@@ -62,14 +64,16 @@ void main() {
       'sensor/phone/accel': ['0.000,9.776,0.812'],
       'sensor/phone/gyro': <String>[],
     });
-    expect(published, [(keyExpr: 'sensor/phone/accel', reading: reading)]);
+    expect(published.map(_keyAndValues), [
+      ('sensor/phone/accel', 0, 9.776, 0.812),
+    ]);
   });
 
   test('cancelling the stream closes the publication', () async {
     // Fakes: a service that records what is closed, and a sensor that
     // stays quiet, as a real one does between readings.
     final zenoh = FakeZenohService();
-    final readings = StreamController<Reading>();
+    final readings = StreamController<RawReading>();
     final sensor = FakeSensorService(readings.stream);
     final repository = SensorNodeRepository(zenoh, sensor, nodeName: 'phone');
 
@@ -126,7 +130,7 @@ void main() {
       // Fakes: a service that records what is put through it, and a sensor
       // whose gyroscope delivers one reading while its accelerometer is quiet.
       final zenoh = FakeZenohService();
-      const reading = Reading(x: 0, y: 0, z: 0.5);
+      const reading = (x: 0.0, y: 0.0, z: 0.5);
       final sensor = FakeSensorService(
         const Stream.empty(),
         gyroscope: Stream.value(reading),
@@ -146,7 +150,7 @@ void main() {
         'sensor/phone/accel': <String>[],
         'sensor/phone/gyro': ['0.000,0.000,0.500'],
       });
-      expect(published, [(keyExpr: 'sensor/phone/gyro', reading: reading)]);
+      expect(published.map(_keyAndValues), [('sensor/phone/gyro', 0, 0, 0.5)]);
     },
   );
 
@@ -154,8 +158,8 @@ void main() {
     // Fakes: a service that records what is put through it, and a sensor
     // that delivers one reading of each kind.
     final zenoh = FakeZenohService();
-    const accel = Reading(x: 0, y: 9.776, z: 0.812);
-    const gyro = Reading(x: 0, y: 0, z: 0.5);
+    const accel = (x: 0.0, y: 9.776, z: 0.812);
+    const gyro = (x: 0.0, y: 0.0, z: 0.5);
     final sensor = FakeSensorService(
       Stream.value(accel),
       gyroscope: Stream.value(gyro),
@@ -177,3 +181,11 @@ void main() {
     });
   });
 }
+
+/// A handed-on reading's key and its three values, which the claims compare.
+(String, double, double, double) _keyAndValues(KeyedReading published) => (
+  published.keyExpr,
+  published.reading.x,
+  published.reading.y,
+  published.reading.z,
+);

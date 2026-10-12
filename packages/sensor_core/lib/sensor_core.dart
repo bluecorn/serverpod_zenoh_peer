@@ -2,7 +2,10 @@
 /// `sensorctl` share.
 library;
 
+export 'package:sensor_domain/sensor_domain.dart';
+
 export 'src/domain/level.dart';
+export 'src/domain/raw_reading.dart';
 export 'src/domain/reading.dart';
 export 'src/repositories/levels_repository.dart';
 export 'src/repositories/readings_repository.dart';

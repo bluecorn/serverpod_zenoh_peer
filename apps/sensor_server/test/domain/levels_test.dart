@@ -34,13 +34,19 @@ void main() {
         final time = second.add(Duration(milliseconds: 200 * i));
         readings.add((
           keyExpr: accel,
-          reading: Reading(x: x, y: y, z: z, time: time),
+          reading: Reading(sensor: accelerometer, x: x, y: y, z: z, time: time),
         ));
       }
       final next = second.add(const Duration(seconds: 1));
       readings.add((
         keyExpr: accel,
-        reading: Reading(x: 0, y: 0, z: 9.81, time: next),
+        reading: Reading(
+          sensor: accelerometer,
+          x: 0,
+          y: 0,
+          z: 9.81,
+          time: next,
+        ),
       ));
       await pumpEventQueue();
 
@@ -74,6 +80,7 @@ void main() {
         readings.add((
           keyExpr: keyExpr,
           reading: Reading(
+            sensor: keyExpr == gyro ? gyroscope : accelerometer,
             x: x,
             y: y,
             z: z,

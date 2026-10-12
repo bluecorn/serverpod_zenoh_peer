@@ -1,0 +1,12 @@
+name: sensor_domain
+description: The domain the phone app, the server, the monitor, sensorctl and the page share, in plain Dart.
+version: 1.0.0
+
+environment:
+  sdk: ^3.13.2
+
+resolution: workspace
+
+dev_dependencies:
+  test: ^1.25.6
+  very_good_analysis: ^11.0.0

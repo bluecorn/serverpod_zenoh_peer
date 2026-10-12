@@ -5,14 +5,14 @@ import 'package:sensor_core/sensor_core.dart';
 class FakeSensorService implements SensorService {
   new(this.readings, {this._gyroscope = const Stream.empty()});
 
-  final Stream<Reading> readings;
-  final Stream<Reading> _gyroscope;
+  final Stream<RawReading> readings;
+  final Stream<RawReading> _gyroscope;
 
   @override
-  Stream<Reading> accelerometer() => readings;
+  Stream<RawReading> accelerometer() => readings;
 
   @override
-  Stream<Reading> gyroscope() => _gyroscope;
+  Stream<RawReading> gyroscope() => _gyroscope;
 }
 
 class FakePublication implements Publication {

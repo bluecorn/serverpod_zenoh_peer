@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:sensor_core/src/domain/raw_reading.dart';
 import 'package:sensor_core/src/domain/reading.dart';
 import 'package:sensor_core/src/services/sensor_service.dart';
 import 'package:sensor_core/src/services/zenoh_service.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 
 /// The node's side of the readings: it owns the key expressions and publishes
 /// what the sensors deliver.
@@ -31,17 +33,23 @@ class SensorNodeRepository {
   /// sensors have ended.
   Stream<KeyedReading> publish() {
     final publications = <Publication>[];
-    final subscriptions = <StreamSubscription<Reading>>[];
+    final subscriptions = <StreamSubscription<RawReading>>[];
     var delivering = 0;
     final controller = StreamController<KeyedReading>();
 
-    void publishOn(String keyExpr, Stream<Reading> readings) {
+    void publishOn(String keyExpr, Stream<RawReading> readings) {
       final publication = zenoh.declarePublication(keyExpr);
       publications.add(publication);
       delivering += 1;
       subscriptions.add(
         readings.listen(
-          (reading) {
+          (raw) {
+            final reading = Reading(
+              sensor: _none,
+              x: raw.x,
+              y: raw.y,
+              z: raw.z,
+            );
             publication.put(_asText(reading));
             controller.add((keyExpr: keyExpr, reading: reading));
           },
@@ -70,6 +78,9 @@ class SensorNodeRepository {
       };
     return controller.stream;
   }
+
+  /// A sensor no reading is of yet.
+  static const Sensor _none = (segment: '', label: '', unit: '');
 
   static String _asText(Reading reading) {
     final x = reading.x.toStringAsFixed(3);

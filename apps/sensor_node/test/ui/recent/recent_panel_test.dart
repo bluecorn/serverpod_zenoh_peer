@@ -13,16 +13,22 @@ void main() {
   ) async {
     // A fake: a view model that holds a fixed state, two levels on the
     // accelerometer's key and one on the gyroscope's.
-    Level level(int second, double value) =>
-        Level(time: DateTime.utc(2026, 10, 11, 0, 50, second), value: value);
+    Level level(Sensor sensor, int second, double value) => Level(
+      sensor: sensor,
+      time: DateTime.utc(2026, 10, 11, 0, 50, second),
+      value: value,
+    );
     final container = ProviderContainer.test(
       overrides: [
         recentViewModelProvider.overrideWith(
           () => FakeRecentViewModel(
             RecentState(
               byKey: {
-                'archive/phone/accel': [level(3, 0.6), level(2, 0.676)],
-                'archive/phone/gyro': [level(3, 0.231)],
+                'archive/phone/accel': [
+                  level(accelerometer, 3, 0.6),
+                  level(accelerometer, 2, 0.676),
+                ],
+                'archive/phone/gyro': [level(gyroscope, 3, 0.231)],
               },
             ),
           ),

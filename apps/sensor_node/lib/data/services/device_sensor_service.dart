@@ -20,12 +20,12 @@ class DeviceSensorService implements SensorService {
   final SensorEvents<GyroscopeEvent> _gyroscopeEvents;
 
   @override
-  Stream<Reading> accelerometer() =>
+  Stream<RawReading> accelerometer() =>
       _accelerometerEvents(samplingPeriod: SensorInterval.gameInterval)
-          .map((event) => Reading(x: event.x, y: event.y, z: event.z));
+          .map((event) => (x: event.x, y: event.y, z: event.z));
 
   @override
-  Stream<Reading> gyroscope() =>
+  Stream<RawReading> gyroscope() =>
       _gyroscopeEvents(samplingPeriod: SensorInterval.gameInterval)
-          .map((event) => Reading(x: event.x, y: event.y, z: event.z));
+          .map((event) => (x: event.x, y: event.y, z: event.z));
 }

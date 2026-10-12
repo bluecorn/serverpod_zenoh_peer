@@ -11,8 +11,8 @@ void main() {
   testWidgets('the screen shows a block for each key', (tester) async {
     // A fake: a view model that holds a fixed state, with a reading and a
     // count on each of the phone's two keys.
-    const accel = Reading(x: 0.1, y: 9.776, z: 0.812);
-    const gyro = Reading(x: 0, y: 0, z: 0.5);
+    const accel = Reading(sensor: accelerometer, x: 0.1, y: 9.776, z: 0.812);
+    const gyro = Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5);
     final container = ProviderContainer.test(
       overrides: [
         nodeViewModelProvider.overrideWith(
@@ -58,12 +58,13 @@ void main() {
       // time on one key, as a monitor receives it, and one without on the
       // other, as the node publishes it.
       final stamped = Reading(
+        sensor: accelerometer,
         x: 0.1,
         y: 9.776,
         z: 0.812,
         time: DateTime.utc(2026, 10, 10, 12, 0, 1, 250),
       );
-      const published = Reading(x: 0, y: 0, z: 0.5);
+      const published = Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5);
       final container = ProviderContainer.test(
         overrides: [
           nodeViewModelProvider.overrideWith(

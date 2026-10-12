@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sensor_core/src/domain/level.dart';
 import 'package:sensor_core/src/services/zenoh_service.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 
 /// The asking side of the archive: it owns the key expressions and turns the
 /// replies to a query, and the levels the archive publishes, back into levels.
@@ -55,8 +56,15 @@ class LevelsRepository {
     return controller.stream;
   }
 
+  /// A sensor no level is of yet.
+  static const Sensor _none = (segment: '', label: '', unit: '');
+
   static Level _asLevel(String text) {
     final [time, value] = text.split(',');
-    return Level(time: DateTime.parse(time), value: double.parse(value));
+    return Level(
+      sensor: _none,
+      time: DateTime.parse(time),
+      value: double.parse(value),
+    );
   }
 }

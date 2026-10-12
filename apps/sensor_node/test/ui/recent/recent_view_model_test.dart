@@ -14,7 +14,11 @@ void main() {
     // test plays.
     KeyedLevel level(String keyExpr, int second) => (
       keyExpr: keyExpr,
-      level: Level(time: DateTime.utc(2026, 10, 11, 0, 50, second), value: 0.5),
+      level: Level(
+        sensor: keyExpr.endsWith('gyro') ? gyroscope : accelerometer,
+        time: DateTime.utc(2026, 10, 11, 0, 50, second),
+        value: 0.5,
+      ),
     );
     const accel = 'archive/phone/accel';
     const gyro = 'archive/phone/gyro';
@@ -62,7 +66,11 @@ void main() {
     // gyroscope's, and the live provider with a stream the test plays.
     KeyedLevel level(String keyExpr, int second) => (
       keyExpr: keyExpr,
-      level: Level(time: DateTime.utc(2026, 10, 11, 0, 50, second), value: 0.5),
+      level: Level(
+        sensor: keyExpr.endsWith('gyro') ? gyroscope : accelerometer,
+        time: DateTime.utc(2026, 10, 11, 0, 50, second),
+        value: 0.5,
+      ),
     );
     const accel = 'archive/phone/accel';
     const gyro = 'archive/phone/gyro';

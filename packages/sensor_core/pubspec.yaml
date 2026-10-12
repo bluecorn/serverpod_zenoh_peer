@@ -8,6 +8,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  sensor_domain: ^1.0.0
   zenoh_dart: ^1.0.0-rc.1
 
 dev_dependencies:

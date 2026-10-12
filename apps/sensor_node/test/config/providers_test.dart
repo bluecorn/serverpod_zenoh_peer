@@ -13,11 +13,11 @@ void main() {
     // another.
     const received = (
       keyExpr: 'sensor/phone/accel',
-      reading: Reading(x: 0, y: 9.776, z: 0.812),
+      reading: Reading(sensor: accelerometer, x: 0, y: 9.776, z: 0.812),
     );
     const published = (
       keyExpr: 'sensor/phone/gyro',
-      reading: Reading(x: 0, y: 0, z: 0.5),
+      reading: Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5),
     );
     final node = FakeSensorNodeRepository(Stream.value(published));
     final container = ProviderContainer.test(
@@ -52,11 +52,11 @@ void main() {
       // one reading, and a readings repository that would receive another.
       const received = (
         keyExpr: 'sensor/phone/accel',
-        reading: Reading(x: 0, y: 9.776, z: 0.812),
+        reading: Reading(sensor: accelerometer, x: 0, y: 9.776, z: 0.812),
       );
       const published = (
         keyExpr: 'sensor/phone/gyro',
-        reading: Reading(x: 0, y: 0, z: 0.5),
+        reading: Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5),
       );
       final container = ProviderContainer.test(
         overrides: [

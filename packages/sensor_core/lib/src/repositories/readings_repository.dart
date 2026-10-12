@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sensor_core/src/domain/reading.dart';
 import 'package:sensor_core/src/services/zenoh_service.dart';
+import 'package:sensor_domain/sensor_domain.dart';
 
 /// The collector's side of the readings: it owns the key expression and turns
 /// what arrives back into readings.
@@ -40,8 +41,11 @@ class ReadingsRepository {
     return controller.stream;
   }
 
+  /// A sensor no reading is of yet.
+  static const Sensor _none = (segment: '', label: '', unit: '');
+
   static Reading _asReading(String text, DateTime time) {
     final [x, y, z] = text.split(',').map(double.parse).toList();
-    return Reading(x: x, y: y, z: z, time: time);
+    return Reading(sensor: _none, x: x, y: y, z: z, time: time);
   }
 }

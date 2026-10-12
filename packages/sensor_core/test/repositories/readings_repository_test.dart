@@ -28,7 +28,7 @@ void main() {
     await Future<void>.delayed(delivery);
 
     // The node's code publishes one reading from a fake sensor.
-    const reading = Reading(x: 0, y: 9.776, z: 0.812);
+    const reading = (x: 0.0, y: 9.776, z: 0.812);
     final sensor = FakeSensorService(Stream.value(reading));
     final node = SensorNodeRepository(sensorNode, sensor, nodeName: 'phone');
     await node.publish().toList();
@@ -109,8 +109,8 @@ void main() {
 
       // The node's code publishes one reading of each sensor from a fake
       // sensor.
-      const accel = Reading(x: 0, y: 9.776, z: 0.812);
-      const gyro = Reading(x: 0, y: 0, z: 0.5);
+      const accel = (x: 0.0, y: 9.776, z: 0.812);
+      const gyro = (x: 0.0, y: 0.0, z: 0.5);
       final sensor = FakeSensorService(
         Stream.value(accel),
         gyroscope: Stream.value(gyro),

@@ -1,4 +1,4 @@
-import 'package:sensor_core/src/domain/reading.dart';
+import 'package:sensor_core/src/domain/raw_reading.dart';
 
 /// The device's motion sensors, as the node reads them.
 ///
@@ -10,8 +10,8 @@ import 'package:sensor_core/src/domain/reading.dart';
 /// screen.
 abstract interface class SensorService {
   /// The accelerometer's readings, as the device delivers them.
-  Stream<Reading> accelerometer();
+  Stream<RawReading> accelerometer();
 
   /// The gyroscope's readings, as the device delivers them.
-  Stream<Reading> gyroscope();
+  Stream<RawReading> gyroscope();
 }

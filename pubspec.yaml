@@ -15,3 +15,4 @@ workspace:
   - apps/sensor_server
   - apps/sensor_web
   - packages/sensor_core
+  - packages/sensor_domain
