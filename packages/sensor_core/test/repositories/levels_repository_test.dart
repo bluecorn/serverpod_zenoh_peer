@@ -208,4 +208,43 @@ void main() {
     // The claim: the subscription the repository declared is closed.
     expect(zenoh.subscriptions.single.isClosed, isTrue);
   });
+
+  test('a level, answered or published, carries the sensor its key '
+      'names', () async {
+    // A fake: a service that answers a get with one level on the
+    // accelerometer's key, and whose subscription plays one level on the
+    // gyroscope's.
+    final zenoh = FakeZenohService()
+      ..replies = [
+        (
+          keyExpr: 'archive/phone/accel',
+          payload: '2026-10-12T07:00:00.000Z,0.150',
+        ),
+      ];
+    final repository = LevelsRepository(zenoh, nodeName: 'phone');
+    final published = <KeyedLevel>[];
+    final listening = repository.live().listen(published.add);
+    addTearDown(listening.cancel);
+
+    // The code to implement: the sensor read from the last segment of the key
+    // of a reply and of a sample.
+    final answered = await repository.recent(1);
+    zenoh.subscriptions.single.arrivals.add((
+      keyExpr: 'archive/phone/gyro',
+      payload: '2026-10-12T07:00:01.000Z,0.019',
+      time: DateTime.utc(2026, 10, 12, 7, 0, 1),
+    ));
+    await pumpEventQueue();
+
+    // The claim: the answered level of the accelerometer, the published one of
+    // the gyroscope.
+    final sensors = [
+      for (final (:keyExpr, :level) in [...answered, ...published])
+        (keyExpr, level.sensor),
+    ];
+    expect(sensors, [
+      ('archive/phone/accel', accelerometer),
+      ('archive/phone/gyro', gyroscope),
+    ]);
+  });
 }
