@@ -124,4 +124,47 @@ void main() {
       expect(tester.getTopLeft(levels.at(i)).dy, greaterThan(lefts[i].dy));
     }
   });
+
+  testWidgets('a browser narrower than 720 shows one column, each sensor its '
+      'live card before its levels card', (tester) async {
+    // A fake: the accelerometer's column and the gyroscope's, each a reading
+    // and a level, in a browser 400 wide.
+    await _pumpPage(
+      tester,
+      PageState(
+        columns: [
+          _column(accelerometer, 'sensor/phone/accel', levels: 1),
+          _column(gyroscope, 'sensor/phone/gyro', levels: 1),
+        ],
+      ),
+      width: 400,
+    );
+
+    // The claim: the four cards one under the other, in one column: the
+    // accelerometer's live card, its levels card, then the gyroscope's.
+    final cards = find.byWidgetPredicate(
+      (widget) => widget is SensorCard || widget is LevelsCard,
+    );
+    final order = [
+      for (final widget in tester.widgetList(cards))
+        switch (widget) {
+          SensorCard(:final sensor) => ('live', sensor.segment),
+          LevelsCard(:final sensor) => ('levels', sensor.segment),
+          _ => ('other', ''),
+        },
+    ];
+    expect(order, [
+      ('live', 'accel'),
+      ('levels', 'accel'),
+      ('live', 'gyro'),
+      ('levels', 'gyro'),
+    ]);
+    final tops = [
+      for (var i = 0; i < 4; i += 1) tester.getTopLeft(cards.at(i)),
+    ];
+    expect(tops.map((top) => top.dx).toSet(), hasLength(1));
+    for (var i = 1; i < 4; i += 1) {
+      expect(tops[i].dy, greaterThan(tops[i - 1].dy));
+    }
+  });
 }
