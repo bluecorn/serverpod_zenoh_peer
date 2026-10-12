@@ -36,7 +36,10 @@ several nodes, the monitor on Android, zenoh's advanced publisher and subscriber
 behind `zenoh_unstable.dart`), a deterministic wire rate (the node thinning its own stream), a UI package
 shared by the three views (the page copies the phone's screen, since `sensor_core` brings `zenoh_dart` into a web
 build), a silent sensor's last second (it is closed only by the sensor's next reading), the server's own log of a
-failed archive read (the error goes to the asker, as zenoh's error reply).
+failed archive read (the error goes to the asker, as zenoh's error reply), the shared domain model (`Reading` and
+`Level` moved into `sensor_domain` and carried by Serverpod's models: dart_mappable or Freezed classes as extra
+classes, a Serverpod shared package, or records), a codec that carries readings and levels as `ZBytes` in zenoh's
+own serialization, sensors that describe themselves on the wire.
 
 ## The architecture
 
@@ -49,7 +52,10 @@ sensor_node   View → ViewModel → readingsProvider → SensorNodeRepository �
 sensor_server Endpoints (web door) and a zenoh queryable (zenoh door) → the server's providers → repositories
               → ZenohService, and the archive (a Serverpod table)
 sensor_web    View → ViewModel → repository → the generated Serverpod client
-sensor_core   the shared core: domain models, repositories, ZenohService
+sensor_core   the shared core: domain models (Reading, Level, and RawReading, what the device delivers),
+              repositories, ZenohService; it re-exports sensor_domain
+sensor_domain the domain every program shares, plain Dart with no dependency, so the page can import it: Sensor,
+              a record of a key's last segment, a label and a unit, and sensorOf
 ```
 
 1. **Riverpod 3, providers declared by hand, no code generation for them.** The provider graph is the dependency

@@ -260,7 +260,7 @@ configuration is the monitor's: a peer that `zenohd` introduces. `Ctrl-C` stops 
 window. The tests use loopback ports of their own, 7450 to 7452, so they run beside the router and the server:
 
 ```sh
-fvm dart test packages/sensor_core apps/sensor_server apps/sensorctl
+fvm dart test packages/sensor_domain packages/sensor_core apps/sensor_server apps/sensorctl
 fvm flutter test apps/sensor_node apps/sensor_web
 ```
 
