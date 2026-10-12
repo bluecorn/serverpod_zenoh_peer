@@ -46,29 +46,6 @@ void main() {
     ]);
   });
 
-  test('a reading is put as x,y,z to three decimals and handed on', () async {
-    // Fakes: a service that records what is put through it, and a
-    // sensor that delivers one reading.
-    final zenoh = FakeZenohService();
-    const reading = (x: 0.0, y: 9.776, z: 0.812);
-    final sensor = FakeSensorService(Stream.value(reading));
-
-    // The code to implement: each reading put as text, then handed on.
-    final repository = SensorNodeRepository(zenoh, sensor, nodeName: 'phone');
-    final published = await repository.publish().toList();
-
-    // The claim: the text put through the accelerometer's publication, nothing
-    // through the gyroscope's, and the same reading handed on with its key.
-    final puts = {for (final p in zenoh.publications) p.keyExpr: p.puts};
-    expect(puts, {
-      'sensor/phone/accel': ['0.000,9.776,0.812'],
-      'sensor/phone/gyro': <String>[],
-    });
-    expect(published.map(_keyAndValues), [
-      ('sensor/phone/accel', 0, 9.776, 0.812),
-    ]);
-  });
-
   test('cancelling the stream closes the publication', () async {
     // Fakes: a service that records what is closed, and a sensor that
     // stays quiet, as a real one does between readings.
@@ -206,6 +183,42 @@ void main() {
       });
     },
   );
+
+  test('a reading is put as n,x,y,z, numbered from 1 for each sensor, and '
+      'handed on with its number', () async {
+    // Fakes: a service that records what is put through it, and a sensor
+    // whose accelerometer delivers two raw readings and its gyroscope one.
+    final zenoh = FakeZenohService();
+    final sensor = FakeSensorService(
+      Stream.fromIterable([
+        (x: 0.0, y: 9.776, z: 0.812),
+        (x: 0.1, y: 9.776, z: 0.812),
+      ]),
+      gyroscope: Stream.value((x: 0.0, y: 0.0, z: 0.5)),
+    );
+
+    // The code to implement: each sensor's readings counted from 1, each put
+    // as its number and its three values to three decimals, then handed on
+    // with its number.
+    final repository = SensorNodeRepository(zenoh, sensor, nodeName: 'phone');
+    final published = await repository.publish().toList();
+
+    // The claim: on each key, the texts numbered from 1, and the readings
+    // handed on with the same numbers.
+    final puts = {for (final p in zenoh.publications) p.keyExpr: p.puts};
+    expect(puts, {
+      'sensor/phone/accel': ['1,0.000,9.776,0.812', '2,0.100,9.776,0.812'],
+      'sensor/phone/gyro': ['1,0.000,0.000,0.500'],
+    });
+    final numbers = <String, List<int>>{};
+    for (final (:keyExpr, :reading) in published) {
+      (numbers[keyExpr] ??= []).add(reading.number);
+    }
+    expect(numbers, {
+      'sensor/phone/accel': [1, 2],
+      'sensor/phone/gyro': [1],
+    });
+  });
 }
 
 /// A handed-on reading's key and its three values, which the claims compare.
