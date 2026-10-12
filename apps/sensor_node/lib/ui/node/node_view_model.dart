@@ -11,7 +11,8 @@ class SensorState {
   /// The newest reading on the key.
   final Reading latest;
 
-  /// How many readings the node has published on the key.
+  /// How many readings the node has published on the key, or, in the monitor
+  /// role, how many arrived here.
   final int count;
 }
 

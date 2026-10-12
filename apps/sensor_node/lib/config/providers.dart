@@ -79,9 +79,10 @@ final sessionProvider = FutureProvider<void>((ref) async {
 
 /// The readings the screen shows, each with its key, once the session is
 /// open: the ones the node publishes, or in the monitor role the ones it
-/// receives. Only this provider knows the role, so the view model and the
-/// screen are the same in both, and the monitor never builds the device's
-/// sensors.
+/// receives. The readings come from the role here, so the monitor never
+/// builds the device's sensors; the view model reads the role only to say
+/// whether its readings are received, and the screen is the same in both but
+/// for the line of what arrived.
 final readingsProvider = StreamProvider<KeyedReading>((ref) async* {
   await ref.watch(sessionProvider.future);
   yield* switch (ref.watch(nodeRoleProvider)) {
