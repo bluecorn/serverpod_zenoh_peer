@@ -71,10 +71,11 @@ class SensorCard extends StatelessWidget {
                 ],
               ),
             const SizedBox(height: 12),
-            Row(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 12,
               children: [
                 Text('${_clock(latest.time)} UTC', style: secondary),
-                const Spacer(),
                 Text('${latest.number} readings', style: secondary),
               ],
             ),
