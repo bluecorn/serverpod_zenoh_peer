@@ -89,7 +89,9 @@ void main() {
         child: const MaterialApp(home: PageScreen()),
       ),
     );
-    await tester.pump();
+    // The fake's streams deliver during the first frame; let the next ones
+    // build what they brought.
+    await tester.pumpAndSettle();
 
     // The claim, wide: the accelerometer's column on the left, its live card
     // above its levels card; the gyroscope's on the right, its levels card.
