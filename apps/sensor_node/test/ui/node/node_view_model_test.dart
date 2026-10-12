@@ -60,4 +60,28 @@ void main() {
       });
     },
   );
+
+  test("in the monitor role the view model's readings are received, in the "
+      'node role published', () async {
+    // Fakes: the role, one container in each, and the readings provider with
+    // nothing, so nothing below the view model is built.
+    NodeState stateIn(NodeRole role) {
+      final container = ProviderContainer.test(
+        overrides: [
+          nodeRoleProvider.overrideWithValue(role),
+          readingsProvider.overrideWith((ref) => const Stream.empty()),
+        ],
+      );
+      return container.read(nodeViewModelProvider);
+    }
+
+    // The code to implement: the view model's state, in each role.
+    final receives = [
+      stateIn(NodeRole.monitor).receives,
+      stateIn(NodeRole.node).receives,
+    ];
+
+    // The claim: the monitor's readings are received, the node's are not.
+    expect(receives, [true, false]);
+  });
 }
