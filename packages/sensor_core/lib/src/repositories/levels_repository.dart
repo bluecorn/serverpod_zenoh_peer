@@ -30,7 +30,12 @@ class LevelsRepository {
   /// in the order the archive answers.
   Future<List<KeyedLevel>> recent(int n) => zenoh
       .get(keyExpr, parameters: {'n': '$n'})
-      .map((reply) => (keyExpr: reply.keyExpr, level: _asLevel(reply.payload)))
+      .map(
+        (reply) => (
+          keyExpr: reply.keyExpr,
+          level: _asLevel(reply.keyExpr, reply.payload),
+        ),
+      )
       .toList();
 
   /// Every level the archive publishes as it keeps it, parsed as [recent]'s
@@ -45,7 +50,7 @@ class LevelsRepository {
       listening = subscription.samples.listen(
         (sample) => controller.add((
           keyExpr: sample.keyExpr,
-          level: _asLevel(sample.payload),
+          level: _asLevel(sample.keyExpr, sample.payload),
         )),
       );
     };
@@ -56,13 +61,12 @@ class LevelsRepository {
     return controller.stream;
   }
 
-  /// A sensor no level is of yet.
-  static const Sensor _none = (segment: '', label: '', unit: '');
-
-  static Level _asLevel(String text) {
+  /// The level [text] carries, of the sensor the last segment of [keyExpr]
+  /// names.
+  static Level _asLevel(String keyExpr, String text) {
     final [time, value] = text.split(',');
     return Level(
-      sensor: _none,
+      sensor: sensorOf(keyExpr.split('/').last),
       time: DateTime.parse(time),
       value: double.parse(value),
     );
