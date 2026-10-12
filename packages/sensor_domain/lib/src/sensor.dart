@@ -29,3 +29,18 @@ int _rank(Sensor sensor) {
   final place = sensors.values.toList().indexOf(sensor);
   return place < 0 ? sensors.length : place;
 }
+
+/// [items] in the sensor list's order, each item's sensor given by
+/// [sensorOfItem]; items of the same rank, such as two unlisted sensors, keep
+/// the order they had, which a plain sort would not promise.
+List<T> inSensorOrder<T>(
+  Iterable<T> items,
+  Sensor Function(T item) sensorOfItem,
+) {
+  final indexed = items.indexed.toList()
+    ..sort((a, b) {
+      final bySensor = compareSensors(sensorOfItem(a.$2), sensorOfItem(b.$2));
+      return bySensor != 0 ? bySensor : a.$1.compareTo(b.$1);
+    });
+  return [for (final (_, item) in indexed) item];
+}

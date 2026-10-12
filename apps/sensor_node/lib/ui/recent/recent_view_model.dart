@@ -40,15 +40,11 @@ class RecentViewModel extends Notifier<RecentState> {
       (byKey[keyExpr] ??= []).add(level);
     }
     byKey.removeWhere((_, levels) => levels.isEmpty);
-    final entries = byKey.entries.indexed.toList()
-      ..sort((a, b) {
-        final bySensor = compareSensors(
-          a.$2.value.first.sensor,
-          b.$2.value.first.sensor,
-        );
-        return bySensor != 0 ? bySensor : a.$1.compareTo(b.$1);
-      });
-    state = RecentState(byKey: Map.fromEntries(entries.map((e) => e.$2)));
+    state = RecentState(
+      byKey: Map.fromEntries(
+        inSensorOrder(byKey.entries, (entry) => entry.value.first.sensor),
+      ),
+    );
   }
 }
 

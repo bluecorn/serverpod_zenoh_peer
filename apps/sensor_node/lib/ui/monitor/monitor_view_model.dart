@@ -57,13 +57,8 @@ class MonitorViewModel extends Notifier<MonitorState> {
         levels: levels,
       );
     }
-    final ordered = columns.values.indexed.toList()
-      ..sort((a, b) {
-        final bySensor = compareSensors(a.$2.sensor, b.$2.sensor);
-        return bySensor != 0 ? bySensor : a.$1.compareTo(b.$1);
-      });
     return MonitorState(
-      columns: [for (final (_, column) in ordered) column],
+      columns: inSensorOrder(columns.values, (column) => column.sensor),
       receives: node.receives,
     );
   }
