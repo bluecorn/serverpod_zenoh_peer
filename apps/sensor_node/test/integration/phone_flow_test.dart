@@ -99,8 +99,7 @@ void main() {
 
     // The phone reads its accelerometer once, and the reading crosses.
     accelerometer.add((x: 0.0, y: 9.776, z: 0.812));
-    await tester.runAsync(() => Future<void>.delayed(delivery));
-    await tester.pump();
+    await _settle(tester);
 
     // The claim, on the Live tab: the accelerometer's card, with its label and
     // its unit.
@@ -109,9 +108,7 @@ void main() {
 
     // The History tab, opened: it asks the archive, and the answer crosses.
     await tester.tap(find.text('History'));
-    await tester.pump();
-    await tester.runAsync(() => Future<void>.delayed(delivery));
-    await tester.pump();
+    await _settle(tester);
 
     // The claim, on the History tab: the archive's level.
     expect(find.text('0.150'), findsOneWidget);
@@ -124,6 +121,18 @@ void main() {
     // The claim: the reading still reaches the wire.
     expect(published.length, before + 1);
   });
+}
+
+/// Lets real time pass, in steps, pumping after each: the providers' awaits
+/// run on the test's fake clock, one step for each pump, and zenoh's answers
+/// arrive on the real one.
+Future<void> _settle(WidgetTester tester) async {
+  for (var step = 0; step < 10; step += 1) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+  }
 }
 
 /// The phone's sensors in this test: the accelerometer the test feeds, a
