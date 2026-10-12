@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sensor_client/sensor_client.dart';
 import 'package:sensor_domain/sensor_domain.dart';
 import 'package:sensor_web/config/providers.dart';
+import 'package:sensor_web/domain/sensed.dart';
 import 'package:sensor_web/ui/watch/watch_view_model.dart';
 
 void main() {
@@ -70,4 +71,44 @@ void main() {
       });
     },
   );
+
+  test('the view model orders its keys as the sensor list does, whatever '
+      'order they arrive in', () async {
+    // A fake: the readings provider, overridden with a reading on an unlisted
+    // key, then the gyroscope's, then the accelerometer's.
+    SensedReading reading(String keyExpr) => (
+      sensor: sensorOf(keyExpr.split('/').last),
+      reading: SensorReading(
+        keyExpr: keyExpr,
+        number: 1,
+        x: 0,
+        y: 0,
+        z: 1,
+        time: DateTime.utc(2026, 10, 12, 12),
+      ),
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        readingsProvider.overrideWith(
+          (ref) => Stream.fromIterable([
+            reading('sensor/phone/baro'),
+            reading('sensor/phone/gyro'),
+            reading('sensor/phone/accel'),
+          ]),
+        ),
+      ],
+    )..listen(watchViewModelProvider, (_, _) {});
+    await pumpEventQueue();
+
+    // The code to implement: the view model's state.
+    final state = container.read(watchViewModelProvider);
+
+    // The claim: the accelerometer's key, the gyroscope's, then the unlisted
+    // one.
+    expect(state.sensors.keys, [
+      'sensor/phone/accel',
+      'sensor/phone/gyro',
+      'sensor/phone/baro',
+    ]);
+  });
 }
