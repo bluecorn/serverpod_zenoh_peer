@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:sensor_core/sensor_core.dart';
+import 'package:sensor_node/ui/monitor/monitor_view_model.dart';
 import 'package:sensor_node/ui/node/node_view_model.dart';
 import 'package:sensor_node/ui/recent/recent_view_model.dart';
 
@@ -71,4 +72,13 @@ class FakeSensorNodeRepository implements SensorNodeRepository {
 
   @override
   ZenohService get zenoh => throw UnimplementedError();
+}
+
+class FakeMonitorViewModel extends MonitorViewModel {
+  new(this.fixed);
+
+  final MonitorState fixed;
+
+  @override
+  MonitorState build() => fixed;
 }
