@@ -41,6 +41,11 @@ class PageScreen extends ConsumerWidget {
                 latest: live.latest,
                 sensor: column.sensor,
                 count: live.count,
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('no readings yet'),
               ),
             LevelsCard(sensor: column.sensor, levels: column.levels),
           ];
