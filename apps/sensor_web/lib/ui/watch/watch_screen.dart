@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_web/ui/watch/watch_view_model.dart';
 
 /// The page, as the phone's own screen: a block for each key, with the key,
-/// its latest reading to three decimals, the time it was stamped, in UTC, and
-/// its count.
+/// its latest reading to three decimals, the time it was stamped, in UTC, the
+/// node's number for it as the count of readings, and how many arrived here.
 class WatchScreen extends ConsumerWidget {
   /// The page; it watches [watchViewModelProvider].
   const new({super.key});
@@ -30,7 +30,8 @@ class WatchScreen extends ConsumerWidget {
                     Text('y ${_fixed(sensor.latest.y)}'),
                     Text('z ${_fixed(sensor.latest.z)}'),
                     Text('${_clock(sensor.latest.time)} UTC'),
-                    Text('${sensor.count} readings'),
+                    Text('${sensor.latest.number} readings'),
+                    Text('${sensor.count} received here'),
                   ],
                 ),
             ],
