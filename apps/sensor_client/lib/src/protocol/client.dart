@@ -27,9 +27,9 @@ class EndpointWebDoor extends _isc.EndpointRef {
   @override
   String get name => 'webDoor';
 
-  /// Every reading the phone publishes while the caller listens, with its key.
-  /// Listening subscribes to the phone's readings; cancelling closes the
-  /// subscription.
+  /// Every reading the phone publishes while the caller listens, with its key
+  /// and its number. Listening subscribes to the phone's readings; cancelling
+  /// closes the subscription.
   _ida.Stream<_iyrlr3sb.SensorReading> readings() =>
       caller.callStreamingServerEndpoint<
         _ida.Stream<_iyrlr3sb.SensorReading>,
