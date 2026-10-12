@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sensor_core/sensor_core.dart';
 import 'package:sensor_node/config/providers.dart';
+import 'package:sensor_node/ui/core/theme.dart';
 import 'package:sensor_node/ui/node/node_screen.dart';
+import 'package:sensor_node/ui/phone/phone_shell.dart';
 import 'package:sensor_node/ui/recent/recent_panel.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -19,8 +21,11 @@ void main() {
     ProviderScope(
       retry: (retryCount, error) => null,
       child: MaterialApp(
+        title: 'Sensor node',
+        theme: themeOf(Brightness.light),
+        darkTheme: themeOf(Brightness.dark),
         home: switch (buildRole) {
-          NodeRole.node => const NodeScreen(),
+          NodeRole.node => const PhoneShell(),
           // The monitor: the phone's screen, and the archive's levels beside
           // it.
           NodeRole.monitor => const Scaffold(
