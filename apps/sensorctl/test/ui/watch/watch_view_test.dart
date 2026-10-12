@@ -18,8 +18,14 @@ void main() {
   test('watch shows a line for each key', () {
     // A state with a reading and a count on each of the phone's two keys,
     // made by the test.
-    const accel = Reading(sensor: accelerometer, x: 0.1, y: 9.776, z: 0.812);
-    const gyro = Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5);
+    const accel = Reading(
+      sensor: accelerometer,
+      number: 42,
+      x: 0.1,
+      y: 9.776,
+      z: 0.812,
+    );
+    const gyro = Reading(sensor: gyroscope, number: 7, x: 0, y: 0, z: 0.5);
     const state = WatchState(
       sensors: {
         'sensor/phone/accel': SensorState(latest: accel, count: 42),

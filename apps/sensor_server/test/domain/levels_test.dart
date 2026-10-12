@@ -34,7 +34,14 @@ void main() {
         final time = second.add(Duration(milliseconds: 200 * i));
         readings.add((
           keyExpr: accel,
-          reading: Reading(sensor: accelerometer, x: x, y: y, z: z, time: time),
+          reading: Reading(
+            sensor: accelerometer,
+            number: 1,
+            x: x,
+            y: y,
+            z: z,
+            time: time,
+          ),
         ));
       }
       final next = second.add(const Duration(seconds: 1));
@@ -42,6 +49,7 @@ void main() {
         keyExpr: accel,
         reading: Reading(
           sensor: accelerometer,
+          number: 1,
           x: 0,
           y: 0,
           z: 9.81,
@@ -81,6 +89,7 @@ void main() {
           keyExpr: keyExpr,
           reading: Reading(
             sensor: keyExpr == gyro ? gyroscope : accelerometer,
+            number: 1,
             x: x,
             y: y,
             z: z,

@@ -1,12 +1,14 @@
 import 'package:sensor_domain/sensor_domain.dart';
 
-/// One reading of a sensor: the sensor, its value on each of the device's
-/// three axes, and when it was published, once a subscriber has received it.
+/// One reading of a sensor: the sensor, the reading's number, its value on
+/// each of the device's three axes, and when it was published, once a
+/// subscriber has received it.
 class Reading {
-  /// A reading of [sensor], of [x], [y] and [z], published at [time] when
-  /// that is known.
+  /// The [number]th reading of [sensor], of [x], [y] and [z], published at
+  /// [time] when that is known.
   const new({
     required this.sensor,
+    required this.number,
     required this.x,
     required this.y,
     required this.z,
@@ -15,6 +17,10 @@ class Reading {
 
   /// The sensor the reading is of.
   final Sensor sensor;
+
+  /// The reading's place among its sensor's readings: the node counts each
+  /// sensor's readings from 1, each time it starts.
+  final int number;
 
   /// On the device's x axis, to the right.
   final double x;

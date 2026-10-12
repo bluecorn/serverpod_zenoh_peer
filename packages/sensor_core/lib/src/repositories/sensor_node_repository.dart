@@ -46,6 +46,7 @@ class SensorNodeRepository {
           (raw) {
             final reading = Reading(
               sensor: sensor,
+              number: 0,
               x: raw.x,
               y: raw.y,
               z: raw.z,

@@ -10,9 +10,21 @@ void main() {
     () async {
       // A fake: the readings provider, overridden with three readings on two
       // keys, so nothing below the view model is built.
-      const first = Reading(sensor: accelerometer, x: 0, y: 9.776, z: 0.812);
-      const second = Reading(sensor: gyroscope, x: 0, y: 0, z: 0.5);
-      const third = Reading(sensor: accelerometer, x: 0, y: 0, z: 9.81);
+      const first = Reading(
+        sensor: accelerometer,
+        number: 1,
+        x: 0,
+        y: 9.776,
+        z: 0.812,
+      );
+      const second = Reading(sensor: gyroscope, number: 1, x: 0, y: 0, z: 0.5);
+      const third = Reading(
+        sensor: accelerometer,
+        number: 2,
+        x: 0,
+        y: 0,
+        z: 9.81,
+      );
       final container = ProviderContainer.test(
         overrides: [
           readingsProvider.overrideWith(

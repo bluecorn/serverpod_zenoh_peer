@@ -12,6 +12,7 @@ void main() {
       // keys, so nothing below the view model is built.
       final first = SensorReading(
         keyExpr: 'sensor/phone/accel',
+        number: 1,
         x: 0,
         y: 9.776,
         z: 0.812,
@@ -19,6 +20,7 @@ void main() {
       );
       final second = SensorReading(
         keyExpr: 'sensor/phone/gyro',
+        number: 1,
         x: 0,
         y: 0,
         z: 0.5,
@@ -26,6 +28,7 @@ void main() {
       );
       final third = SensorReading(
         keyExpr: 'sensor/phone/accel',
+        number: 2,
         x: 0,
         y: 0,
         z: 9.81,

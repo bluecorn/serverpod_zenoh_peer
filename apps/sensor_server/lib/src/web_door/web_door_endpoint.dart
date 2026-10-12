@@ -13,6 +13,7 @@ class WebDoorEndpoint extends Endpoint {
       .map(
         (keyed) => SensorReading(
           keyExpr: keyed.keyExpr,
+          number: 0,
           x: keyed.reading.x,
           y: keyed.reading.y,
           z: keyed.reading.z,

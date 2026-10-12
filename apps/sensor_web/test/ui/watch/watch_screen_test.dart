@@ -16,6 +16,7 @@ void main() {
       // count on each of the phone's two keys.
       final accel = SensorReading(
         keyExpr: 'sensor/phone/accel',
+        number: 42,
         x: 0.1,
         y: 9.776,
         z: 0.812,
@@ -23,6 +24,7 @@ void main() {
       );
       final gyro = SensorReading(
         keyExpr: 'sensor/phone/gyro',
+        number: 7,
         x: 0,
         y: 0,
         z: 0.5,

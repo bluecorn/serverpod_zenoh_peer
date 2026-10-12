@@ -1,9 +1,12 @@
 ### One reading of one of the phone's sensors, as the web door sends it: the key
-### it arrived on, and its value on each of the device's three axes.
+### it arrived on, its number, and its value on each of the device's three axes.
 class: SensorReading
 fields:
   ### The key expression the reading arrived on, such as `sensor/phone/accel`.
   keyExpr: String
+  ### The reading's place among its sensor's readings, counted by the phone from
+  ### 1 each time it starts.
+  number: int
   ### On the device's x axis, to the right.
   x: double
   ### On the device's y axis, towards the top of the screen.

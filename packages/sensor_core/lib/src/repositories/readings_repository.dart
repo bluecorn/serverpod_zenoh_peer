@@ -46,6 +46,6 @@ class ReadingsRepository {
   static Reading _asReading(String keyExpr, String text, DateTime time) {
     final [x, y, z] = text.split(',').map(double.parse).toList();
     final sensor = sensorOf(keyExpr.split('/').last);
-    return Reading(sensor: sensor, x: x, y: y, z: z, time: time);
+    return Reading(sensor: sensor, number: 0, x: x, y: y, z: z, time: time);
   }
 }
