@@ -17,9 +17,13 @@ the levels. Every layer is present in its thinnest real form and tested; this pr
 applications on zenoh and Serverpod. It ran on an Android emulator and on a Pixel 9a over Wi-Fi; the server and the
 monitor run on Linux x86_64 only.
 
-| the phone | the page, and the monitor |
-|:--:|:--:|
-| ![The phone's Live tab](docs/phone-live.png)<br>*Fig. 1. The phone: its Live tab, a card per sensor.* | ![The page in a browser](docs/page.png)<br>*Fig. 2. The page in a browser, through the web door.*<br><br>![The monitor on Linux](docs/monitor.png)<br>*Fig. 3. The monitor on Linux: a column per sensor.* |
+<table><tr>
+<td valign="top"><img src="docs/phone-live.png" width="411" height="863" alt="The phone's Live tab"></td>
+<td valign="top"><img src="docs/page.png" width="373" height="442" alt="The page in a browser"><br><img src="docs/monitor.png" width="373" height="413" alt="The monitor on Linux"></td>
+</tr></table>
+
+*Fig. 1, left: the phone, its Live tab, a card per sensor. Fig. 2, top right: the page in a browser, through the web
+door. Fig. 3, bottom right: the monitor on Linux, a column per sensor.*
 
 ## The problem
 
