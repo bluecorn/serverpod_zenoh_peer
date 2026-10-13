@@ -18,12 +18,13 @@ applications on zenoh and Serverpod. It ran on an Android emulator and on a Pixe
 monitor run on Linux x86_64 only.
 
 <table><tr>
-<td valign="top"><img src="docs/phone-live.png" width="411" height="863" alt="The phone's Live tab"></td>
-<td valign="top"><img src="docs/page.png" width="373" height="442" alt="The page in a browser"><br><img src="docs/monitor.png" width="373" height="413" alt="The monitor on Linux"></td>
+<td valign="top"><a href="docs/phone-live.png"><img src="docs/phone-live.png" width="171" height="360" alt="The phone's Live tab"></a></td>
+<td valign="top"><a href="docs/page.png"><img src="docs/page.png" width="304" height="360" alt="The page in a browser"></a></td>
+<td valign="top"><a href="docs/monitor.png"><img src="docs/monitor.png" width="325" height="360" alt="The monitor on Linux"></a></td>
 </tr></table>
 
-*Fig. 1, left: the phone, its Live tab, a card per sensor. Fig. 2, top right: the page in a browser, through the web
-door. Fig. 3, bottom right: the monitor on Linux, a column per sensor.*
+*Fig. 1 to 3, left to right: the phone, its Live tab, a card per sensor; the page in a browser, through the web
+door; the monitor on Linux, a column per sensor. Each opens full size.*
 
 ## The problem
 
