@@ -1,14 +1,14 @@
-# CLAUDE.md — serverpod_zenoh_bridge
+# CLAUDE.md — serverpod_zenoh_peer
 
 ## What this is
 
-**Serverpod as a native zenoh peer**: a bridge between a zenoh network of devices and the Dart and Flutter application
-tier, built for *Build Something Real*, the Serverpod hackathon (submissions close 2026-10-14, 23:59 CEST). A phone
-publishes sensor readings over zenoh; a Serverpod server, itself a zenoh peer, streams them to browsers through
-Serverpod's endpoints, **the web door**, turns them into a per-second vibration level kept in an archive, and answers
-native apps' zenoh queries on it, **the zenoh door**. It extends
-[`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors), the project of the guide
-[zenoh in Dart and Flutter](https://github.com/bluecorn/zenoh-dart-flutter-guide), whose history it starts from.
+**Serverpod as a zenoh peer**: a Serverpod server on a zenoh network of devices, in its own process, with the Dart and
+Flutter application tier around it, built for *Build Something Real*, the Serverpod hackathon (submissions close
+2026-10-14, 23:59 CEST). A phone publishes sensor readings over zenoh; a Serverpod server, itself a zenoh peer, streams
+them to browsers through Serverpod's endpoints, **the web door**, turns them into a per-second vibration level kept in
+an archive, and answers native apps' zenoh queries on it, **the zenoh door**. It extends
+[`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors), the project of the guide [zenoh in Dart and
+Flutter](https://github.com/bluecorn/zenoh-dart-flutter-guide), whose history it starts from.
 
 ## The mandate
 
