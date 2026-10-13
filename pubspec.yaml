@@ -1,4 +1,4 @@
-name: zenoh_sensors
+name: serverpod_zenoh_peer
 publish_to: none
 
 environment:
