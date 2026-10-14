@@ -30,16 +30,16 @@ door; the monitor on Linux, a column per sensor. Each opens full size.*
 
 ## The problem
 
-Serverpod's own picture is a Flutter app and its server. Its introduction: "call your server endpoints from your
+Serverpod's own picture is a Flutter app and its server. Its introduction says: "call your server endpoints from your
 Flutter app through generated, type-safe Dart code. No REST contracts to maintain, no language-switching"
-([Introduction](https://docs.serverpod.dev/)). Its endpoints page: "Endpoints are how your app talks to your server"
-([Working with endpoints](https://docs.serverpod.dev/concepts/endpoints-and-apis)). The server sits at the centre,
-and every client reaches it.
+([Introduction](https://docs.serverpod.dev/)). Its endpoints page says: "Endpoints are how your app talks to your
+server" ([Working with endpoints](https://docs.serverpod.dev/concepts/endpoints-and-apis)). The server sits at the
+centre, and every client reaches it.
 
-Robots and devices are built the other way round. Over Zenoh they publish, subscribe and query among themselves, peer to
-peer, with no server on the path. ROS 2 is among them: the [Robot Operating System](https://docs.ros.org/), the
-open-source libraries and tools for building robot applications, can run on Zenoh natively through `rmw_zenoh`, or
-bridged to it by `zenoh-bridge-ros2dds`, and Zenoh's own team is building
+Robots and devices are built the other way round: over Zenoh they publish, subscribe and query directly among
+themselves, peer to peer, with no server on the path. ROS 2 is among them. The [Robot Operating
+System](https://docs.ros.org/), the open-source libraries and tools for building robot applications, can run on Zenoh
+natively through `rmw_zenoh` or bridged to it by `zenoh-bridge-ros2dds`, and Zenoh's own team is building
 [Hiroz](https://github.com/ZettaScaleLabs/hiroz), an experimental ROS 2 stack written directly on Zenoh. An HTTP backend
 reaches such a network today through Zenoh's [REST plugin](https://zenoh.io/docs/manual/plugin-http/), an HTTP server on
 a Zenoh node, so the backend stays a client of the network rather than a member of it. The webinar this project
@@ -47,29 +47,29 @@ continues (see [Background](#background)) put the Flutter app on that network as
 and the client/server tier every other approach forces between the app and the robot", and said of the server that it
 "keeps its place; it just isn't the only door".
 
-What Zenoh brings, by [its own account](https://zenoh.io/docs/overview/what-is-zenoh/): one protocol from the
+What Zenoh brings, by [its own account](https://zenoh.io/docs/overview/what-is-zenoh/), is one protocol from the
 microcontroller to the data centre with no bridges; publish-subscribe, queries and computation under one set of
-abstractions; and a topology that is peer to peer, brokered or both, decided at runtime. And what this project shows of
-it: each pair of peers links directly, so no peer carries another pair's traffic and none is a point of failure for the
-others. When the server stops, the monitor keeps receiving the phone's readings, and only the levels stop (the two-doors
-table in Architecture).
+abstractions; and a topology that is peer to peer, brokered or both, decided at runtime. What this project shows of it
+is that each pair of peers links directly, so no peer carries another pair's traffic and none is a point of failure for
+the others. When the server stops, the monitor keeps receiving the phone's readings, and only the levels stop (the
+two-doors table in Architecture).
 
 This project gives the server a second network, Zenoh's, distributed among the devices. A Zenoh session is opened in the
-Serverpod process once the server has started and closed in a shutdown task; nothing in the framework changes. The
-server is then a peer among the devices and a Serverpod server to its clients, and Serverpod's promise of one language
-and no REST contracts reaches the device tier.
+Serverpod process once the server has started and closed in a shutdown task, and nothing in the framework changes. The
+server is then both a peer among the devices and a Serverpod server to its clients, and Serverpod's promise of one
+language and no REST contracts reaches the device tier.
 
 What it contributes:
 
-1. **A Serverpod server that is a Zenoh peer in its own process:** the session opened once the server has started,
-   closed in a shutdown task, the framework unchanged.
-2. **The web door:** streaming endpoints that give a browser every reading and the last levels, through the generated
+1. **A Serverpod server that is a Zenoh peer in its own process:** the session is opened once the server has started and
+   closed in a shutdown task, and the framework is unchanged.
+2. **The web door:** streaming endpoints that give a browser every reading and the last levels through the generated
    client.
-3. **The Zenoh door:** a queryable that answers the last levels, and each new level published as it is kept.
-4. **One Flutter app in two roles:** the phone as the sensor node, Linux as the monitor, with the same view models and
-   cards.
-5. **A skeleton with every layer present in its thinnest real form,** built test-first, as a template for
-   applications on Zenoh and Serverpod.
+3. **The Zenoh door:** a queryable that answers with the last levels, and each new level published as it is kept.
+4. **One Flutter app in two roles:** the sensor node on the phone and the monitor on Linux, with the same view models
+   and cards.
+5. **A skeleton with every layer present in its thinnest real form,** built test-first, as a template for applications
+   on Zenoh and Serverpod.
 
 **What is not claimed.** An HTTP backend could already reach Zenoh through the REST plugin. What is new here is
 Serverpod as a Zenoh peer in its own process, which `zenoh_dart` makes possible.
