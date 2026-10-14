@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What a product adds</title>
+<style>
+  :root { --bg: #141720; --fg: #e6e8ef; --muted: #aab0c0; --accent: #82a3ff; --card: #2a3350; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: Roboto, "Segoe UI", system-ui, sans-serif;
+         display: flex; align-items: center; justify-content: center; }
+  main { max-width: 1200px; padding: 0 48px; }
+  h1 { font-size: 48px; font-weight: 500; margin: 0 0 32px; color: var(--accent); text-align: center; }
+  table { border-collapse: separate; border-spacing: 0 14px; width: 100%; font-size: 26px; }
+  th { text-align: left; color: var(--accent); font-weight: 500; padding: 0 20px; width: 220px; vertical-align: top; }
+  td { background: var(--card); padding: 14px 20px; border-radius: 12px; line-height: 1.35; }
+  p { font-size: 24px; line-height: 1.4; margin: 36px 0 0; text-align: center; }
+  p.muted { color: var(--muted); font-size: 22px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>What a product adds, with Zenoh's part and Serverpod's</h1>
+  <table>
+    <tr><th>built</th><td>one machine watched, live and over time, from a desk and a browser</td></tr>
+    <tr><th>in part</th><td>many machines on one dashboard · sensors on low-power devices · running at the edge</td></tr>
+    <tr><th>named, not built</th><td>the readings kept · the server hosted elsewhere · commands to the machines ·
+        users and access · scheduled work · alerts</td></tr>
+  </table>
+  <p>Every layer present in its thinnest real form, tested, built test-first with Claude Code.</p>
+  <p class="muted">github.com/bluecorn/serverpod_zenoh_peer</p>
+</main>
+</body>
+</html>

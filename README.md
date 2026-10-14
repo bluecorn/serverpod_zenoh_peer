@@ -1,7 +1,7 @@
 # Serverpod as a Zenoh peer
 
 *Hugo Alberto Garcia, [Bluecorn](https://bluecorn.github.io) · built for Build Something Real, the Serverpod
-hackathon, October 2026 · [Run it](#run-it)*
+hackathon, October 2026 · [Video](https://youtu.be/-hP6L5C4ZLU) · [Run it](#run-it)*
 
 This project integrates Serverpod as a Zenoh peer, in its own process. Robots and sensors communicate directly over
 [Zenoh](https://zenoh.io), peer to peer, with no central server. In contrast, [Serverpod](https://docs.serverpod.dev/)'s
@@ -303,9 +303,9 @@ packages/sensor_domain  what every program shares, plain Dart: Sensor, a key's l
 
 ## Run it
 
-The server and the monitor run on Linux x86_64 only: `zenoh_dart` ships native libraries for Linux x86_64 and
-Android. On macOS or Windows nothing below runs; the video and the screenshots above are the demo. Verified on Linux
-x86_64, with the node on an Android emulator (an x86_64 image) and on a Pixel 9a over Wi-Fi.
+The server and the monitor run on Linux x86_64 only: `zenoh_dart` ships native libraries for Linux x86_64 and Android.
+On macOS or Windows nothing below runs; the [video](https://youtu.be/-hP6L5C4ZLU) and the screenshots above are the
+demo. Verified on Linux x86_64, with the node on an Android emulator (an x86_64 image) and on a Pixel 9a over Wi-Fi.
 
 **What you need:**
 - [fvm](https://fvm.app), which installs the Flutter version this repository pins in `.fvmrc` (3.47.5, with Dart
