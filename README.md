@@ -12,7 +12,7 @@ and the second is one language from the device to the server to the browser. The
 thesis: monitoring a machine's vibration, so that whoever keeps it running sees it live and over the last minutes from a
 desk or a browser, without walking to it. A phone strapped to the machine acts as the sensor, publishing its
 accelerometer and gyroscope over Zenoh. The server turns the readings into a vibration level per sensor per second, the
-spread of the readings' magnitudes around their mean, and stores the levels in a table; in Zenoh's terms, data in motion
+spread of the readings' magnitudes around their mean, and keeps the levels in a table; in Zenoh's terms, data in motion
 becomes data at rest. It opens two doors onto what it holds: Serverpod endpoints for browsers, which speak no Zenoh, and
 a Zenoh query and publication for native apps on the network. A monitor on Linux, the same Flutter app as the phone's in
 another role, reads the phone directly and asks Serverpod's Zenoh door for the levels. Every layer is present in its
@@ -37,7 +37,7 @@ server" ([Working with endpoints](https://docs.serverpod.dev/concepts/endpoints-
 centre, and every client reaches it.
 
 Robots and devices are built the other way round: over Zenoh they publish, subscribe and query directly among
-themselves, peer to peer, with no server on the path. ROS 2 is among them. The [Robot Operating
+themselves, peer to peer, with no server on the path. ROS 2 is among them: the [Robot Operating
 System](https://docs.ros.org/), the open-source libraries and tools for building robot applications, can run on Zenoh
 natively through `rmw_zenoh` or bridged to it by `zenoh-bridge-ros2dds`, and Zenoh's own team is building
 [Hiroz](https://github.com/ZettaScaleLabs/hiroz), an experimental ROS 2 stack written directly on Zenoh. An HTTP backend
@@ -123,12 +123,12 @@ them, and publishes each one as it is kept:
 
  the phone                              the laptop
 ┌─────────────────────────────┐         ┌────────────────────────────────────────────────────────────────────────────┐
-│ sensor_node   node role     │readings │ sensor_server   Serverpod, and a zenoh peer                                │
-│   a zenoh peer              │════════►│   zenoh in:    subscribed to sensor/phone/*                                │
+│ sensor_node   node role     │readings │ sensor_server   Serverpod, and a Zenoh peer                                │
+│   a Zenoh peer              │════════►│   Zenoh in:    subscribed to sensor/phone/*                                │
 │   put on sensor/phone/accel │         │                └─► a level per sensor per second ──► the archive (SQLite)  │
-│   put on sensor/phone/gyro  │ levels  │   zenoh out:   queryable on archive/phone/**: the last n levels            │
+│   put on sensor/phone/gyro  │ levels  │   Zenoh out:   queryable on archive/phone/**: the last n levels            │
 │   History tab: a get on     │◄════════│                each level, as it is kept, put on archive/phone/<sensor>    │
-│   archive/phone/**?n=20,    │         │   Serverpod out, for clients without zenoh:                                │
+│   archive/phone/**?n=20,    │         │   Serverpod out, for clients without Zenoh:                                │
 │   then subscribed to        │         │                readings(): every reading, live                             │
 │   archive/phone/*           │         │                recent(n): the last n levels, again each time one is kept   │
 └───────╥─────────────────────┘         │   API server :8080                         web server :8082                │
@@ -137,14 +137,14 @@ them, and publishes each one as it is kept:
         ║ live readings,                     ║            │ WebSocket: readings(),               │ HTTP: the page
         ║ straight from                      ║            │ recent(20)                           │
         ║ the phone                          ║            │                                      │
-        ║              zenoh: a get, a reply ║            │                                      │
+        ║              Zenoh: a get, a reply ║            │                                      │
         ║              per level; then each  ║            │                                      │
         ║              level as it is kept   ║            │                                      │
         ║                                    ║            │                                      │
         ║                                    ║       ┌────▼──────────────────────────────────────▼───────────────────┐
 ┌───────╨───────────────────────────────┐    ║       │ a browser: sensor_web   Flutter web                           │
-│ sensor_node   monitor role, on Linux  │◄═══╝       │   the generated client, no zenoh                              │
-│   a zenoh peer                        │            │   readings() for the live cards                               │
+│ sensor_node   monitor role, on Linux  │◄═══╝       │   the generated client, no Zenoh                              │
+│   a Zenoh peer                        │            │   readings() for the live cards                               │
 │   subscribed to sensor/phone/*        │            │   recent(20) for the levels cards                             │
 │   get on archive/phone/**?n=20        │            └───────────────────────────────────────────────────────────────┘
 │   subscribed to archive/phone/*       │
@@ -240,7 +240,7 @@ sensor_node (the phone)       sensor_server                                senso
         │                           ├──── index.html, main.dart.js (web/app) ────────►│ the app starts
         │                           │                                                 │
         │                           │◄─── WebSocket :8080, call readings() ───────────┤ the live cards
-        │                           │ a zenoh subscription for this call              │
+        │                           │ a Zenoh subscription for this call              │
         │                           │◄─── call recent(20) ────────────────────────────┤ the levels cards
         │                           ├──── the last 20 levels ────────────────────────►│
         │                           │                                                 │
@@ -290,7 +290,7 @@ in its table, streams readings and levels to each browser, answers Zenoh queries
 
 ```
 apps/sensor_node        the Flutter app: the sensor node on Android; the monitor on Linux (NODE_ROLE=monitor)
-apps/sensor_server      the Serverpod server: the web door, the zenoh door, the recorder, the archive
+apps/sensor_server      the Serverpod server: the web door, the Zenoh door, the recorder, the archive
 apps/sensor_web         the page: Flutter web, served by the server, speaking Serverpod's protocol only
 apps/sensor_client      the generated Serverpod client the page uses
 apps/sensorctl          the command-line collector of the guide, kept as the terminal check
@@ -498,7 +498,7 @@ plain Dart (Fig. 9). The packages and the programs, and what depends on what (Fi
 │ Linux, monitor role        │                            │                             │                            │
 ├────────────────────────────┼────────────────────────────┼─────────────────────────────┼────────────────────────────┤
 │ View: screens and cards    │ View: the terminal         │ web door: the endpoint      │ View: the page's screen    │
-│                            │                            │ zenoh door: the queryable   │ and cards                  │
+│                            │                            │ Zenoh door: the queryable   │ and cards                  │
 ├────────────────────────────┼────────────────────────────┼─────────────────────────────┼────────────────────────────┤
 │ ViewModel: Notifiers       │ ViewModel: Notifiers       │ the recorder: a level per   │ ViewModel: Notifiers       │
 │                            │                            │ sensor per second           │                            │
@@ -508,7 +508,7 @@ plain Dart (Fig. 9). The packages and the programs, and what depends on what (Fi
 │                            │                            │ Serverpod table             │                            │
 ├────────────────────────────┼────────────────────────────┼─────────────────────────────┼────────────────────────────┤
 │ Service: sensors_plus, and │ Service: sensor_core's     │ Service: sensor_core's      │ Service: sensor_client,    │
-│ sensor_core's ZenohService │ ZenohService               │ ZenohService                │ a WebSocket, no zenoh      │
+│ sensor_core's ZenohService │ ZenohService               │ ZenohService                │ a WebSocket, no Zenoh      │
 ├────────────────────────────┴────────────────────────────┴─────────────────────────────┼────────────────────────────┤
 │ sensor_core   domain: Reading, Level, RawReading; repositories: SensorNode, Readings, │                            │
 │               Levels, which own the keys; ZenohService, the only importer of zenoh_dart│                            │
@@ -557,25 +557,26 @@ nine flow tests are quoted by their names.
    after `pod.start()` and every `Ctrl-C` closes it in the shutdown task, on the laptop since 10 October. The four
    server flow tests quoted in 2 and 3 run the server under Serverpod's test tools with that session live, beside a
    second session standing in for the phone on the loopback, and they pass only because the server is a peer: it
-   receives what the phone-side session puts, and answers what it gets. 2. **The web door.** "A reading the phone
-   publishes reaches the web door with its key, its three values and the time it was stamped." "Each reading the phone
-   publishes reaches the web door with the number the phone gave it, counted from 1 for each sensor." "The phone's
-   readings are kept as per-second levels, and the web door's `recent(n)` streams the last n, newest first, again as
-   each level is kept." And on the page's side: "the page shows a column per sensor, its live card above its levels
-   card, paired by their sensor, and one column when the browser is narrow." Watched: the page in a browser on every
-   run; two browsers at once showing the same readings; a tab closed on 11 October, the server's log showing the two
-   streams closed while it ran on and kept archiving. 3. **The Zenoh door.** "A reader's get on `archive/phone/**`
-   receives the archive's last n levels, newest first, and each level kept is published on its key." "A reading the
-   phone publishes and a level the archive publishes each carry their sensor's label and unit, at both ends." Watched:
-   the monitor's levels cards and the phone's History tab filling from the query, then following each level as it is
-   kept. Probed on 11 October: with the archive read made to fail, the queryable answered the get with Zenoh's error
-   reply, the get completed, and the server ran on. 4. **One Flutter app in two roles.** "In the monitor role, the phone
-   screen shows the readings the phone publishes, and the panel the levels the archive holds, then the ones it
-   publishes." "In the monitor role, each sensor's column shows its live card above its levels card, paired by their
-   sensor." "On the phone, each sensor's card shows its label and unit, and the History tab the archive's levels, while
-   the node keeps publishing." Watched: the monitor on Linux beside the phone on every run. Measured on 11 October: the
-   server stopped, and the monitor's own link to the phone stayed up and kept carrying readings, 55 KB in five seconds,
-   the readings counting on and the levels stopped. 5. **A tested skeleton.** The tests, 65 in Dart and 45 in Flutter as of the tagged commit, pass with the router and the
+   receives what the phone-side session puts, and answers what it gets.
+2. **The web door.** "A reading the phone publishes reaches the web door with its key, its three values and the time it
+   was stamped." "Each reading the phone publishes reaches the web door with the number the phone gave it, counted from
+   1 for each sensor." "The phone's readings are kept as per-second levels, and the web door's `recent(n)` streams the
+   last n, newest first, again as each level is kept." And on the page's side: "the page shows a column per sensor, its
+   live card above its levels card, paired by their sensor, and one column when the browser is narrow." Watched: the
+   page in a browser on every run; two browsers at once showing the same readings; a tab closed on 11 October, the
+   server's log showing the two streams closed while it ran on and kept archiving.
+3. **The Zenoh door.** "A reader's get on `archive/phone/**` receives the archive's last n levels, newest first, and
+   each level kept is published on its key." "A reading the phone publishes and a level the archive publishes each carry
+   their sensor's label and unit, at both ends." Watched: the monitor's levels cards and the phone's History tab filling
+   from the query, then following each level as it is kept. Probed on 11 October: with the archive read made to fail,
+   the queryable answered the get with Zenoh's error reply, the get completed, and the server ran on.
+4. **One Flutter app in two roles.** "In the monitor role, the phone screen shows the readings the phone publishes, and
+   the panel the levels the archive holds, then the ones it publishes." "In the monitor role, each sensor's column shows
+   its live card above its levels card, paired by their sensor." "On the phone, each sensor's card shows its label and
+   unit, and the History tab the archive's levels, while the node keeps publishing." Watched: the monitor on Linux
+   beside the phone on every run. Measured on 11 October: the server stopped, and the monitor's own link to the phone
+   stayed up and kept carrying readings, 55 KB in five seconds, the readings counting on and the levels stopped.
+5. **A tested skeleton.** The tests, 65 in Dart and 45 in Flutter as of the tagged commit, pass with the router and the
    server running beside them, on loopback ports of their own. Every behaviour's test commit precedes the feature that
    makes it pass. The whole of [Run it](#run-it) was run from a fresh clone, at the code the tag carries, as a judge
    would run it.
@@ -592,9 +593,6 @@ of the router, which carries its readings by design; that measurement needs the 
 it.]*
 
 ## Applications and limits
-
-My interest started in robotics and IoT and stays mainly there, but it is not limited to them: I am open to any field
-where this technology applies.
 
 In Zenoh's terms this project is a set of peers and one router. The sensor node is a peer with a publisher for each
 sensor; the server is a peer with a subscriber on the sensors' keys, a queryable on the archive's keys and a publisher
@@ -654,7 +652,7 @@ Six facts carry it.
   today it is as portable as the bindings ([Background](#background), [Run it](#run-it)).
 
 For Serverpod, the device tier where robots and sensors talk among themselves is reachable from a Serverpod process,
-with the framework as it is. For Bluecorn, this is the first piece of the stack described below.
+with the framework as it is. For Bluecorn, this is the first piece of the full-stack solution described below.
 
 ## AI disclosure
 
@@ -690,7 +688,8 @@ I am Hugo Alberto Garcia, of [Bluecorn](https://bluecorn.github.io). I maintain
 and Flutter](https://github.com/bluecorn/zenoh-dart-flutter-guide); and I gave a webinar hosted by the Eclipse
 Foundation IoT on a Flutter UI for a real robot arm over Zenoh. This skeleton is part of Bluecorn's research into a
 full-stack solution in Dart and Flutter for commercial use, from the device to the browser, in robotics and industrial
-machine monitoring, and the basis of Bluecorn's offer. Reach me through the site or on
+machine monitoring, and the basis of Bluecorn's offer. My interest started in robotics and IoT and stays mainly there,
+but it is not limited to them: I am open to any field where this technology applies. Reach me through the site or on
 [GitHub](https://github.com/bluecorn).
 
 ## Licence
