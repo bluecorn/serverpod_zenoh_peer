@@ -658,14 +658,14 @@ with the framework as it is. For Bluecorn, this is the first piece of the stack 
 
 ## AI disclosure
 
-This project was built with Claude Code: Claude Fable 5.1 for the research and the first design and for this README's
-final form, Claude Opus 5.5 for the implementation; every commit since the project was cloned from `zenoh_sensors` names
-the model as co-author, and two of them merge the work of subagents. Claude wrote the code, the tests and this README,
-but for the opening's wording, which is mine.
+This project was built with Claude Code: Claude Fable 5.1 for the research, the first design and this README's final
+form, Claude Opus 5.5 for the implementation. Every commit since the project was cloned from `zenoh_sensors` names the
+model as co-author, and two of them merge the work of subagents. Claude wrote the code, the tests and this README; the
+opening's content is mine, and I edited the prose through Grammarly before the submission.
 
 I decided what was built and how. The scope, the architecture and each design choice were settled question by question,
 in interviews run with the *grilling* skill from Matt Pocock's [skills](https://github.com/mattpocock/skills)
-repository, each question put with a recommendation I accepted or overruled; MVVM and the method of [How it was
+repository. Each question came with a recommendation, which I accepted or overruled; MVVM and the method of [How it was
 built](#how-it-was-built) are my choices. To keep Claude and its subagents from over-engineering I gave them one
 mandate: build a skeleton as a tracer bullet, through every layer of the system from the phone to the browser, each in
 its thinnest real form; leave anything more out, named rather than built; and ask me rather than widen the scope. Each
