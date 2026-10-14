@@ -106,7 +106,7 @@ This entry starts from a copy of `zenoh_sensors`, history included. The sensor n
 Beneath the guide and this entry is [`zenoh_dart`](https://pub.dev/packages/zenoh_dart), which I maintain: Dart bindings
 for Zenoh through FFI, Dart's foreign function interface, to zenoh-c 1.8.0, for Linux and Android, at version 1.0.0-rc.1
 at this writing. The guide uses it from its first chapter, and so does every Zenoh-speaking program here, through the
-one file in `sensor_core` that imports it. The server adds [Serverpod](https://serverpod.dev) 4.
+one file in `sensor_core` that imports it.
 
 ## Architecture
 
