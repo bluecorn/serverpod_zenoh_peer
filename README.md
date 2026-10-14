@@ -21,8 +21,8 @@ Android emulator and on a Pixel 9a over Wi-Fi; the server and the monitor run on
 
 <table><tr>
 <td valign="top"><a href="docs/phone-live.png"><img src="docs/phone-live.png" width="171" height="360" alt="The phone's Live tab"></a></td>
-<td valign="top"><a href="docs/page.png"><img src="docs/page.png" width="304" height="360" alt="The page in a browser"></a></td>
-<td valign="top"><a href="docs/monitor.png"><img src="docs/monitor.png" width="325" height="360" alt="The monitor on Linux"></a></td>
+<td valign="top"><a href="docs/page.png"><img src="docs/page.png" width="306" height="360" alt="The page in a browser"></a></td>
+<td valign="top"><a href="docs/monitor.png"><img src="docs/monitor.png" width="380" height="360" alt="The monitor on Linux"></a></td>
 </tr></table>
 
 *Fig. 1 to 3, left to right: the phone, its Live tab, a card per sensor; the page in a browser, through the web
@@ -587,10 +587,9 @@ with a VPN up on both and local traffic let through. The phone publishes two sen
 a second, and the server keeps a level per sensor per second. During the fresh-clone run of 13 October, readings
 published and readings received were counted over the same interval at the terminal collector, a Zenoh peer like the
 monitor: 93 published and 93 received for each sensor, none lost. The page and the monitor each show the phone's number
-for its latest reading beside their own count since they opened; at capture the page read 38216 and 27175, the monitor
-34470 and 27654. The bytes on the router's sockets were not measured in this run, since the emulator's node is a client
-of the router, which carries its readings by design; that measurement needs the phone as a peer. *[The phone run adds
-it.]*
+for its latest reading beside their own count since they opened; at the captures of 14 October the page read 10290 and
+9070, the monitor 9582 and 8464. The bytes on the router's sockets were not measured in this run, since the emulator's
+node is a client of the router, which carries its readings by design; that measurement needs the phone as a peer.
 
 ## Applications and limits
 
