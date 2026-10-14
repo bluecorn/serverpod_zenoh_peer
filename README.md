@@ -3,19 +3,21 @@
 *Hugo Alberto Garcia, [Bluecorn](https://bluecorn.github.io) · built for Build Something Real, the Serverpod
 hackathon, October 2026 · [Run it](#run-it)*
 
-Serverpod as a zenoh peer, in its own process. Robots and sensors talk among themselves over [zenoh](https://zenoh.io),
-peer to peer, with no server in the middle; [Serverpod](https://docs.serverpod.dev/)'s protocol is client to server.
-This project puts a Serverpod server on the zenoh network as one more peer, so a Dart and Flutter team keeps one
-language from the device to the server to the browser. The use case is the least that shows the thesis: a machine's
-vibration, watched by whoever keeps it running, now and over the last minutes, from a desk or a browser, without walking
-to it. A phone strapped to the machine stands in for the sensor: it publishes its accelerometer and gyroscope over
-zenoh. The server turns the readings into a vibration level per sensor per second, the spread of its readings'
-magnitudes around their mean, keeps the levels in a table, and opens two doors onto what it holds: Serverpod endpoints
-for browsers, which speak no zenoh, and a zenoh query and publication for native apps on the network. A monitor on
-Linux, the same Flutter app as the phone's in another role, reads the phone directly and asks Serverpod's zenoh door for
-the levels. Every layer is present in its thinnest real form and tested; this project serves as a template for
-applications on zenoh and Serverpod. It ran on an Android emulator and on a Pixel 9a over Wi-Fi; the server and the
-monitor run on Linux x86_64 only.
+This project integrates Serverpod as a zenoh peer, in its own process. Robots and sensors communicate directly over
+[zenoh](https://zenoh.io), peer to peer, with no central server. In contrast, [Serverpod](https://docs.serverpod.dev/)'s
+protocol is client to server. Serverpod is an application server: endpoints with a generated client, a database behind
+an ORM with migrations, and a web server. Putting a Serverpod server on the zenoh network as one more peer gives the
+network an application server. For a Dart and Flutter team the first gain is Serverpod's features on the device network,
+and the second is one language from the device to the server to the browser. The use case is the least that shows the
+thesis: monitoring a machine's vibration, so that whoever keeps it running sees it live and over the last minutes from a
+desk or a browser, without walking to it. A phone strapped to the machine acts as the sensor, publishing its
+accelerometer and gyroscope over zenoh. The server turns the readings into a vibration level per sensor per second, the
+spread of the readings' magnitudes around their mean, and stores the levels in a table; in zenoh's terms, data in motion
+becomes data at rest. It opens two doors onto what it holds: Serverpod endpoints for browsers, which speak no zenoh, and
+a zenoh query and publication for native apps on the network. A monitor on Linux, the same Flutter app as the phone's in
+another role, reads the phone directly and asks Serverpod's zenoh door for the levels. Every layer is present in its
+thinnest real form and tested; this project provides a template for applications on zenoh and Serverpod. It ran on an
+Android emulator and on a Pixel 9a over Wi-Fi; the server and the monitor run on Linux x86_64 only.
 
 <table><tr>
 <td valign="top"><a href="docs/phone-live.png"><img src="docs/phone-live.png" width="171" height="360" alt="The phone's Live tab"></a></td>
