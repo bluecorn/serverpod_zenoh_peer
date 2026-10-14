@@ -576,10 +576,10 @@ nine flow tests are quoted by their names.
    unit, and the History tab the archive's levels, while the node keeps publishing." Watched: the monitor on Linux
    beside the phone on every run. Measured on 11 October: the server stopped, and the monitor's own link to the phone
    stayed up and kept carrying readings, 55 KB in five seconds, the readings counting on and the levels stopped.
-5. **A tested skeleton.** The tests, 65 in Dart and 45 in Flutter as of the tagged commit, pass with the router and the
-   server running beside them, on loopback ports of their own. Every behaviour's test commit precedes the feature that
-   makes it pass. The whole of [Run it](#run-it) was run from a fresh clone, at the code the tag carries, as a judge
-   would run it.
+5. **A tested skeleton.** The tests, 65 in Dart and 45 in Flutter at the fresh-clone run of 13 October, pass with the
+   router and the server running beside them, on loopback ports of their own. Every behaviour's test commit precedes the
+   feature that makes it pass. The whole of [Run it](#run-it) was run from a fresh clone on 13 October, as a judge would
+   run it.
 
 **The runs.** On the emulator, with the sensors moved by `adb`, on every day of the work. On a Pixel 9a over Wi-Fi on 11
 and 12 October, the laptop's router introducing it to the server and the monitor, which linked to the phone directly,
