@@ -660,8 +660,8 @@ with the framework as it is. For Bluecorn, this is the first piece of the stack 
 
 This project was built with Claude Code: Claude Fable 5.1 for the research, the first design and this README's final
 form, Claude Opus 5.5 for the implementation. Every commit since the project was cloned from `zenoh_sensors` names the
-model as co-author, and two of them merge the work of subagents. Claude wrote the code, the tests and this README; the
-opening's content is mine, and I edited the prose through Grammarly before the submission.
+model as co-author, and two of them merge the work of subagents. Claude wrote the code, the tests and this README, but
+for the opening's wording, which is mine.
 
 I decided what was built and how. The scope, the architecture and each design choice were settled question by question,
 in interviews run with the *grilling* skill from Matt Pocock's [skills](https://github.com/mattpocock/skills)
