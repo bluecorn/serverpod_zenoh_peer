@@ -1,22 +1,22 @@
-# Serverpod as a zenoh peer
+# Serverpod as a Zenoh peer
 
 *Hugo Alberto Garcia, [Bluecorn](https://bluecorn.github.io) · built for Build Something Real, the Serverpod
 hackathon, October 2026 · [Run it](#run-it)*
 
-This project integrates Serverpod as a zenoh peer, in its own process. Robots and sensors communicate directly over
-[zenoh](https://zenoh.io), peer to peer, with no central server. In contrast, [Serverpod](https://docs.serverpod.dev/)'s
+This project integrates Serverpod as a Zenoh peer, in its own process. Robots and sensors communicate directly over
+[Zenoh](https://zenoh.io), peer to peer, with no central server. In contrast, [Serverpod](https://docs.serverpod.dev/)'s
 protocol is client to server. Serverpod is an application server: endpoints with a generated client, a database behind
-an ORM with migrations, and a web server. Putting a Serverpod server on the zenoh network as one more peer gives the
+an ORM with migrations, and a web server. Putting a Serverpod server on the Zenoh network as one more peer gives the
 network an application server. For a Dart and Flutter team the first gain is Serverpod's features on the device network,
 and the second is one language from the device to the server to the browser. The use case is the least that shows the
 thesis: monitoring a machine's vibration, so that whoever keeps it running sees it live and over the last minutes from a
 desk or a browser, without walking to it. A phone strapped to the machine acts as the sensor, publishing its
-accelerometer and gyroscope over zenoh. The server turns the readings into a vibration level per sensor per second, the
-spread of the readings' magnitudes around their mean, and stores the levels in a table; in zenoh's terms, data in motion
-becomes data at rest. It opens two doors onto what it holds: Serverpod endpoints for browsers, which speak no zenoh, and
-a zenoh query and publication for native apps on the network. A monitor on Linux, the same Flutter app as the phone's in
-another role, reads the phone directly and asks Serverpod's zenoh door for the levels. Every layer is present in its
-thinnest real form and tested; this project provides a template for applications on zenoh and Serverpod. It ran on an
+accelerometer and gyroscope over Zenoh. The server turns the readings into a vibration level per sensor per second, the
+spread of the readings' magnitudes around their mean, and stores the levels in a table; in Zenoh's terms, data in motion
+becomes data at rest. It opens two doors onto what it holds: Serverpod endpoints for browsers, which speak no Zenoh, and
+a Zenoh query and publication for native apps on the network. A monitor on Linux, the same Flutter app as the phone's in
+another role, reads the phone directly and asks Serverpod's Zenoh door for the levels. Every layer is present in its
+thinnest real form and tested; this project provides a template for applications on Zenoh and Serverpod. It ran on an
 Android emulator and on a Pixel 9a over Wi-Fi; the server and the monitor run on Linux x86_64 only.
 
 <table><tr>
@@ -36,43 +36,43 @@ Flutter app through generated, type-safe Dart code. No REST contracts to maintai
 ([Working with endpoints](https://docs.serverpod.dev/concepts/endpoints-and-apis)). The server sits at the centre,
 and every client reaches it.
 
-Robots and devices are built the other way round. Over zenoh they publish, subscribe and query among themselves, peer to
+Robots and devices are built the other way round. Over Zenoh they publish, subscribe and query among themselves, peer to
 peer, with no server on the path. ROS 2 is among them: the [Robot Operating System](https://docs.ros.org/), the
-open-source libraries and tools for building robot applications, can run on zenoh natively through `rmw_zenoh`, or
-bridged to it by `zenoh-bridge-ros2dds`, and zenoh's own team is building
-[Hiroz](https://github.com/ZettaScaleLabs/hiroz), an experimental ROS 2 stack written directly on zenoh. An HTTP backend
-reaches such a network today through zenoh's [REST plugin](https://zenoh.io/docs/manual/plugin-http/), an HTTP server on
-a zenoh node, so the backend stays a client of the network rather than a member of it. The webinar this project
+open-source libraries and tools for building robot applications, can run on Zenoh natively through `rmw_zenoh`, or
+bridged to it by `zenoh-bridge-ros2dds`, and Zenoh's own team is building
+[Hiroz](https://github.com/ZettaScaleLabs/hiroz), an experimental ROS 2 stack written directly on Zenoh. An HTTP backend
+reaches such a network today through Zenoh's [REST plugin](https://zenoh.io/docs/manual/plugin-http/), an HTTP server on
+a Zenoh node, so the backend stays a client of the network rather than a member of it. The webinar this project
 continues (see [Background](#background)) put the Flutter app on that network as a peer, "eliminating the broker/gateway
 and the client/server tier every other approach forces between the app and the robot", and said of the server that it
 "keeps its place; it just isn't the only door".
 
-What zenoh brings, by [its own account](https://zenoh.io/docs/overview/what-is-zenoh/): one protocol from the
+What Zenoh brings, by [its own account](https://zenoh.io/docs/overview/what-is-zenoh/): one protocol from the
 microcontroller to the data centre with no bridges; publish-subscribe, queries and computation under one set of
 abstractions; and a topology that is peer to peer, brokered or both, decided at runtime. And what this project shows of
 it: each pair of peers links directly, so no peer carries another pair's traffic and none is a point of failure for the
 others. When the server stops, the monitor keeps receiving the phone's readings, and only the levels stop (the two-doors
 table in Architecture).
 
-This project gives the server a second network, zenoh's, distributed among the devices. A zenoh session is opened in the
+This project gives the server a second network, Zenoh's, distributed among the devices. A Zenoh session is opened in the
 Serverpod process once the server has started and closed in a shutdown task; nothing in the framework changes. The
 server is then a peer among the devices and a Serverpod server to its clients, and Serverpod's promise of one language
 and no REST contracts reaches the device tier.
 
 What it contributes:
 
-1. **A Serverpod server that is a zenoh peer in its own process:** the session opened once the server has started,
+1. **A Serverpod server that is a Zenoh peer in its own process:** the session opened once the server has started,
    closed in a shutdown task, the framework unchanged.
 2. **The web door:** streaming endpoints that give a browser every reading and the last levels, through the generated
    client.
-3. **The zenoh door:** a queryable that answers the last levels, and each new level published as it is kept.
+3. **The Zenoh door:** a queryable that answers the last levels, and each new level published as it is kept.
 4. **One Flutter app in two roles:** the phone as the sensor node, Linux as the monitor, with the same view models and
    cards.
 5. **A skeleton with every layer present in its thinnest real form,** built test-first, as a template for
-   applications on zenoh and Serverpod.
+   applications on Zenoh and Serverpod.
 
-**What is not claimed.** An HTTP backend could already reach zenoh through the REST plugin. What is new here is
-Serverpod as a zenoh peer in its own process, which `zenoh_dart` makes possible.
+**What is not claimed.** An HTTP backend could already reach Zenoh through the REST plugin. What is new here is
+Serverpod as a Zenoh peer in its own process, which `zenoh_dart` makes possible.
 
 ## Background
 
@@ -84,16 +84,16 @@ studies in agriculture, industry and transportation.
 
 My webinar of 17 June 2026, *Building a UI for Robotics Using Flutter and Zenoh*, hosted by the Eclipse Foundation IoT
 ([recording](https://www.youtube.com/watch?v=3bz9O3kmryc),
-[slides](https://github.com/bluecorn/flutter-zenoh-robotics-ui-webinar)), put a Flutter UI on a real robot arm's zenoh
-network: the live demo through a thin zenoh-to-ROS node
+[slides](https://github.com/bluecorn/flutter-zenoh-robotics-ui-webinar)), put a Flutter UI on a real robot arm's Zenoh
+network: the live demo through a thin Zenoh-to-ROS node
 ([`flutter_zenoh_gateway`](https://github.com/bluecorn/flutter_zenoh_gateway)), then a further spike with no gateway
 node at all ([`flutter_zenoh_direct`](https://github.com/bluecorn/flutter_zenoh_direct)). This project puts the server
 on that network too.
 
 The guide [*zenoh in Dart and Flutter*](https://github.com/bluecorn/zenoh-dart-flutter-guide), which I am writing,
-teaches zenoh chapter by chapter while the reader builds two programs by hand and runs them against each other:
+teaches Zenoh chapter by chapter while the reader builds two programs by hand and runs them against each other:
 `sensorctl`, a Dart command-line collector on the laptop, and `sensor_node`, a Flutter app on Android that publishes
-what the phone's sensors read. Both follow MVVM, share one pure-Dart package that holds their zenoh code, and are built
+what the phone's sensors read. Both follow MVVM, share one pure-Dart package that holds their Zenoh code, and are built
 test-driven, every behaviour starting as a failing test. Six chapters, 0 to 5, are published, and by the fifth the phone
 publishes over Wi-Fi. [`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors) is the project those chapters build,
 with a commit at the end of each chapter; it was begun on 18 September 2026, inside the hackathon's submission period.
@@ -102,15 +102,15 @@ This entry starts from a copy of `zenoh_sensors`, history included. The sensor n
 `sensor_core`, are the guide's work as published; the server, the page, the monitor role of the node and the
 `sensor_domain` package are new. The method of [How it was built](#how-it-was-built) is the guide's, carried over.
 
-Beneath both is [`zenoh_dart`](https://pub.dev/packages/zenoh_dart), which I maintain: Dart bindings for zenoh through
+Beneath both is [`zenoh_dart`](https://pub.dev/packages/zenoh_dart), which I maintain: Dart bindings for Zenoh through
 FFI to zenoh-c 1.8.0, for Linux and Android, at version 1.0.0-rc.1 at this writing. The guide uses it from its first
-chapter, and so does every zenoh-speaking program here, through the one file in `sensor_core` that imports it. The
+chapter, and so does every Zenoh-speaking program here, through the one file in `sensor_core` that imports it. The
 server adds [Serverpod](https://serverpod.dev) 4.
 
 ## Architecture
 
-A phone strapped to a machine publishes its accelerometer and gyroscope over zenoh. The server, a zenoh peer, streams
-the readings to browsers, turns them into a vibration level per second, keeps the levels, answers zenoh queries on
+A phone strapped to a machine publishes its accelerometer and gyroscope over Zenoh. The server, a Zenoh peer, streams
+the readings to browsers, turns them into a vibration level per second, keeps the levels, answers Zenoh queries on
 them, and publishes each one as it is kept:
 
 ```
@@ -150,7 +150,7 @@ them, and publishes each one as it is kept:
 └───────────────────────────────────────┘
 ```
 
-*Fig. 4. The topology. Double lines are zenoh, single lines Serverpod's WebSocket and HTTP.*
+*Fig. 4. The topology. Double lines are Zenoh, single lines Serverpod's WebSocket and HTTP.*
 
 `zenohd` introduces the peers to one another and carries none of their data; each pair then links directly. Every peer
 runs with multicast scouting off and gossip on and connects to the router as its entry point; the router forwards the
@@ -180,25 +180,25 @@ scouting off and gossip on, connects to a router on its host at port 7447, and a
 tells it of ([rmw_zenoh](https://github.com/ros2/rmw_zenoh), its README and its default session configuration). The
 difference here is only where the router sits, on the laptop across the Wi-Fi rather than on each host.
 
-The monitor never addresses the server: it names keys, and zenoh brings the phone's readings straight from the phone.
+The monitor never addresses the server: it names keys, and Zenoh brings the phone's readings straight from the phone.
 The server answers only what it alone holds, the archive.
 
-zenoh is a key/value space, `/` the separator, with four operations on it
+Zenoh is a key/value space, `/` the separator, with four operations on it
 ([its abstractions](https://zenoh.io/docs/manual/abstractions/)). A **put** writes a value at a key. A **subscriber**
 names a key expression and receives every put at a key that matches it: `*` matches one segment, `**` any number of
 them. A **queryable** is a computation registered at a key expression, and a **get** on a selector, a key expression
 with parameters after `?`, triggers every queryable it matches, which answers with replies, each on a key of its own.
-Nothing names a host. The phone puts, the server and the monitor subscribe, and zenoh carries each value to whoever's
+Nothing names a host. The phone puts, the server and the monitor subscribe, and Zenoh carries each value to whoever's
 expression matches, over the direct links of Fig. 5. The keys, and what moves on them:
 
 | key | written by | what travels | read by |
 |---|---|---|---|
-| `sensor/phone/accel`, `sensor/phone/gyro` | the phone: a put per reading, 50 a second for each sensor, stamped with its zenoh timestamp | `n,x,y,z`: the phone's number for the reading, from 1 for each sensor, and the three axes | the server (its recorder, and a subscription for each browser), the monitor and `sensorctl`, each subscribed to `sensor/phone/*` |
+| `sensor/phone/accel`, `sensor/phone/gyro` | the phone: a put per reading, 50 a second for each sensor, stamped with its Zenoh timestamp | `n,x,y,z`: the phone's number for the reading, from 1 for each sensor, and the three axes | the server (its recorder, and a subscription for each browser), the monitor and `sensorctl`, each subscribed to `sensor/phone/*` |
 | `archive/phone/**` | the server: a queryable, answering a get with `?n=20` by a reply per level, newest first | `<ISO-8601 time>,<level>` in each reply, on the level's own key | the monitor and the phone's History tab, a get each when they open |
 | `archive/phone/accel`, `archive/phone/gyro` | the server: a put per level as it is kept, once a second for each sensor | `<ISO-8601 time>,<level>` | the monitor and the phone's History tab, subscribed to `archive/phone/*` |
 
 The last segment of a key names the sensor, and that is how every program labels a reading or a level it receives. In
-zenoh's terms the readings are data in motion, the archive is data at rest answered by a query, and each kept level is
+Zenoh's terms the readings are data in motion, the archive is data at rest answered by a query, and each kept level is
 in motion again the moment it is published. In sequence:
 
 ```
@@ -228,9 +228,9 @@ sensor_node (the phone)       sensor_server                     sensor_node, mon
         │                           │      as <time>,<level>                    │ phone's History tab show it
 ```
 
-*Fig. 6. The zenoh door: the monitor and the phone's History tab against the server.*
+*Fig. 6. The Zenoh door: the monitor and the phone's History tab against the server.*
 
-A browser cannot speak zenoh, so the server is on every path: the page itself, the live readings and the levels:
+A browser cannot speak Zenoh, so the server is on every path: the page itself, the live readings and the levels:
 
 ```
 sensor_node (the phone)       sensor_server                                sensor_web (a browser)
@@ -260,16 +260,16 @@ sensor_node (the phone)       sensor_server                                senso
 
 *Fig. 7. The web door: a browser against the server.*
 
-| | the zenoh door: the monitor | the web door: a browser |
+| | the Zenoh door: the monitor | the web door: a browser |
 |---|---|---|
-| speaks | zenoh, as a peer | Serverpod's protocol, HTTP and a WebSocket |
+| speaks | Zenoh, as a peer | Serverpod's protocol, HTTP and a WebSocket |
 | addresses | keys: `sensor/phone/*`, `archive/phone/**` | the server: its URL, and the methods `readings()` and `recent(n)` |
 | live readings | straight from the phone; the server is not on the path | from the server, which subscribes to the phone for each browser |
 | the levels | a query for the last *n*, then each new one as the server publishes it | `recent(n)`: the last *n*, then again each time one is kept |
 | if the server stops | the live readings go on; the levels stop | the page stops |
 
 **Serverpod's part.** The server does the work: it subscribes to the phone, turns the readings into levels, keeps them
-in its table, streams readings and levels to each browser, answers zenoh queries on the levels, and serves the page.
+in its table, streams readings and levels to each browser, answers Zenoh queries on the levels, and serves the page.
 
 - The streaming endpoints, `readings()` and `recent(n)`:
   `apps/sensor_server/lib/src/web_door/web_door_endpoint.dart`.
@@ -280,7 +280,7 @@ in its table, streams readings and levels to each browser, answers zenoh queries
 - The levels table, through the ORM on SQLite, with its migrations: `apps/sensor_server/migrations/`. No database
   server.
 - The web server, serving the page's build from `apps/sensor_server/web/app`.
-- The lifecycle: the zenoh session opened after `pod.start()`, closed in a shutdown task:
+- The lifecycle: the Zenoh session opened after `pod.start()`, closed in a shutdown task:
   `apps/sensor_server/lib/server.dart`.
 - The generated client, `apps/sensor_client`, which the page calls.
 - The server's four flow tests, run under Serverpod's generated test tools: `apps/sensor_server/test/integration/`.
@@ -312,7 +312,7 @@ x86_64, with the node on an Android emulator (an x86_64 image) and on a Pixel 9a
 - Flutter's [Linux desktop](https://docs.flutter.dev/platform-integration/linux/setup) and
   [Android](https://docs.flutter.dev/platform-integration/android/setup) setups: the monitor is a Linux app, the node
   an Android app, run on an emulator or a phone.
-- `zenohd`, zenoh's router, 1.8.0 or newer, from [zenoh's releases](https://github.com/eclipse-zenoh/zenoh/releases).
+- `zenohd`, Zenoh's router, 1.8.0 or newer, from [Zenoh's releases](https://github.com/eclipse-zenoh/zenoh/releases).
 - No database server: the archive is a SQLite file the server creates.
 
 **Every command runs from the repository's root** unless it says otherwise. `zenoh_dart` finds its native library
@@ -389,10 +389,10 @@ cd build/linux/x64/release/bundle
 ./sensor_node
 ```
 
-Start it from its bundle folder, as here: from a folder with a `.dart_tool/lib/`, it would load that folder's zenoh
+Start it from its bundle folder, as here: from a folder with a `.dart_tool/lib/`, it would load that folder's Zenoh
 library instead of the one it was built with. Its window, *Sensor monitor*, shows a column for each sensor: the
-phone's latest reading, read over zenoh, with the phone's number for it and how many arrived, above the last levels,
-which it asks the server's zenoh door for and then follows as the server keeps them.
+phone's latest reading, read over Zenoh, with the phone's number for it and how many arrived, above the last levels,
+which it asks the server's Zenoh door for and then follows as the server keeps them.
 
 ### With a real phone over Wi-Fi
 
@@ -432,7 +432,7 @@ The server, the page and the monitor run as above.
 
 ### Troubleshooting
 
-`sensorctl`, the collector of the guide this project comes from, shows the phone's readings straight from zenoh,
+`sensorctl`, the collector of the guide this project comes from, shows the phone's readings straight from Zenoh,
 without the server:
 
 ```sh
@@ -443,7 +443,7 @@ It prints each sensor's latest reading and how many have arrived. If it shows re
 phone is publishing and the trouble is on the server's side; if it shows none, look at the phone and the router. Its
 configuration is the monitor's: a peer that `zenohd` introduces. `Ctrl-C` stops it.
 
-`Ctrl-C` stops the router and the server, which closes its zenoh session on the way out; the monitor stops with its
+`Ctrl-C` stops the router and the server, which closes its Zenoh session on the way out; the monitor stops with its
 window. The tests use loopback ports of their own, 7450 to 7452, so they run beside the router and the server:
 
 ```sh
@@ -479,15 +479,15 @@ plain Dart (Fig. 9). The packages and the programs, and what depends on what (Fi
 
 *Fig. 8. What depends on what: an arrow points at a dependency.*
 
-- **`sensor_core`**, the data side that speaks zenoh: the domain, the repositories, which own the keys, and the zenoh
+- **`sensor_core`**, the data side that speaks Zenoh: the domain, the repositories, which own the keys, and the Zenoh
   service, the only file that imports `zenoh_dart`.
 - **`sensor_domain`**, beneath everything: what every program shares, plain Dart with no dependency, so the page imports
   it too.
 - **`sensor_node`**, the Flutter app, stands on `sensor_core`: the sensor node on the phone, the monitor on Linux.
 - **`sensorctl`**, the terminal collector, stands on `sensor_core`.
-- **`sensor_server`**, the Serverpod server, stands on `sensor_core` and on Serverpod: the web door, the zenoh door, the
+- **`sensor_server`**, the Serverpod server, stands on `sensor_core` and on Serverpod: the web door, the Zenoh door, the
   recorder and the archive.
-- **`sensor_web`**, the page, speaks no zenoh: it stands on `sensor_client`, the generated Serverpod client, and on
+- **`sensor_web`**, the page, speaks no Zenoh: it stands on `sensor_client`, the generated Serverpod client, and on
   `sensor_domain`.
 
 ```
@@ -526,8 +526,8 @@ test and then the change that passes it, with each step committed, instead of th
 produces when left to itself. It changes nothing in how the assistant works and everything in what it may produce at
 each step, and the history records each step. [AI disclosure](#ai-disclosure) says how it was enforced.
 
-The outer loop is a flow test for each stage: one sentence about the system as its name, run against real zenoh
-sessions, the page's against a fake of the web door since a browser speaks no zenoh, and committed failing on an
+The outer loop is a flow test for each stage: one sentence about the system as its name, run against real Zenoh
+sessions, the page's against a fake of the web door since a browser speaks no Zenoh, and committed failing on an
 assertion before any code. It stays red until the inner loops make it pass. A comment above it maps each of its
 expectations to the inner test that will make it true, and that map is the test budget: no test is written that the map
 does not call for.
@@ -545,14 +545,14 @@ them, have no test of their own; the flow tests cover them. The rules, and the a
 
 ## Results
 
-The thesis is that a Serverpod server can be a zenoh peer in its own process, the framework unchanged, and open both
+The thesis is that a Serverpod server can be a Zenoh peer in its own process, the framework unchanged, and open both
 doors. [The problem](#the-problem) lists it as five contributions, and each was shown in one of three ways, said here
-for each: a flow test, whose name states the claim in one sentence and which runs against real zenoh sessions, the
+for each: a flow test, whose name states the claim in one sentence and which runs against real Zenoh sessions, the
 page's against a fake of the web door, with Serverpod's test tools holding the server's side; a run watched as it
 happened, on the emulator, on a Pixel 9a over Wi-Fi, on Linux or in a browser; or a measurement taken during one. The
 nine flow tests are quoted by their names.
 
-1. **A Serverpod server that is a zenoh peer in its own process.** Every start of the server opens its zenoh session
+1. **A Serverpod server that is a Zenoh peer in its own process.** Every start of the server opens its Zenoh session
    after `pod.start()` and every `Ctrl-C` closes it in the shutdown task, on the laptop since 10 October. The four
    server flow tests quoted in 2 and 3 run the server under Serverpod's test tools with that session live, beside a
    second session standing in for the phone on the loopback, and they pass only because the server is a peer: it
@@ -563,11 +563,11 @@ nine flow tests are quoted by their names.
    each level is kept." And on the page's side: "the page shows a column per sensor, its live card above its levels
    card, paired by their sensor, and one column when the browser is narrow." Watched: the page in a browser on every
    run; two browsers at once showing the same readings; a tab closed on 11 October, the server's log showing the two
-   streams closed while it ran on and kept archiving. 3. **The zenoh door.** "A reader's get on `archive/phone/**`
+   streams closed while it ran on and kept archiving. 3. **The Zenoh door.** "A reader's get on `archive/phone/**`
    receives the archive's last n levels, newest first, and each level kept is published on its key." "A reading the
    phone publishes and a level the archive publishes each carry their sensor's label and unit, at both ends." Watched:
    the monitor's levels cards and the phone's History tab filling from the query, then following each level as it is
-   kept. Probed on 11 October: with the archive read made to fail, the queryable answered the get with zenoh's error
+   kept. Probed on 11 October: with the archive read made to fail, the queryable answered the get with Zenoh's error
    reply, the get completed, and the server ran on. 4. **One Flutter app in two roles.** "In the monitor role, the phone
    screen shows the readings the phone publishes, and the panel the levels the archive holds, then the ones it
    publishes." "In the monitor role, each sensor's column shows its live card above its levels card, paired by their
@@ -583,7 +583,7 @@ nine flow tests are quoted by their names.
 and 12 October, the laptop's router introducing it to the server and the monitor, which linked to the phone directly,
 with a VPN up on both and local traffic let through. The phone publishes two sensors at 50 Hz, about a hundred readings
 a second, and the server keeps a level per sensor per second. During the fresh-clone run of 13 October, readings
-published and readings received were counted over the same interval at the terminal collector, a zenoh peer like the
+published and readings received were counted over the same interval at the terminal collector, a Zenoh peer like the
 monitor: 93 published and 93 received for each sensor, none lost. The page and the monitor each show the phone's number
 for its latest reading beside their own count since they opened; at capture the page read 38216 and 27175, the monitor
 34470 and 27654. The bytes on the router's sockets were not measured in this run, since the emulator's node is a client
@@ -595,7 +595,7 @@ it.]*
 My interest started in robotics and IoT and stays mainly there, but it is not limited to them: I am open to any field
 where this technology applies.
 
-In zenoh's terms this project is a set of peers and one router. The sensor node is a peer with a publisher for each
+In Zenoh's terms this project is a set of peers and one router. The sensor node is a peer with a publisher for each
 sensor; the server is a peer with a subscriber on the sensors' keys, a queryable on the archive's keys and a publisher
 for each level; the monitor is a peer with two subscribers and a get; the router introduces them to one another. In
 Serverpod's terms it is one server with an endpoint whose two streaming methods each browser calls over a session of its
@@ -604,13 +604,13 @@ API server. Between one field and the next, what changes is the publishers and t
 recorder makes of what arrives, and the cards; what stays is every layer.
 
 No list of use cases would be complete and the table is not one. It lists what a product in any field adds to this demo,
-each part named as zenoh's and Serverpod's documentation name it, and how far this project goes.
+each part named as Zenoh's and Serverpod's documentation name it, and how far this project goes.
 
-| what a product adds | with zenoh | with Serverpod | here |
+| what a product adds | with Zenoh | with Serverpod | here |
 |---|---|---|---|
 | **One machine watched**, live and over time, from a desk and a browser | the node's publishers on `sensor/phone/*`; the server's subscriber on them, its queryable on `archive/phone/**`, and a publisher for each level | the streaming methods `readings()` and `recent(n)`; the `SensorLevel` model as a table, created by a migration; the web server serving the page | **built** |
 | **Many machines on one dashboard** | each machine's node with publishers on keys of its own, `sensor/<machine>/*`, and one subscriber on `sensor/*/*` for all of them (the repositories already take the node's name) | the same methods and table, with the machine's name as a column | **in part**: one node, `phone` |
-| **Sensors on low-power devices** | the node in client mode, its session held by the router, which routes on its behalf ([brokered deployment](https://zenoh.io/docs/getting-started/deployment/)); on a microcontroller, [zenoh-pico](https://github.com/eclipse-zenoh/zenoh-pico), zenoh's port in C for low-power devices | nothing changes: the server subscribes as before | **in part**: client mode is what the node uses on the emulator, on no low-power device |
+| **Sensors on low-power devices** | the node in client mode, its session held by the router, which routes on its behalf ([brokered deployment](https://zenoh.io/docs/getting-started/deployment/)); on a microcontroller, [zenoh-pico](https://github.com/eclipse-zenoh/zenoh-pico), Zenoh's port in C for low-power devices | nothing changes: the server subscribes as before | **in part**: client mode is what the node uses on the emulator, on no low-power device |
 | **The readings themselves kept**, not only the levels | a [storage](https://zenoh.io/docs/manual/abstractions/) on the router, through its storages plugin: a subscriber and a queryable in one, keeping the latest value for each key under `sensor/**`, and a history with a volume that keeps one | a readings table beside the levels, filled by the recorder | **not built**: only the levels are kept |
 | **Running at the edge**, beside the machines | the router and the server as peers on the plant's own network, nothing on the path to a cloud | one process on SQLite, as here | **in part**: on a laptop, not an edge box |
 | **The server hosted elsewhere**, in a data centre or a cloud | a router next to the server, linked to the plant's router by configuration; the peers on each side reach the other side through the two routers ([routed deployment](https://zenoh.io/docs/getting-started/deployment/)) | the server in a container, or on [Serverpod Cloud](https://docs.serverpod.dev/deployments/deploy-to-serverpod-cloud), on Postgres or SQLite | **not built**: here the server and the router share a laptop |
@@ -619,22 +619,22 @@ each part named as zenoh's and Serverpod's documentation name it, and how far th
 | **Scheduled work**: retention, nightly summaries, a dispatch at six | a get to the machines, or to the archive's queryable, when the schedule fires | a future call, run after a delay or at a time, and a recurring task, `callRecurring` on an interval or a cron expression | **not built** |
 | **Alerts** | when a level crosses a threshold, a put on a key of its own, `alert/<machine>/<sensor>`, that the monitor subscribes to | the threshold a model in a table; the alert sent to each browser by a streaming method | **not built** |
 
-**Where it stops.** Control loops and safety functions stay on the machines and on zenoh: a streaming method over a
+**Where it stops.** Control loops and safety functions stay on the machines and on Zenoh: a streaming method over a
 WebSocket and a garbage-collected runtime promise no timing. The web door carries every reading to every browser, about
 a hundred a second for each one at this demo's scale; rates in the kilohertz, or many browsers, are where that ends, and
-the levels are what scale. Traffic between machines is zenoh's, not the server's.
+the levels are what scale. Traffic between machines is Zenoh's, not the server's.
 
 ## Conclusion
 
-The thesis, a Serverpod server as a zenoh peer in its own process, holds, and the sections above say exactly how far.
+The thesis, a Serverpod server as a Zenoh peer in its own process, holds, and the sections above say exactly how far.
 Six facts carry it.
 
-- **The server is a member of the device network, not a client of it.** It opens its zenoh session in its own process,
+- **The server is a member of the device network, not a client of it.** It opens its Zenoh session in its own process,
   answers gets on the archive's keys and publishes each level on a key of its own ([Architecture](#architecture),
   [Results](#results) 1 and 3). The REST plugin leaves a backend outside the network as a client; this puts it inside
   ([The problem](#the-problem)).
 - **The same process is still a Serverpod server.** A browser reaches every reading and every level through two
-  streaming methods and the generated client, and never speaks zenoh (Results 2). One process therefore serves two
+  streaming methods and the generated client, and never speaks Zenoh (Results 2). One process therefore serves two
   networks, and every program on both, the node, the monitor, the collector, the server and the page, is Dart or
   Flutter: one language from the device to the browser, as the opening says.
 - **The framework is unchanged.** Nothing in Serverpod was modified; a session was opened beside it after `pod.start()`
@@ -642,8 +642,8 @@ Six facts carry it.
   device tier without a change to Serverpod.
 - **The server holds only what it alone holds.** Readings travel from the phone to the monitor on a direct link the
   router introduced, not through the server (Fig. 5), so when the server stopped the readings went on and only the
-  levels stopped (Results 4). The division is the one zenoh's terms name: data in motion among the peers, data at rest
-  in the server's table, and the server on the path only for clients that speak no zenoh.
+  levels stopped (Results 4). The division is the one Zenoh's terms name: data in motion among the peers, data at rest
+  in the server's table, and the server on the path only for clients that speak no Zenoh.
 - **The skeleton is a template** because every layer is present and tested (Results 5, [How it was
   built](#how-it-was-built)) and because what changes between fields is named: the publishers and their keys, the
   recorder's computation and the cards ([Applications and limits](#applications-and-limits)). A product in another field
@@ -685,9 +685,9 @@ with Claude Code too. No AI model or component is part of the project itself.
 ## About the author
 
 I am Hugo Alberto Garcia, of [Bluecorn](https://bluecorn.github.io). I maintain
-[`zenoh_dart`](https://pub.dev/packages/zenoh_dart), the Dart bindings for zenoh; I am writing the guide [zenoh in Dart
+[`zenoh_dart`](https://pub.dev/packages/zenoh_dart), the Dart bindings for Zenoh; I am writing the guide [zenoh in Dart
 and Flutter](https://github.com/bluecorn/zenoh-dart-flutter-guide); and I gave a webinar hosted by the Eclipse
-Foundation IoT on a Flutter UI for a real robot arm over zenoh. This skeleton is part of Bluecorn's research into a
+Foundation IoT on a Flutter UI for a real robot arm over Zenoh. This skeleton is part of Bluecorn's research into a
 full-stack solution in Dart and Flutter for commercial use, from the device to the browser, in robotics and industrial
 machine monitoring, and the basis of Bluecorn's offer. Reach me through the site or on
 [GitHub](https://github.com/bluecorn).
