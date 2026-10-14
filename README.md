@@ -77,35 +77,36 @@ Serverpod as a Zenoh peer in its own process, which `zenoh_dart` makes possible.
 ## Background
 
 [Zenoh](https://zenoh.io), an Eclipse project, is a protocol for publish and subscribe, queries and storage between
-devices, peer to peer, with no broker. Its site names the fields it serves: robotics, as a next-generation middleware
-in place of DDS, ROS 2 included (`rmw_zenoh`); autonomous vehicles and automotive, from V2X to software-defined
-vehicles; and IoT and edge computing. [ZettaScale](https://zettascale.tech), which offers it commercially, adds case
-studies in agriculture, industry and transportation.
+devices, peer to peer, with no broker. Its site names the fields it serves: robotics, as a next-generation middleware in
+place of DDS, ROS 2 included (`rmw_zenoh`); autonomous vehicles and automotive, from V2X to software-defined vehicles;
+and IoT and edge computing. [ZettaScale](https://zettascale.tech), which offers it commercially, adds case studies in
+agriculture, industry and transportation.
 
 My webinar of 17 June 2026, *Building a UI for Robotics Using Flutter and Zenoh*, hosted by the Eclipse Foundation IoT
 ([recording](https://www.youtube.com/watch?v=3bz9O3kmryc),
 [slides](https://github.com/bluecorn/flutter-zenoh-robotics-ui-webinar)), put a Flutter UI on a real robot arm's Zenoh
-network: the live demo through a thin Zenoh-to-ROS node
-([`flutter_zenoh_gateway`](https://github.com/bluecorn/flutter_zenoh_gateway)), then a further spike with no gateway
-node at all ([`flutter_zenoh_direct`](https://github.com/bluecorn/flutter_zenoh_direct)). This project puts the server
-on that network too.
+network: the live demo went through a thin Zenoh-to-ROS node
+([`flutter_zenoh_gateway`](https://github.com/bluecorn/flutter_zenoh_gateway)), and a further spike had no gateway node
+([`flutter_zenoh_direct`](https://github.com/bluecorn/flutter_zenoh_direct)). This project puts the server on such a
+network too.
 
 The guide [*zenoh in Dart and Flutter*](https://github.com/bluecorn/zenoh-dart-flutter-guide), which I am writing,
 teaches Zenoh chapter by chapter while the reader builds two programs by hand and runs them against each other:
 `sensorctl`, a Dart command-line collector on the laptop, and `sensor_node`, a Flutter app on Android that publishes
-what the phone's sensors read. Both follow MVVM, share one pure-Dart package that holds their Zenoh code, and are built
-test-driven, every behaviour starting as a failing test. Six chapters, 0 to 5, are published, and by the fifth the phone
-publishes over Wi-Fi. [`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors) is the project those chapters build,
-with a commit at the end of each chapter; it was begun on 18 September 2026, inside the hackathon's submission period.
+what the phone's sensors read. Both follow Model-View-ViewModel (MVVM), share one pure-Dart package that holds their
+Zenoh code, and are built test-driven, every behaviour starting as a failing test. Six chapters, 0 to 5, are published,
+and by chapter 5 the phone publishes over Wi-Fi. [`zenoh_sensors`](https://github.com/bluecorn/zenoh_sensors) is the
+project those chapters build, with a commit at the end of each chapter; it was begun on 18 September 2026, inside the
+hackathon's submission period.
 
 This entry starts from a copy of `zenoh_sensors`, history included. The sensor node, the collector and the shared core,
-`sensor_core`, are the guide's work as published; the server, the page, the monitor role of the node and the
+`sensor_core`, are the guide's work as published, while the server, the page, the monitor role of the node and the
 `sensor_domain` package are new. The method of [How it was built](#how-it-was-built) is the guide's, carried over.
 
-Beneath both is [`zenoh_dart`](https://pub.dev/packages/zenoh_dart), which I maintain: Dart bindings for Zenoh through
-FFI to zenoh-c 1.8.0, for Linux and Android, at version 1.0.0-rc.1 at this writing. The guide uses it from its first
-chapter, and so does every Zenoh-speaking program here, through the one file in `sensor_core` that imports it. The
-server adds [Serverpod](https://serverpod.dev) 4.
+Beneath the guide and this entry is [`zenoh_dart`](https://pub.dev/packages/zenoh_dart), which I maintain: Dart bindings
+for Zenoh through FFI, Dart's foreign function interface, to zenoh-c 1.8.0, for Linux and Android, at version 1.0.0-rc.1
+at this writing. The guide uses it from its first chapter, and so does every Zenoh-speaking program here, through the
+one file in `sensor_core` that imports it. The server adds [Serverpod](https://serverpod.dev) 4.
 
 ## Architecture
 
