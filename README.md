@@ -636,19 +636,19 @@ Six facts carry it.
   ([The problem](#the-problem)).
 - **The same process is still a Serverpod server.** A browser reaches every reading and every level through two
   streaming methods and the generated client, and never speaks Zenoh (Results 2). One process therefore serves two
-  networks, and every program on both, the node, the monitor, the collector, the server and the page, is Dart or
-  Flutter: one language from the device to the browser, as the opening says.
+  networks, and every program on both is Dart or Flutter: the node, the monitor, the collector, the server and the page.
+  That is one language from the device to the browser, as the opening says.
 - **The framework is unchanged.** Nothing in Serverpod was modified; a session was opened beside it after `pod.start()`
   and closed in a shutdown task (Architecture). Serverpod's own promise, no language switching, therefore reaches the
   device tier without a change to Serverpod.
 - **The server holds only what it alone holds.** Readings travel from the phone to the monitor on a direct link the
-  router introduced, not through the server (Fig. 5), so when the server stopped the readings went on and only the
-  levels stopped (Results 4). The division is the one Zenoh's terms name: data in motion among the peers, data at rest
-  in the server's table, and the server on the path only for clients that speak no Zenoh.
+  router introduced, not through the server (Fig. 5). When the server stopped, the readings went on and only the levels
+  stopped (Results 4). The division is the one Zenoh's terms name: data in motion among the peers, data at rest in the
+  server's table, and the server on the path only for clients that speak no Zenoh.
 - **The skeleton is a template** because every layer is present and tested (Results 5, [How it was
-  built](#how-it-was-built)) and because what changes between fields is named: the publishers and their keys, the
-  recorder's computation and the cards ([Applications and limits](#applications-and-limits)). A product in another field
-  starts by replacing those three and adding from the table there.
+  built](#how-it-was-built)). What changes between fields is named: the publishers and their keys, the recorder's
+  computation and the cards ([Applications and limits](#applications-and-limits)). A product in another field starts by
+  replacing those three and adding from the table there.
 - **The claim is bounded.** No timing is promised, the web door's stream of every reading fits a demo's rates, and the
   levels are what scale (Where it stops). The whole rests on `zenoh_dart` at 1.0.0-rc.1, on Linux x86_64 and Android, so
   today it is as portable as the bindings ([Background](#background), [Run it](#run-it)).
