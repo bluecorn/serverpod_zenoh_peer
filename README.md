@@ -689,7 +689,7 @@ Foundation IoT on a Flutter UI for a real robot arm over Zenoh. This skeleton is
 full-stack solution in Dart and Flutter for commercial, academic and public use, from the device to the browser, in
 robotics and industrial machine monitoring, and the basis of Bluecorn's offer. My interest started in robotics and IoT
 and stays mainly there, but it is not limited to them: I am open to any field where this technology applies. Reach me
-through the site or on [GitHub](https://github.com/bluecorn).
+through the site, on [GitHub](https://github.com/bluecorn) or on [LinkedIn](https://www.linkedin.com/in/hugoagarcia/).
 
 ## Licence
 
